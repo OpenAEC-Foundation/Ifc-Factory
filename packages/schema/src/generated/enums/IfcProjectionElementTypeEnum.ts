@@ -1,0 +1,6 @@
+export enum IfcProjectionElementTypeEnum {
+  BLISTER = 'BLISTER',
+  DEVIATOR = 'DEVIATOR',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

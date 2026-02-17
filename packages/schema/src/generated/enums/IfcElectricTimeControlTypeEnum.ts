@@ -1,0 +1,7 @@
+export enum IfcElectricTimeControlTypeEnum {
+  RELAY = 'RELAY',
+  TIMECLOCK = 'TIMECLOCK',
+  TIMEDELAY = 'TIMEDELAY',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

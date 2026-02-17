@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*"],
+  "references": [{ "path": "../schema" }, { "path": "../step-parser" }, { "path": "../step-serializer" }]
+}

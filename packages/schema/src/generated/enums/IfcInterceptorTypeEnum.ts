@@ -1,0 +1,8 @@
+export enum IfcInterceptorTypeEnum {
+  CYCLONIC = 'CYCLONIC',
+  GREASE = 'GREASE',
+  OIL = 'OIL',
+  PETROL = 'PETROL',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

@@ -1,0 +1,6 @@
+export enum IfcRampFlightTypeEnum {
+  SPIRAL = 'SPIRAL',
+  STRAIGHT = 'STRAIGHT',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

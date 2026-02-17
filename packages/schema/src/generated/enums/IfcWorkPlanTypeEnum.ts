@@ -1,0 +1,7 @@
+export enum IfcWorkPlanTypeEnum {
+  ACTUAL = 'ACTUAL',
+  BASELINE = 'BASELINE',
+  PLANNED = 'PLANNED',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

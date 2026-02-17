@@ -1,0 +1,7 @@
+export enum IfcConstraintEnum {
+  ADVISORY = 'ADVISORY',
+  HARD = 'HARD',
+  SOFT = 'SOFT',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

@@ -1,0 +1,7 @@
+export enum IfcSystemFurnitureElementTypeEnum {
+  PANEL = 'PANEL',
+  SUBRACK = 'SUBRACK',
+  WORKSURFACE = 'WORKSURFACE',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

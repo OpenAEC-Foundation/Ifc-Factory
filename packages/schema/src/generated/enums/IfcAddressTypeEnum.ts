@@ -1,0 +1,7 @@
+export enum IfcAddressTypeEnum {
+  DISTRIBUTIONPOINT = 'DISTRIBUTIONPOINT',
+  HOME = 'HOME',
+  OFFICE = 'OFFICE',
+  SITE = 'SITE',
+  USERDEFINED = 'USERDEFINED',
+}

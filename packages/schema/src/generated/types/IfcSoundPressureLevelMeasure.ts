@@ -1,0 +1,1 @@
+export type IfcSoundPressureLevelMeasure = number;

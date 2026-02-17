@@ -1,0 +1,7 @@
+export enum IfcSignalTypeEnum {
+  AUDIO = 'AUDIO',
+  MIXED = 'MIXED',
+  VISUAL = 'VISUAL',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

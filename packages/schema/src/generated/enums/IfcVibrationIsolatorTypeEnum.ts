@@ -1,0 +1,7 @@
+export enum IfcVibrationIsolatorTypeEnum {
+  BASE = 'BASE',
+  COMPRESSION = 'COMPRESSION',
+  SPRING = 'SPRING',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

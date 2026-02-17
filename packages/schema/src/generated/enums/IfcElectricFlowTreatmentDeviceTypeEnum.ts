@@ -1,0 +1,5 @@
+export enum IfcElectricFlowTreatmentDeviceTypeEnum {
+  ELECTRONICFILTER = 'ELECTRONICFILTER',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

@@ -1,0 +1,7 @@
+export enum IfcChangeActionEnum {
+  ADDED = 'ADDED',
+  DELETED = 'DELETED',
+  MODIFIED = 'MODIFIED',
+  NOCHANGE = 'NOCHANGE',
+  NOTDEFINED = 'NOTDEFINED',
+}

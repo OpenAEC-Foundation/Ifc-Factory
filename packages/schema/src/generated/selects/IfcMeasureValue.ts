@@ -1,0 +1,25 @@
+import type { IfcAmountOfSubstanceMeasure } from '../types/IfcAmountOfSubstanceMeasure.js';
+import type { IfcAreaMeasure } from '../types/IfcAreaMeasure.js';
+import type { IfcComplexNumber } from '../types/IfcComplexNumber.js';
+import type { IfcContextDependentMeasure } from '../types/IfcContextDependentMeasure.js';
+import type { IfcCountMeasure } from '../types/IfcCountMeasure.js';
+import type { IfcDescriptiveMeasure } from '../types/IfcDescriptiveMeasure.js';
+import type { IfcElectricCurrentMeasure } from '../types/IfcElectricCurrentMeasure.js';
+import type { IfcLengthMeasure } from '../types/IfcLengthMeasure.js';
+import type { IfcLuminousIntensityMeasure } from '../types/IfcLuminousIntensityMeasure.js';
+import type { IfcMassMeasure } from '../types/IfcMassMeasure.js';
+import type { IfcNonNegativeLengthMeasure } from '../types/IfcNonNegativeLengthMeasure.js';
+import type { IfcNormalisedRatioMeasure } from '../types/IfcNormalisedRatioMeasure.js';
+import type { IfcNumericMeasure } from '../types/IfcNumericMeasure.js';
+import type { IfcParameterValue } from '../types/IfcParameterValue.js';
+import type { IfcPlaneAngleMeasure } from '../types/IfcPlaneAngleMeasure.js';
+import type { IfcPositiveLengthMeasure } from '../types/IfcPositiveLengthMeasure.js';
+import type { IfcPositivePlaneAngleMeasure } from '../types/IfcPositivePlaneAngleMeasure.js';
+import type { IfcPositiveRatioMeasure } from '../types/IfcPositiveRatioMeasure.js';
+import type { IfcRatioMeasure } from '../types/IfcRatioMeasure.js';
+import type { IfcSolidAngleMeasure } from '../types/IfcSolidAngleMeasure.js';
+import type { IfcThermodynamicTemperatureMeasure } from '../types/IfcThermodynamicTemperatureMeasure.js';
+import type { IfcTimeMeasure } from '../types/IfcTimeMeasure.js';
+import type { IfcVolumeMeasure } from '../types/IfcVolumeMeasure.js';
+
+export type IfcMeasureValue = IfcAmountOfSubstanceMeasure | IfcAreaMeasure | IfcComplexNumber | IfcContextDependentMeasure | IfcCountMeasure | IfcDescriptiveMeasure | IfcElectricCurrentMeasure | IfcLengthMeasure | IfcLuminousIntensityMeasure | IfcMassMeasure | IfcNonNegativeLengthMeasure | IfcNormalisedRatioMeasure | IfcNumericMeasure | IfcParameterValue | IfcPlaneAngleMeasure | IfcPositiveLengthMeasure | IfcPositivePlaneAngleMeasure | IfcPositiveRatioMeasure | IfcRatioMeasure | IfcSolidAngleMeasure | IfcThermodynamicTemperatureMeasure | IfcTimeMeasure | IfcVolumeMeasure;

@@ -1,0 +1,1 @@
+export type IfcTemperatureRateOfChangeMeasure = number;

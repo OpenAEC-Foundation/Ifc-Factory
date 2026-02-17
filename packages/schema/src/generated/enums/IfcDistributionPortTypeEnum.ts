@@ -1,0 +1,9 @@
+export enum IfcDistributionPortTypeEnum {
+  CABLE = 'CABLE',
+  CABLECARRIER = 'CABLECARRIER',
+  DUCT = 'DUCT',
+  PIPE = 'PIPE',
+  WIRELESS = 'WIRELESS',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

@@ -1,0 +1,6 @@
+export enum IfcPavementTypeEnum {
+  FLEXIBLE = 'FLEXIBLE',
+  RIGID = 'RIGID',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

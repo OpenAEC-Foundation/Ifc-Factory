@@ -1,0 +1,1 @@
+export type IfcComplexNumber = number[];

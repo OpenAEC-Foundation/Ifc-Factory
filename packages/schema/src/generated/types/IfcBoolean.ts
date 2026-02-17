@@ -1,0 +1,1 @@
+export type IfcBoolean = boolean;

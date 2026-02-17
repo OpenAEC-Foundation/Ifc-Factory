@@ -1,0 +1,6 @@
+export enum IfcFlowDirectionEnum {
+  SINK = 'SINK',
+  SOURCE = 'SOURCE',
+  SOURCEANDSINK = 'SOURCEANDSINK',
+  NOTDEFINED = 'NOTDEFINED',
+}

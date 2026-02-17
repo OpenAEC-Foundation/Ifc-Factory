@@ -1,0 +1,7 @@
+export enum IfcDuctSilencerTypeEnum {
+  FLATOVAL = 'FLATOVAL',
+  RECTANGULAR = 'RECTANGULAR',
+  ROUND = 'ROUND',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

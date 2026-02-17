@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/express-parser" },
+    { "path": "packages/step-serializer" },
+    { "path": "packages/codegen" },
+    { "path": "packages/schema" },
+    { "path": "packages/step-parser" },
+    { "path": "packages/core" },
+    { "path": "packages/ifc-utils" }
+  ]
+}

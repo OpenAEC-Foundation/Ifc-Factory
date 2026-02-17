@@ -1,0 +1,6 @@
+export enum IfcCooledBeamTypeEnum {
+  ACTIVE = 'ACTIVE',
+  PASSIVE = 'PASSIVE',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

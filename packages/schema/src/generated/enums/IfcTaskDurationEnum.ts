@@ -1,0 +1,5 @@
+export enum IfcTaskDurationEnum {
+  ELAPSEDTIME = 'ELAPSEDTIME',
+  WORKTIME = 'WORKTIME',
+  NOTDEFINED = 'NOTDEFINED',
+}

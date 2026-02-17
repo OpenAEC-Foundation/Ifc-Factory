@@ -1,0 +1,7 @@
+export enum IfcDocumentStatusEnum {
+  DRAFT = 'DRAFT',
+  FINAL = 'FINAL',
+  FINALDRAFT = 'FINALDRAFT',
+  REVISION = 'REVISION',
+  NOTDEFINED = 'NOTDEFINED',
+}

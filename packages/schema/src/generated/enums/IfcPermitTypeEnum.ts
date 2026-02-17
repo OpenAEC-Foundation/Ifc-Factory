@@ -1,0 +1,7 @@
+export enum IfcPermitTypeEnum {
+  ACCESS = 'ACCESS',
+  BUILDING = 'BUILDING',
+  WORK = 'WORK',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}

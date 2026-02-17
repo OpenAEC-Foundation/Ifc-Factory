@@ -1,0 +1,1 @@
+export type IfcDimensionCount = number;

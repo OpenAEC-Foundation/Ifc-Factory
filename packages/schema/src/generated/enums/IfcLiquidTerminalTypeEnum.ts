@@ -1,0 +1,6 @@
+export enum IfcLiquidTerminalTypeEnum {
+  HOSEREEL = 'HOSEREEL',
+  LOADINGARM = 'LOADINGARM',
+  USERDEFINED = 'USERDEFINED',
+  NOTDEFINED = 'NOTDEFINED',
+}
