@@ -1,5 +1,38 @@
+# Dependencies
 node_modules/
+__pycache__/
+*.pyc
+target/
+build/
 dist/
-*.tsbuildinfo
-coverage/
-.turbo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.wasm
+
+# Package locks (keep in libraries)
+# pnpm-lock.yaml
+
+# Environment
+.env
+.env.local
+
+# Test data (cloned repos and downloads)
+testdata/sources/
+testdata/downloads/
+testdata/results/

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "IFCX verification test configuration",
+  "testSuites": [
+    {
+      "name": "DXF Version Coverage",
+      "source": "ezdxf",
+      "tests": [
+        { "file": "sources/ezdxf/integration_tests/test_files/R12.dxf", "version": "AC1009", "description": "R12 baseline" },
+        { "file": "sources/ezdxf/integration_tests/test_files/R2000.dxf", "version": "AC1015", "description": "R2000 legacy" },
+        { "file": "sources/ezdxf/integration_tests/test_files/R2004.dxf", "version": "AC1018", "description": "R2004 extended" },
+        { "file": "sources/ezdxf/integration_tests/test_files/R2007.dxf", "version": "AC1021", "description": "R2007 UTF-8" },
+        { "file": "sources/ezdxf/integration_tests/test_files/R2010.dxf", "version": "AC1024", "description": "R2010 modern" },
+        { "file": "sources/ezdxf/integration_tests/test_files/R2018.dxf", "version": "AC1032", "description": "R2018 latest" }
+      ]
+    },
+    {
+      "name": "DWG Version Coverage",
+      "source": "libredwg",
+      "tests": [
+        { "file": "sources/libredwg/test/test-data/Drawing_2000.dwg", "version": "AC1015" },
+        { "file": "sources/libredwg/test/test-data/Drawing_2004.dwg", "version": "AC1018" },
+        { "file": "sources/libredwg/test/test-data/Drawing_2007.dwg", "version": "AC1021" },
+        { "file": "sources/libredwg/test/test-data/Drawing_2010.dwg", "version": "AC1024" },
+        { "file": "sources/libredwg/test/test-data/Drawing_2013.dwg", "version": "AC1027" },
+        { "file": "sources/libredwg/test/test-data/Drawing_2018.dwg", "version": "AC1032" }
+      ]
+    },
+    {
+      "name": "Custom IFCX Tests",
+      "source": "custom",
+      "tests": [
+        { "file": "custom/empty-drawing.ifcx", "description": "Minimal valid IFCX" },
+        { "file": "custom/all-entity-types.ifcx", "description": "All entity types" }
+      ]
+    }
+  ],
+  "metrics": {
+    "entityCountMatch": { "description": "Same number and types after round-trip", "required": true },
+    "geometryDelta": { "description": "Max coordinate deviation", "threshold": 1e-10 },
+    "propertyPreservation": { "description": "Layers, colors, linetypes match", "required": true },
+    "textFidelity": { "description": "All text content preserved", "required": true },
+    "styleCompleteness": { "description": "DimStyles, TextStyles present", "required": true },
+    "blockIntegrity": { "description": "Block definitions and attributes intact", "required": true },
+    "layoutPreservation": { "description": "Paper space, viewports match", "required": true },
+    "fileSizeComparison": { "description": "IFCX vs IFCXB vs DXF vs DWG sizes", "required": false }
+  }
+}

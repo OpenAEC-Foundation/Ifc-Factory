@@ -1,0 +1,14 @@
+{
+  "ifcx": "1.0",
+  "header": {
+    "application": "IFCX Test",
+    "units": { "linear": "millimeters", "measurement": "metric" }
+  },
+  "tables": {
+    "layers": { "0": {} },
+    "linetypes": { "Continuous": { "description": "Solid line", "pattern": [] } },
+    "textStyles": { "Standard": { "fontFamily": "Arial", "isTrueType": true } },
+    "dimStyles": {}
+  },
+  "entities": []
+}

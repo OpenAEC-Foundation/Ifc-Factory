@@ -1,219 +1,209 @@
-# Ifc-Factory
+# IFCX - Open Drawing Exchange Format
 
-Pure TypeScript IFC4x3 library for parsing, writing, and manipulating IFC (Industry Foundation Classes) data. A lightweight alternative to IfcOpenShell and web-ifc, focused on data operations.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Schema Version](https://img.shields.io/badge/Schema-1.0-green.svg)](schema/ifcx.schema.json)
+[![Status](https://img.shields.io/badge/Status-Active_Development-orange.svg)](#roadmap)
 
-## Features
+An open-source alternative to DWG/DXF. IFCX extends the IFC schema with full 2D drawing capabilities, providing a modern, patent-free file format for CAD drawings.
 
-- **Full IFC4X3 ADD2 schema** — auto-generated TypeScript types from official EXPRESS schema
-- **STEP file I/O** — parse and write ISO 10303-21 (STEP Physical File) format
-- **Schema-aware parsing** — typed entity construction with full attribute metadata
-- **Spatial structure** — traverse and build project/site/building/storey hierarchies
-- **Property sets** — create, assign, and query IfcPropertySet and IfcElementQuantity
-- **Documents & libraries** — manage IfcDocumentInformation and IfcLibraryReference
-- **Classifications** — associate IfcClassification references to elements
-- **2D annotations** — create IfcAnnotation and text literals
-- **Dutch compliance** — BBL (brandveiligheid), BENG (energieprestatie), Aerius (stikstof) property set templates
-- **Fluent query API** — chainable query builder with composable filters
-- **Zero dependencies** — pure TypeScript, no native modules, no WASM
-- **Dual ESM/CJS** — works in Node.js >=20, bundlers, and modern runtimes
+---
+
+## What is IFCX?
+
+IFCX is a drawing exchange format that can store everything DWG and DXF store -- lines, arcs, text, dimensions, hatching, blocks, paper space layouts, 3D geometry, and more -- in two variants:
+
+- **`.ifcx`** -- JSON-based, human-readable, git-diffable
+- **`.ifcxb`** -- compact binary (GLB-style container + CBOR encoding + Zstandard compression), achieving DWG-comparable file sizes
+
+IFCX is fully open-source with no patents, no proprietary dependencies, and no vendor lock-in. Licensed under MIT.
+
+## Why IFCX?
+
+| Problem | IFCX Solution |
+|---------|---------------|
+| **DWG is proprietary** -- controlled by a single vendor, reverse-engineered at best | Fully open schema, MIT licensed, community-governed |
+| **DXF is verbose and fragile** -- text-based group codes, no formal schema, poor tooling | JSON with a strict JSON Schema, easy to parse in any language |
+| **IFC lacks 2D drawing support** -- designed for BIM/3D, no dimensions, no hatching, no paper space | Extends IFC concepts to cover the full DWG/DXF entity set |
+| **No compact open binary** -- DXF files are huge, IFC STEP files are huge | IFCXB binary format rivals DWG in file size |
+
+## Key Features
+
+- **Full DWG/DXF entity coverage** -- geometry, text, dimensions, hatching, blocks, layouts, viewports, 3D solids, and more
+- **Dual format** -- human-readable JSON (`.ifcx`) and compact binary (`.ifcxb`) with lossless round-trip between them
+- **Multi-language libraries** -- TypeScript, Python, Rust, and C++
+- **Bidirectional DXF/DWG conversion** -- import from and export to DXF and DWG (via LibreDWG/ODA SDK)
+- **2D viewer** -- web-based viewer with layer panel, measurement tools, and paper space support (planned)
+- **Schema-validated** -- every IFCX file can be validated against `ifcx.schema.json`
+- **IFC-compatible** -- extends rather than replaces IFC concepts
+
+## File Formats
+
+| Format | Extension | Encoding | Characteristics |
+|--------|-----------|----------|-----------------|
+| IFCX | `.ifcx` | JSON (UTF-8) | Human-readable, git-diffable, easy to inspect and edit |
+| IFCXB | `.ifcxb` | GLB-style container + CBOR + Zstandard | Compact binary, DWG-comparable size, fast to parse |
+
+The binary format specification is documented in [`schema/ifcxb.spec.md`](schema/ifcxb.spec.md).
 
 ## Quick Start
 
-```bash
-pnpm add @ifc-factory/core @ifc-factory/schema
-```
-
-### Parse an IFC file
+### TypeScript
 
 ```typescript
-import { IfcModel } from '@ifc-factory/core';
-import { readFileSync } from 'node:fs';
+import { IfcxDocument } from "@ifcx/core";
 
-const source = readFileSync('model.ifc', 'utf-8');
-const model = IfcModel.fromStep(source);
+const doc = new IfcxDocument();
+doc.addLayer("Walls", { color: { r: 1, g: 0, b: 0 }, lineweight: 0.5 });
 
-console.log(`Schema: ${model.schema}`);
-console.log(`Entities: ${model.size}`);
-console.log(`Project: ${model.project?.Name}`);
-```
-
-### Query entities
-
-```typescript
-import { QueryBuilder, byType } from '@ifc-factory/core';
-
-const walls = model.getAllOfType('IfcWall');
-console.log(`Found ${walls.length} walls`);
-
-// Fluent query
-const query = new QueryBuilder(model)
-  .ofType('IfcWall')
-  .whereProperty('Name', 'Exterior Wall')
-  .execute();
-```
-
-### Create a new model
-
-```typescript
-import { IfcModel, createSpatialStructure, createPropertySet, assignPropertySet } from '@ifc-factory/core';
-
-const model = new IfcModel();
-
-// Build spatial structure
-const project = createSpatialStructure(model, {
-  projectName: 'My Project',
-  siteName: 'My Site',
-  buildingName: 'Building A',
-  storeyNames: ['Ground Floor', 'First Floor'],
+doc.addEntity({
+  type: "LINE",
+  layer: "Walls",
+  start: [0, 0],
+  end: [1000, 0],
 });
 
-// Create and assign property sets
-const pset = createPropertySet(model, 'Pset_WallCommon', [
-  { name: 'IsExternal', value: true },
-  { name: 'ThermalTransmittance', value: 0.25, type: 'IFCREAL' },
-]);
-
-// Serialize to STEP
-const stepOutput = model.toStep();
+await doc.writeIfcx("drawing.ifcx");
+await doc.writeIfcxb("drawing.ifcxb");
 ```
 
-### Dutch compliance (BBL/BENG/Aerius)
+### Python
 
-```typescript
-import { createBBLPropertySet, createBENGPropertySet, createAeriusPropertySet } from '@ifc-factory/core';
+```python
+from ifcx import IfcxDocument
 
-// Brandveiligheid (BBL)
-createBBLPropertySet(model, [wallId], {
-  brandklasse: 'A1',
-  brandwerendheid: 60,
-  wbdbo: 30,
-});
+doc = IfcxDocument()
+doc.add_layer("Walls", color=(1, 0, 0), lineweight=0.5)
 
-// Energieprestatie (BENG)
-createBENGPropertySet(model, [buildingId], {
-  energieBehoefte: 25.0,
-  primairFossieleEnergie: 50.0,
-  aandeelHernieuwbareEnergie: 40.0,
-});
+doc.add_entity({
+    "type": "LINE",
+    "layer": "Walls",
+    "start": [0, 0],
+    "end": [1000, 0],
+})
 
-// Stikstof (Aerius)
-createAeriusPropertySet(model, [projectId], {
-  stikstofEmissie: 1.5,
-  projectId: 'AERIUS-2024-001',
-});
+doc.write_ifcx("drawing.ifcx")
+doc.write_ifcxb("drawing.ifcxb")
 ```
 
-## Packages
+### Rust
 
-| Package | Description | Layer |
-|---------|-------------|-------|
-| `@ifc-factory/express-parser` | EXPRESS schema (.exp) parser | 0 |
-| `@ifc-factory/step-serializer` | ISO 10303-21 STEP tokenizer/reader/writer | 0 |
-| `@ifc-factory/codegen` | TypeScript code generator from EXPRESS AST | 1 |
-| `@ifc-factory/schema` | Auto-generated IFC4X3 TypeScript types | 2 |
-| `@ifc-factory/step-parser` | Schema-aware STEP parser | 2 |
-| `@ifc-factory/core` | Main library: IfcModel, helpers, compliance | 3 |
-| `@ifc-factory/ifc-utils` | Convenience utilities (validation, diff, batch) | 4 |
+```rust
+use ifcx::IfcxDocument;
 
-### Dependency Graph
+fn main() {
+    let mut doc = IfcxDocument::new();
+    doc.add_layer("Walls", LayerOptions { color: rgb(1.0, 0.0, 0.0), lineweight: 0.5 });
 
-```
-express-parser ─────┐
-                    v
-step-serializer    codegen
-       │              │
-       │              v
-       └──────► schema
-                  │
-                  v
-              step-parser
-                  │
-                  v
-                core
-                  │
-                  v
-              ifc-utils
+    doc.add_entity(Entity::Line {
+        layer: "Walls".into(),
+        start: [0.0, 0.0],
+        end: [1000.0, 0.0],
+    });
+
+    doc.write_ifcx("drawing.ifcx").unwrap();
+    doc.write_ifcxb("drawing.ifcxb").unwrap();
+}
 ```
 
-## Development
+## Schema Overview
 
-### Prerequisites
+The IFCX schema covers the full range of DWG/DXF entity types:
 
-- Node.js >= 20
-- pnpm >= 9
+| Category | Entity Types |
+|----------|-------------|
+| **Geometry** | LINE, ARC, CIRCLE, ELLIPSE, SPLINE, LWPOLYLINE, POLYLINE, POINT, RAY, XLINE, HELIX |
+| **Text** | TEXT, MTEXT (with rich formatting, columns, wrapping) |
+| **Dimensions** | LINEAR, ALIGNED, ANGULAR, RADIAL, DIAMETRIC, ORDINATE, ARC_LENGTH |
+| **Annotations** | LEADER, MLEADER, MULTILEADER, TOLERANCE |
+| **Hatching** | HATCH (patterns, solid fills, gradients, boundary detection) |
+| **Blocks** | INSERT (block references), nested blocks, ATTRIB/ATTDEF (attributes) |
+| **Layouts** | Paper space, model space, VIEWPORT, plot settings |
+| **Tables** | TABLE (rows, columns, cell styles, merged cells) |
+| **Images** | IMAGE, WIPEOUT, OLE objects |
+| **3D Geometry** | 3DFACE, 3DSOLID, MESH, BODY, REGION, SURFACE |
+| **Other** | REVISION_CLOUD, SECTION, UNDERLAY (PDF/DWF/DGN) |
 
-### Setup
+Supporting table definitions: layers, linetypes, text styles, dimension styles, block definitions, UCS, and views.
 
-```bash
-git clone https://github.com/3bm-nl/Ifc-Factory.git
-cd Ifc-Factory
-pnpm install
+## Project Structure
+
+```
+Ifc-Factory/
+├── schema/
+│   ├── ifcx.schema.json      # IFCX JSON Schema (entity types, validation rules)
+│   └── ifcxb.spec.md         # IFCXB binary format specification
+├── libraries/
+│   ├── typescript/            # @ifcx/core - TypeScript library
+│   ├── python/                # ifcx - Python library
+│   ├── rust/                  # ifcx - Rust crate
+│   └── cpp/                   # libifcx - C++ library (CMake)
+├── examples/
+│   └── simple-drawing.ifcx   # Example IFCX file
+├── archives/                  # Previous IFC4x3 TypeScript library (archived)
+├── docs/                      # Documentation
+├── ROADMAP.md                 # Detailed roadmap with phases and test plan
+└── README.md
 ```
 
-### Build
+The `archives/` directory contains a previous iteration of this project -- a TypeScript library for IFC4x3 schema generation. That work has been superseded by the IFCX format effort, but is preserved for reference.
 
-```bash
-pnpm build              # Build all packages
-pnpm build:schema       # Regenerate schema from EXPRESS
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for the full plan, test file inventory, and verification metrics.
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1. Foundation | Schema definition, binary spec, library skeletons | Done |
+| 2. Core Libraries | Full reader/writer implementations in all four languages | In progress |
+| 3. DXF Conversion | Bidirectional DXF import/export (R12 through R2024) | Planned |
+| 4. DWG Conversion | DWG import/export via LibreDWG/ODA SDK | Planned |
+| 5. Verification | Round-trip test suite with 30 real-world test files | Planned |
+| 6. 2D Viewer | Web-based viewer with full entity rendering | Planned |
+| 7. FreeCAD Integration | Import/export plugin for FreeCAD | Planned |
+| 8. Blender Integration | Bonsai/BlenderBIM add-on, IfcOpenShell bridge | Planned |
+| 9. Advanced Features | Dynamic blocks, constraints, annotation scaling | Planned |
+| 10. Ecosystem | CLI tool, VS Code extension, package publishing | Planned |
+
+## Verification
+
+Format fidelity is verified through round-trip testing:
+
+```
+Original DXF/DWG
+    |  import
+    v
+  IFCX (JSON)
+    |  convert
+    v
+  IFCXB (binary)
+    |  convert back
+    v
+  IFCX (JSON)        <-- must be identical to step 2
+    |  export
+    v
+  DXF/DWG            <-- compare with original
+    |
+  Verification Report
 ```
 
-### Test
+Each round-trip test produces a report checking: entity count match, geometry delta (< 1e-10), property preservation (layers, colors, linetypes, lineweights), text fidelity, style completeness, block integrity, layout preservation, file size comparison, and conversion performance.
 
-```bash
-pnpm test               # Run all tests
-pnpm test:watch         # Watch mode
-```
+The test suite targets 30 files spanning AutoCAD versions R12 through R2018, entity type coverage, real-world complexity, and edge cases. See [ROADMAP.md](ROADMAP.md) for the full test file inventory.
 
-### Lint
+## Contributing
 
-```bash
-pnpm lint               # Check with Biome
-pnpm lint:fix           # Auto-fix
-```
+Contributions are welcome. Areas where help is needed:
 
-### Regenerate Schema
+- Library implementations (especially C++ and Rust)
+- DXF parser and writer
+- Real-world test files (DXF/DWG drawings you can share under an open license)
+- Viewer development
+- Documentation and examples
 
-To regenerate the TypeScript types from the IFC4X3 EXPRESS schema:
-
-```bash
-pnpm build:schema
-```
-
-This parses `schemas/IFC4X3_ADD2.exp` and generates TypeScript interfaces, enums, type aliases, and metadata into `packages/schema/src/generated/`.
-
-## Schema Statistics
-
-Generated from IFC4X3 ADD2 EXPRESS schema:
-
-- **876** entity interfaces
-- **243** enumerations
-- **132** type aliases
-- **61** select (union) types
-- **12,000+** lines of schema metadata
-
-## Architecture
-
-### Design Decisions
-
-| Decision | Choice | Reason |
-|----------|--------|--------|
-| Entity storage | `Map<number, IfcGenericEntity>` + type index | O(1) lookup, fast type queries |
-| Entity references | Stored as `number` (expressID) | No circular refs, easy serialization |
-| Relationship indexes | Eager rebuild at load, incremental on mutation | Fast spatial traversal |
-| Generated code | Interfaces, not classes | No circular import issues |
-| Schema metadata | Runtime object with allAttributes per entity | STEP parser needs flat ordered attribute list |
-| Type discriminant | `type: string` on root entities | Compatible inheritance hierarchy |
-
-### Two-Pass Parsing
-
-1. **Pass 1** (`step-serializer`): Raw STEP physical file → `StepEntityInstance` records
-2. **Pass 2** (`step-parser`): Typed entity construction using schema metadata
+Please open an issue to discuss significant changes before submitting a pull request.
 
 ## License
 
-ISC
+MIT License. See [LICENSE](LICENSE) for details.
 
-## Credits
-
-- IFC4X3 ADD2 EXPRESS schema: [buildingSMART International](https://www.buildingsmart.org/) (CC BY-ND 4.0)
-- Built with TypeScript, Vitest, tsup, Biome
+No patents. No proprietary dependencies. No vendor lock-in.

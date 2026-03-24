@@ -1,0 +1,2071 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ifcx.org/schema/1.0/ifcx.schema.json",
+  "title": "IFCX Drawing Exchange Format",
+  "description": "Open-source alternative to DWG/DXF. Extends IFC with full 2D drawing capabilities.",
+  "type": "object",
+  "required": ["ifcx", "header", "entities"],
+  "properties": {
+    "ifcx": {
+      "type": "string",
+      "const": "1.0",
+      "description": "IFCX schema version"
+    },
+    "header": { "$ref": "#/$defs/Header" },
+    "tables": { "$ref": "#/$defs/Tables" },
+    "blocks": {
+      "type": "object",
+      "description": "Block definitions (reusable symbol/component library)",
+      "additionalProperties": { "$ref": "#/$defs/BlockDefinition" }
+    },
+    "entities": {
+      "type": "array",
+      "description": "All graphical and annotation entities",
+      "items": { "$ref": "#/$defs/Entity" }
+    },
+    "objects": {
+      "type": "array",
+      "description": "Non-graphical objects (layouts, plot settings, groups, etc.)",
+      "items": { "$ref": "#/$defs/DrawingObject" }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Application-specific extension data",
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+
+    "Point2D": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "[x, y]"
+    },
+
+    "Point3D": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "[x, y, z]"
+    },
+
+    "Color": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "r": { "type": "number", "minimum": 0, "maximum": 1 },
+            "g": { "type": "number", "minimum": 0, "maximum": 1 },
+            "b": { "type": "number", "minimum": 0, "maximum": 1 },
+            "a": { "type": "number", "minimum": 0, "maximum": 1, "default": 1 }
+          },
+          "required": ["r", "g", "b"]
+        },
+        {
+          "type": "integer",
+          "description": "ACI color index (0=BYBLOCK, 256=BYLAYER)"
+        },
+        {
+          "type": "string",
+          "description": "Named color or hex string (#RRGGBB)"
+        }
+      ]
+    },
+
+    "Handle": {
+      "type": "string",
+      "description": "Unique hex handle identifier for cross-referencing"
+    },
+
+    "EntityRef": {
+      "type": "string",
+      "description": "Reference to another entity/object by handle"
+    },
+
+    "Header": {
+      "type": "object",
+      "description": "Drawing header with system variables (maps to DXF HEADER section)",
+      "properties": {
+        "version": { "type": "string", "description": "Originating format version (e.g. AC1032)" },
+        "codePage": { "type": "string", "default": "UTF-8" },
+        "createDate": { "type": "string", "format": "date-time" },
+        "updateDate": { "type": "string", "format": "date-time" },
+        "totalEditTime": { "type": "number", "description": "Total editing time in seconds" },
+        "author": { "type": "string" },
+        "organization": { "type": "string" },
+        "application": { "type": "string" },
+
+        "units": {
+          "type": "object",
+          "properties": {
+            "linear": {
+              "type": "string",
+              "enum": ["unitless", "inches", "feet", "miles", "millimeters", "centimeters", "meters", "kilometers", "microinches", "mils", "yards", "angstroms", "nanometers", "microns", "decimeters", "decameters", "hectometers", "gigameters", "astronomical", "lightyears", "parsecs"]
+            },
+            "linearFormat": {
+              "type": "string",
+              "enum": ["scientific", "decimal", "engineering", "architectural", "fractional"]
+            },
+            "linearPrecision": { "type": "integer", "minimum": 0, "maximum": 8 },
+            "angular": {
+              "type": "string",
+              "enum": ["decimal_degrees", "dms", "grads", "radians", "surveyor"]
+            },
+            "angularPrecision": { "type": "integer", "minimum": 0, "maximum": 8 },
+            "angularBase": { "type": "number", "default": 0, "description": "Angle 0 direction in radians" },
+            "angularDirection": { "type": "string", "enum": ["ccw", "cw"], "default": "ccw" },
+            "measurement": { "type": "string", "enum": ["imperial", "metric"], "default": "metric" }
+          }
+        },
+
+        "extents": {
+          "type": "object",
+          "properties": {
+            "min": { "$ref": "#/$defs/Point3D" },
+            "max": { "$ref": "#/$defs/Point3D" }
+          }
+        },
+
+        "limits": {
+          "type": "object",
+          "properties": {
+            "min": { "$ref": "#/$defs/Point2D" },
+            "max": { "$ref": "#/$defs/Point2D" }
+          }
+        },
+
+        "currentLayer": { "type": "string" },
+        "currentLinetype": { "type": "string" },
+        "currentColor": { "$ref": "#/$defs/Color" },
+        "currentTextStyle": { "type": "string" },
+        "currentDimStyle": { "type": "string" },
+        "linetypeScale": { "type": "number", "default": 1.0 },
+        "elevation": { "type": "number", "default": 0 },
+        "thickness": { "type": "number", "default": 0 },
+        "fillMode": { "type": "boolean", "default": true },
+        "orthoMode": { "type": "boolean", "default": false },
+        "snapMode": { "type": "boolean", "default": false },
+        "gridMode": { "type": "boolean", "default": false },
+        "pointDisplayMode": { "type": "integer", "default": 0 },
+        "pointDisplaySize": { "type": "number", "default": 0 },
+
+        "ucs": {
+          "type": "object",
+          "properties": {
+            "origin": { "$ref": "#/$defs/Point3D" },
+            "xAxis": { "$ref": "#/$defs/Point3D" },
+            "yAxis": { "$ref": "#/$defs/Point3D" }
+          }
+        },
+
+        "handleSeed": { "$ref": "#/$defs/Handle" },
+
+        "variables": {
+          "type": "object",
+          "description": "Additional system variables not explicitly modeled above",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "Tables": {
+      "type": "object",
+      "description": "Named symbol tables (maps to DXF TABLES section)",
+      "properties": {
+        "layers": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Layer" }
+        },
+        "linetypes": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Linetype" }
+        },
+        "textStyles": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/TextStyle" }
+        },
+        "dimStyles": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/DimStyle" }
+        },
+        "views": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/NamedView" }
+        },
+        "ucss": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/UCS" }
+        },
+        "viewports": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/ViewportConfig" }
+        },
+        "appIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Registered application IDs for extended data"
+        }
+      }
+    },
+
+    "Layer": {
+      "type": "object",
+      "properties": {
+        "color": { "$ref": "#/$defs/Color" },
+        "linetype": { "type": "string" },
+        "lineweight": { "type": "number", "description": "Line weight in mm, -1=default, -2=BYBLOCK, -3=BYLAYER" },
+        "frozen": { "type": "boolean", "default": false },
+        "locked": { "type": "boolean", "default": false },
+        "off": { "type": "boolean", "default": false },
+        "plot": { "type": "boolean", "default": true },
+        "description": { "type": "string" },
+        "transparency": { "type": "number", "minimum": 0, "maximum": 1, "default": 0 }
+      }
+    },
+
+    "Linetype": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "patternLength": { "type": "number", "description": "Total length of the pattern" },
+        "pattern": {
+          "type": "array",
+          "description": "Dash-gap pattern. Positive=dash, negative=gap, 0=dot",
+          "items": { "type": "number" }
+        },
+        "complexElements": {
+          "type": "array",
+          "description": "Complex linetype elements (embedded shapes/text)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["shape", "text"] },
+              "style": { "type": "string", "description": "Shape file or text style name" },
+              "value": { "type": ["string", "integer"], "description": "Text string or shape number" },
+              "scale": { "type": "number", "default": 1.0 },
+              "rotation": { "type": "number", "default": 0, "description": "Rotation in radians" },
+              "offset": { "$ref": "#/$defs/Point2D" }
+            }
+          }
+        }
+      }
+    },
+
+    "TextStyle": {
+      "type": "object",
+      "properties": {
+        "fontFamily": { "type": "string", "description": "Primary font name or SHX file" },
+        "bigFont": { "type": "string", "description": "Big font file for CJK support" },
+        "height": { "type": "number", "default": 0, "description": "Fixed height (0 = variable)" },
+        "widthFactor": { "type": "number", "default": 1.0 },
+        "oblique": { "type": "number", "default": 0, "description": "Oblique angle in radians" },
+        "isVertical": { "type": "boolean", "default": false },
+        "isBackward": { "type": "boolean", "default": false },
+        "isUpsideDown": { "type": "boolean", "default": false },
+        "isTrueType": { "type": "boolean", "default": false },
+        "bold": { "type": "boolean", "default": false },
+        "italic": { "type": "boolean", "default": false }
+      }
+    },
+
+    "DimStyle": {
+      "type": "object",
+      "description": "Dimension style - complete parametric control over dimension appearance",
+      "properties": {
+        "overallScale": { "type": "number", "default": 1.0 },
+        "linearScale": { "type": "number", "default": 1.0 },
+        "arrowSize": { "type": "number" },
+        "arrowBlock": { "type": "string", "description": "Custom arrowhead block name" },
+        "arrowBlock1": { "type": "string", "description": "First arrowhead (if different)" },
+        "arrowBlock2": { "type": "string", "description": "Second arrowhead (if different)" },
+        "leaderArrowBlock": { "type": "string" },
+        "textHeight": { "type": "number" },
+        "textStyle": { "type": "string" },
+        "textColor": { "$ref": "#/$defs/Color" },
+        "textInsideAlign": { "type": "boolean", "default": true, "description": "Text horizontal inside" },
+        "textOutsideAlign": { "type": "boolean", "default": true, "description": "Text horizontal outside" },
+        "textAboveDimLine": { "type": "boolean", "default": false },
+        "textVerticalPosition": { "type": "number", "default": 0 },
+        "textMovement": { "type": "string", "enum": ["move_dim_line", "add_leader", "free"], "default": "move_dim_line" },
+        "textGap": { "type": "number", "description": "Gap around text on dimension line" },
+
+        "dimLineColor": { "$ref": "#/$defs/Color" },
+        "dimLineWeight": { "type": "number" },
+        "dimLineExtension": { "type": "number", "default": 0 },
+        "dimLineIncrement": { "type": "number", "description": "Baseline spacing increment" },
+        "suppressDimLine1": { "type": "boolean", "default": false },
+        "suppressDimLine2": { "type": "boolean", "default": false },
+
+        "extLineColor": { "$ref": "#/$defs/Color" },
+        "extLineWeight": { "type": "number" },
+        "extLineOffset": { "type": "number", "description": "Gap between origin and ext line start" },
+        "extLineExtension": { "type": "number", "description": "How far ext line extends beyond dim line" },
+        "suppressExtLine1": { "type": "boolean", "default": false },
+        "suppressExtLine2": { "type": "boolean", "default": false },
+        "fixedExtLineLength": { "type": "number", "description": "Fixed extension line length (0=not fixed)" },
+
+        "centerMarkSize": { "type": "number" },
+        "centerMarkType": { "type": "string", "enum": ["none", "mark", "line"], "default": "mark" },
+
+        "linearUnit": { "type": "string", "enum": ["scientific", "decimal", "engineering", "architectural", "fractional", "windows_desktop"], "default": "decimal" },
+        "linearPrecision": { "type": "integer", "minimum": 0, "maximum": 8, "default": 4 },
+        "decimalSeparator": { "type": "string", "default": "." },
+        "roundOff": { "type": "number", "default": 0 },
+        "prefix": { "type": "string", "default": "" },
+        "suffix": { "type": "string", "default": "" },
+        "zeroSuppression": {
+          "type": "object",
+          "properties": {
+            "leading": { "type": "boolean", "default": false },
+            "trailing": { "type": "boolean", "default": false },
+            "feetZero": { "type": "boolean", "default": false },
+            "inchZero": { "type": "boolean", "default": false }
+          }
+        },
+
+        "angularUnit": { "type": "string", "enum": ["decimal_degrees", "dms", "grads", "radians"], "default": "decimal_degrees" },
+        "angularPrecision": { "type": "integer", "minimum": 0, "maximum": 8, "default": 0 },
+
+        "tolerance": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "method": { "type": "string", "enum": ["none", "symmetrical", "deviation", "limits", "basic"] },
+            "upper": { "type": "number" },
+            "lower": { "type": "number" },
+            "precision": { "type": "integer" },
+            "verticalPosition": { "type": "string", "enum": ["top", "middle", "bottom"], "default": "middle" },
+            "scaleFactor": { "type": "number", "default": 1.0 },
+            "zeroSuppression": {
+              "type": "object",
+              "properties": {
+                "leading": { "type": "boolean" },
+                "trailing": { "type": "boolean" }
+              }
+            }
+          }
+        },
+
+        "alternate": {
+          "type": "object",
+          "description": "Alternate units display",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "scaleFactor": { "type": "number", "default": 25.4 },
+            "precision": { "type": "integer", "default": 2 },
+            "unit": { "type": "string" },
+            "prefix": { "type": "string" },
+            "suffix": { "type": "string" },
+            "zeroSuppression": {
+              "type": "object",
+              "properties": {
+                "leading": { "type": "boolean" },
+                "trailing": { "type": "boolean" }
+              }
+            }
+          }
+        },
+
+        "fit": {
+          "type": "string",
+          "enum": ["best_fit", "arrows_outside", "text_outside", "both_outside", "text_always_inside"],
+          "default": "best_fit"
+        },
+        "forceLineInside": { "type": "boolean", "default": false },
+        "forceTextInside": { "type": "boolean", "default": false },
+        "textJustification": { "type": "string", "enum": ["center", "left", "right", "first_ext_line", "second_ext_line"], "default": "center" }
+      }
+    },
+
+    "NamedView": {
+      "type": "object",
+      "properties": {
+        "center": { "$ref": "#/$defs/Point2D" },
+        "height": { "type": "number" },
+        "width": { "type": "number" },
+        "direction": { "$ref": "#/$defs/Point3D" },
+        "target": { "$ref": "#/$defs/Point3D" },
+        "lensLength": { "type": "number", "default": 50 },
+        "frontClip": { "type": "number" },
+        "backClip": { "type": "number" },
+        "twist": { "type": "number", "default": 0 }
+      }
+    },
+
+    "UCS": {
+      "type": "object",
+      "properties": {
+        "origin": { "$ref": "#/$defs/Point3D" },
+        "xAxis": { "$ref": "#/$defs/Point3D" },
+        "yAxis": { "$ref": "#/$defs/Point3D" }
+      }
+    },
+
+    "ViewportConfig": {
+      "type": "object",
+      "properties": {
+        "lowerLeft": { "$ref": "#/$defs/Point2D" },
+        "upperRight": { "$ref": "#/$defs/Point2D" },
+        "center": { "$ref": "#/$defs/Point2D" },
+        "height": { "type": "number" },
+        "aspectRatio": { "type": "number" },
+        "snapBase": { "$ref": "#/$defs/Point2D" },
+        "snapSpacing": { "$ref": "#/$defs/Point2D" },
+        "gridSpacing": { "$ref": "#/$defs/Point2D" },
+        "direction": { "$ref": "#/$defs/Point3D" },
+        "target": { "$ref": "#/$defs/Point3D" },
+        "lensLength": { "type": "number" },
+        "twist": { "type": "number" }
+      }
+    },
+
+    "CommonEntityProps": {
+      "type": "object",
+      "description": "Properties shared by all graphical entities",
+      "properties": {
+        "handle": { "$ref": "#/$defs/Handle" },
+        "layer": { "type": "string", "default": "0" },
+        "linetype": { "type": "string", "description": "Linetype name (omit for BYLAYER)" },
+        "linetypeScale": { "type": "number", "default": 1.0 },
+        "color": { "$ref": "#/$defs/Color" },
+        "lineweight": { "type": "number" },
+        "transparency": { "type": "number", "minimum": 0, "maximum": 1 },
+        "visible": { "type": "boolean", "default": true },
+        "space": { "type": "string", "enum": ["model", "paper"], "default": "model" },
+        "layoutRef": { "$ref": "#/$defs/EntityRef", "description": "Reference to layout for paper space entities" },
+        "ownerRef": { "$ref": "#/$defs/EntityRef", "description": "Owner block record handle" },
+        "extrusion": { "$ref": "#/$defs/Point3D", "description": "Extrusion direction (OCS normal)" },
+        "thickness": { "type": "number" },
+        "xdata": {
+          "type": "object",
+          "description": "Extended data keyed by application name",
+          "additionalProperties": { "$ref": "#/$defs/XData" }
+        },
+        "extensionDict": { "$ref": "#/$defs/EntityRef" },
+        "reactors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EntityRef" }
+        }
+      }
+    },
+
+    "XData": {
+      "type": "array",
+      "description": "Extended data items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "integer" },
+          "value": {}
+        },
+        "required": ["code", "value"]
+      }
+    },
+
+    "Entity": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonEntityProps" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "discriminator": { "propertyName": "type" },
+          "oneOf": [
+            { "$ref": "#/$defs/LineEntity" },
+            { "$ref": "#/$defs/PointEntity" },
+            { "$ref": "#/$defs/CircleEntity" },
+            { "$ref": "#/$defs/ArcEntity" },
+            { "$ref": "#/$defs/EllipseEntity" },
+            { "$ref": "#/$defs/SplineEntity" },
+            { "$ref": "#/$defs/RayEntity" },
+            { "$ref": "#/$defs/XLineEntity" },
+            { "$ref": "#/$defs/LWPolylineEntity" },
+            { "$ref": "#/$defs/Polyline2DEntity" },
+            { "$ref": "#/$defs/Polyline3DEntity" },
+            { "$ref": "#/$defs/MLineEntity" },
+            { "$ref": "#/$defs/HelixEntity" },
+            { "$ref": "#/$defs/TextEntity" },
+            { "$ref": "#/$defs/MTextEntity" },
+            { "$ref": "#/$defs/DimensionLinearEntity" },
+            { "$ref": "#/$defs/DimensionAlignedEntity" },
+            { "$ref": "#/$defs/DimensionAngularEntity" },
+            { "$ref": "#/$defs/DimensionRadiusEntity" },
+            { "$ref": "#/$defs/DimensionDiameterEntity" },
+            { "$ref": "#/$defs/DimensionOrdinateEntity" },
+            { "$ref": "#/$defs/DimensionArcEntity" },
+            { "$ref": "#/$defs/LeaderEntity" },
+            { "$ref": "#/$defs/MultiLeaderEntity" },
+            { "$ref": "#/$defs/ToleranceEntity" },
+            { "$ref": "#/$defs/HatchEntity" },
+            { "$ref": "#/$defs/SolidEntity" },
+            { "$ref": "#/$defs/TraceEntity" },
+            { "$ref": "#/$defs/Face3DEntity" },
+            { "$ref": "#/$defs/InsertEntity" },
+            { "$ref": "#/$defs/AttDefEntity" },
+            { "$ref": "#/$defs/AttribEntity" },
+            { "$ref": "#/$defs/ViewportEntity" },
+            { "$ref": "#/$defs/ImageEntity" },
+            { "$ref": "#/$defs/WipeoutEntity" },
+            { "$ref": "#/$defs/TableEntity" },
+            { "$ref": "#/$defs/Solid3DEntity" },
+            { "$ref": "#/$defs/RegionEntity" },
+            { "$ref": "#/$defs/BodyEntity" },
+            { "$ref": "#/$defs/SurfaceEntity" },
+            { "$ref": "#/$defs/MeshEntity" },
+            { "$ref": "#/$defs/ShapeEntity" },
+            { "$ref": "#/$defs/OleEntity" },
+            { "$ref": "#/$defs/UnderlayEntity" },
+            { "$ref": "#/$defs/LightEntity" },
+            { "$ref": "#/$defs/CameraEntity" },
+            { "$ref": "#/$defs/SectionEntity" },
+            { "$ref": "#/$defs/GeoMarkerEntity" },
+            { "$ref": "#/$defs/ProxyEntity" }
+          ]
+        }
+      ]
+    },
+
+    "LineEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "LINE" },
+        "start": { "$ref": "#/$defs/Point3D" },
+        "end": { "$ref": "#/$defs/Point3D" }
+      },
+      "required": ["type", "start", "end"]
+    },
+
+    "PointEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POINT" },
+        "position": { "$ref": "#/$defs/Point3D" },
+        "angle": { "type": "number", "description": "X-axis angle for PDMODE display" }
+      },
+      "required": ["type", "position"]
+    },
+
+    "CircleEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "CIRCLE" },
+        "center": { "$ref": "#/$defs/Point3D" },
+        "radius": { "type": "number" }
+      },
+      "required": ["type", "center", "radius"]
+    },
+
+    "ArcEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ARC" },
+        "center": { "$ref": "#/$defs/Point3D" },
+        "radius": { "type": "number" },
+        "startAngle": { "type": "number", "description": "Start angle in radians" },
+        "endAngle": { "type": "number", "description": "End angle in radians" }
+      },
+      "required": ["type", "center", "radius", "startAngle", "endAngle"]
+    },
+
+    "EllipseEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ELLIPSE" },
+        "center": { "$ref": "#/$defs/Point3D" },
+        "majorAxisEndpoint": { "$ref": "#/$defs/Point3D", "description": "Endpoint of major axis relative to center" },
+        "minorAxisRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "startParam": { "type": "number", "default": 0, "description": "Start parameter (0 for full ellipse)" },
+        "endParam": { "type": "number", "description": "End parameter (2*PI for full ellipse)" }
+      },
+      "required": ["type", "center", "majorAxisEndpoint", "minorAxisRatio"]
+    },
+
+    "SplineEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SPLINE" },
+        "degree": { "type": "integer", "minimum": 1 },
+        "closed": { "type": "boolean", "default": false },
+        "periodic": { "type": "boolean", "default": false },
+        "rational": { "type": "boolean", "default": false },
+        "planar": { "type": "boolean", "default": false },
+        "knots": { "type": "array", "items": { "type": "number" } },
+        "controlPoints": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "weights": { "type": "array", "items": { "type": "number" }, "description": "Weights for rational splines" },
+        "fitPoints": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "startTangent": { "$ref": "#/$defs/Point3D" },
+        "endTangent": { "$ref": "#/$defs/Point3D" },
+        "knotTolerance": { "type": "number" },
+        "controlPointTolerance": { "type": "number" },
+        "fitTolerance": { "type": "number" }
+      },
+      "required": ["type", "degree"]
+    },
+
+    "RayEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "RAY" },
+        "origin": { "$ref": "#/$defs/Point3D" },
+        "direction": { "$ref": "#/$defs/Point3D" }
+      },
+      "required": ["type", "origin", "direction"]
+    },
+
+    "XLineEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "XLINE" },
+        "origin": { "$ref": "#/$defs/Point3D" },
+        "direction": { "$ref": "#/$defs/Point3D" }
+      },
+      "required": ["type", "origin", "direction"]
+    },
+
+    "LWPolylineVertex": {
+      "type": "object",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "startWidth": { "type": "number" },
+        "endWidth": { "type": "number" },
+        "bulge": { "type": "number", "default": 0, "description": "Tangent of 1/4 included arc angle. 0=straight, positive=CCW" }
+      },
+      "required": ["x", "y"]
+    },
+
+    "LWPolylineEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "LWPOLYLINE" },
+        "closed": { "type": "boolean", "default": false },
+        "constantWidth": { "type": "number" },
+        "elevation": { "type": "number", "default": 0 },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/LWPolylineVertex" } },
+        "plineGen": { "type": "boolean", "default": false, "description": "Linetype pattern across vertices" }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "PolylineVertex": {
+      "type": "object",
+      "properties": {
+        "position": { "$ref": "#/$defs/Point3D" },
+        "startWidth": { "type": "number" },
+        "endWidth": { "type": "number" },
+        "bulge": { "type": "number", "default": 0 },
+        "flags": { "type": "integer", "default": 0 },
+        "tangentDir": { "type": "number" },
+        "faceIndices": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "maxItems": 4,
+          "description": "Polyface mesh vertex indices"
+        }
+      },
+      "required": ["position"]
+    },
+
+    "Polyline2DEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLYLINE2D" },
+        "closed": { "type": "boolean", "default": false },
+        "curveFit": { "type": "boolean", "default": false },
+        "splineFit": { "type": "boolean", "default": false },
+        "smoothType": { "type": "string", "enum": ["none", "quadratic", "cubic", "bezier"], "default": "none" },
+        "defaultStartWidth": { "type": "number", "default": 0 },
+        "defaultEndWidth": { "type": "number", "default": 0 },
+        "elevation": { "type": "number", "default": 0 },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/PolylineVertex" } }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "Polyline3DEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLYLINE3D" },
+        "closed": { "type": "boolean", "default": false },
+        "splineFit": { "type": "boolean", "default": false },
+        "smoothType": { "type": "string", "enum": ["none", "quadratic", "cubic", "bezier"], "default": "none" },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "MLineEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "MLINE" },
+        "style": { "type": "string" },
+        "scale": { "type": "number", "default": 1.0 },
+        "justification": { "type": "string", "enum": ["top", "zero", "bottom"], "default": "top" },
+        "closed": { "type": "boolean", "default": false },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "directions": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "miterDirections": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "HelixEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "HELIX" },
+        "axisBasePoint": { "$ref": "#/$defs/Point3D" },
+        "axisTopPoint": { "$ref": "#/$defs/Point3D" },
+        "radius": { "type": "number" },
+        "topRadius": { "type": "number" },
+        "turns": { "type": "number" },
+        "height": { "type": "number" },
+        "handedness": { "type": "string", "enum": ["left", "right"], "default": "right" },
+        "constrain": { "type": "string", "enum": ["turn_height", "turns", "height"], "default": "turn_height" }
+      },
+      "required": ["type", "axisBasePoint", "axisTopPoint", "radius"]
+    },
+
+    "TextEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "TEXT" },
+        "text": { "type": "string" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "alignmentPoint": { "$ref": "#/$defs/Point3D" },
+        "height": { "type": "number" },
+        "widthFactor": { "type": "number", "default": 1.0 },
+        "rotation": { "type": "number", "default": 0, "description": "Rotation in radians" },
+        "oblique": { "type": "number", "default": 0, "description": "Oblique angle in radians" },
+        "style": { "type": "string" },
+        "backward": { "type": "boolean", "default": false },
+        "upsideDown": { "type": "boolean", "default": false },
+        "horizontalAlignment": { "type": "string", "enum": ["left", "center", "right", "aligned", "middle", "fit"], "default": "left" },
+        "verticalAlignment": { "type": "string", "enum": ["baseline", "bottom", "middle", "top"], "default": "baseline" }
+      },
+      "required": ["type", "text", "insertionPoint", "height"]
+    },
+
+    "MTextEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "MTEXT" },
+        "text": { "type": "string", "description": "Text content with formatting codes" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "height": { "type": "number" },
+        "width": { "type": "number", "description": "Reference rectangle width" },
+        "rotation": { "type": "number", "default": 0 },
+        "style": { "type": "string" },
+        "attachment": {
+          "type": "string",
+          "enum": ["top_left", "top_center", "top_right", "middle_left", "middle_center", "middle_right", "bottom_left", "bottom_center", "bottom_right"],
+          "default": "top_left"
+        },
+        "direction": { "type": "string", "enum": ["left_to_right", "top_to_bottom", "by_style"], "default": "left_to_right" },
+        "lineSpacingFactor": { "type": "number", "default": 1.0 },
+        "lineSpacingStyle": { "type": "string", "enum": ["at_least", "exact"], "default": "at_least" },
+        "columns": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["none", "static", "dynamic"] },
+            "count": { "type": "integer" },
+            "width": { "type": "number" },
+            "gutter": { "type": "number" },
+            "autoHeight": { "type": "boolean" },
+            "heights": { "type": "array", "items": { "type": "number" } }
+          }
+        },
+        "richText": {
+          "type": "array",
+          "description": "Structured rich text (alternative to formatting codes in text field)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "type": "string" },
+              "font": { "type": "string" },
+              "height": { "type": "number" },
+              "bold": { "type": "boolean" },
+              "italic": { "type": "boolean" },
+              "underline": { "type": "boolean" },
+              "overline": { "type": "boolean" },
+              "strikethrough": { "type": "boolean" },
+              "color": { "$ref": "#/$defs/Color" },
+              "widthFactor": { "type": "number" },
+              "oblique": { "type": "number" },
+              "alignment": { "type": "string", "enum": ["bottom", "center", "top"] },
+              "stacked": {
+                "type": "object",
+                "properties": {
+                  "top": { "type": "string" },
+                  "bottom": { "type": "string" },
+                  "style": { "type": "string", "enum": ["horizontal", "diagonal", "tolerance"] }
+                }
+              }
+            },
+            "required": ["text"]
+          }
+        }
+      },
+      "required": ["type", "text", "insertionPoint", "height"]
+    },
+
+    "DimensionCommon": {
+      "type": "object",
+      "description": "Common dimension properties",
+      "properties": {
+        "dimStyle": { "type": "string" },
+        "overrideText": { "type": "string", "description": "Text override (<> = measured value, empty = use measured)" },
+        "textPosition": { "$ref": "#/$defs/Point3D", "description": "Middle point of dimension text" },
+        "textRotation": { "type": "number" },
+        "attachment": { "type": "string", "enum": ["top_left", "top_center", "top_right", "middle_left", "middle_center", "middle_right", "bottom_left", "bottom_center", "bottom_right"] },
+        "blockRef": { "type": "string", "description": "Visual representation block name" },
+        "overrides": { "$ref": "#/$defs/DimStyle", "description": "Per-dimension style overrides" }
+      }
+    },
+
+    "DimensionLinearEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_LINEAR" },
+            "defPoint1": { "$ref": "#/$defs/Point3D", "description": "First extension line origin" },
+            "defPoint2": { "$ref": "#/$defs/Point3D", "description": "Second extension line origin" },
+            "dimLinePoint": { "$ref": "#/$defs/Point3D", "description": "Point on dimension line" },
+            "rotation": { "type": "number", "default": 0, "description": "Rotation angle of dimension line" },
+            "obliqueAngle": { "type": "number", "description": "Oblique extension line angle" }
+          },
+          "required": ["type", "defPoint1", "defPoint2", "dimLinePoint"]
+        }
+      ]
+    },
+
+    "DimensionAlignedEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_ALIGNED" },
+            "defPoint1": { "$ref": "#/$defs/Point3D" },
+            "defPoint2": { "$ref": "#/$defs/Point3D" },
+            "dimLinePoint": { "$ref": "#/$defs/Point3D" },
+            "obliqueAngle": { "type": "number" }
+          },
+          "required": ["type", "defPoint1", "defPoint2", "dimLinePoint"]
+        }
+      ]
+    },
+
+    "DimensionAngularEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_ANGULAR" },
+            "center": { "$ref": "#/$defs/Point3D", "description": "Vertex/center of the angle" },
+            "defPoint1": { "$ref": "#/$defs/Point3D", "description": "First extension line point" },
+            "defPoint2": { "$ref": "#/$defs/Point3D", "description": "Second extension line point" },
+            "arcPoint": { "$ref": "#/$defs/Point3D", "description": "Point on dimension arc" }
+          },
+          "required": ["type", "center", "defPoint1", "defPoint2", "arcPoint"]
+        }
+      ]
+    },
+
+    "DimensionRadiusEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_RADIUS" },
+            "center": { "$ref": "#/$defs/Point3D" },
+            "chordPoint": { "$ref": "#/$defs/Point3D", "description": "Point on circle/arc" },
+            "leaderLength": { "type": "number" }
+          },
+          "required": ["type", "center", "chordPoint"]
+        }
+      ]
+    },
+
+    "DimensionDiameterEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_DIAMETER" },
+            "center": { "$ref": "#/$defs/Point3D" },
+            "chordPoint": { "$ref": "#/$defs/Point3D" },
+            "leaderLength": { "type": "number" }
+          },
+          "required": ["type", "center", "chordPoint"]
+        }
+      ]
+    },
+
+    "DimensionOrdinateEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_ORDINATE" },
+            "featurePoint": { "$ref": "#/$defs/Point3D" },
+            "leaderEndpoint": { "$ref": "#/$defs/Point3D" },
+            "isXOrdinate": { "type": "boolean", "description": "true=X ordinate, false=Y ordinate" }
+          },
+          "required": ["type", "featurePoint", "leaderEndpoint"]
+        }
+      ]
+    },
+
+    "DimensionArcEntity": {
+      "allOf": [
+        { "$ref": "#/$defs/DimensionCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "DIMENSION_ARC" },
+            "center": { "$ref": "#/$defs/Point3D" },
+            "defPoint1": { "$ref": "#/$defs/Point3D" },
+            "defPoint2": { "$ref": "#/$defs/Point3D" },
+            "arcPoint": { "$ref": "#/$defs/Point3D" },
+            "hasLeader": { "type": "boolean", "default": false },
+            "leaderPoint1": { "$ref": "#/$defs/Point3D" },
+            "leaderPoint2": { "$ref": "#/$defs/Point3D" }
+          },
+          "required": ["type", "center", "defPoint1", "defPoint2", "arcPoint"]
+        }
+      ]
+    },
+
+    "LeaderEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "LEADER" },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "hasArrowhead": { "type": "boolean", "default": true },
+        "pathType": { "type": "string", "enum": ["straight", "spline"], "default": "straight" },
+        "annotationType": { "type": "string", "enum": ["mtext", "tolerance", "block", "none"], "default": "mtext" },
+        "annotationRef": { "$ref": "#/$defs/EntityRef" },
+        "dimStyle": { "type": "string" },
+        "textWidth": { "type": "number" },
+        "textHeight": { "type": "number" },
+        "hooklineDirection": { "type": "boolean" },
+        "hookline": { "type": "boolean" }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "MultiLeaderEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "MULTILEADER" },
+        "style": { "type": "string", "description": "MLeader style name" },
+        "contentType": { "type": "string", "enum": ["mtext", "block", "none"], "default": "mtext" },
+        "textContent": {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" },
+            "style": { "type": "string" },
+            "insertionPoint": { "$ref": "#/$defs/Point3D" },
+            "direction": { "$ref": "#/$defs/Point3D" },
+            "rotation": { "type": "number" },
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "lineSpacing": { "type": "number" },
+            "attachment": { "type": "string" },
+            "color": { "$ref": "#/$defs/Color" }
+          }
+        },
+        "blockContent": {
+          "type": "object",
+          "properties": {
+            "blockName": { "type": "string" },
+            "insertionPoint": { "$ref": "#/$defs/Point3D" },
+            "scale": { "$ref": "#/$defs/Point3D" },
+            "rotation": { "type": "number" },
+            "color": { "$ref": "#/$defs/Color" },
+            "attributes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "tag": { "type": "string" },
+                  "value": { "type": "string" },
+                  "width": { "type": "number" },
+                  "height": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "leaders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hasHookline": { "type": "boolean" },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+                    "breakStart": { "$ref": "#/$defs/Point3D" },
+                    "breakEnd": { "$ref": "#/$defs/Point3D" }
+                  },
+                  "required": ["vertices"]
+                }
+              }
+            }
+          }
+        },
+        "dogleg": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "length": { "type": "number" }
+          }
+        },
+        "arrowSize": { "type": "number" },
+        "arrowBlock": { "type": "string" }
+      },
+      "required": ["type"]
+    },
+
+    "ToleranceEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "TOLERANCE" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "direction": { "$ref": "#/$defs/Point3D" },
+        "dimStyle": { "type": "string" },
+        "frames": {
+          "type": "array",
+          "description": "Tolerance frames (feature control frame rows)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "symbol": {
+                "type": "string",
+                "enum": ["position", "concentricity", "symmetry", "parallelism", "perpendicularity", "angularity", "cylindricity", "flatness", "circularity", "straightness", "profile_surface", "profile_line", "circular_runout", "total_runout"]
+              },
+              "tolerance1": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "diameterSymbol": { "type": "boolean", "default": false },
+                  "materialCondition": { "type": "string", "enum": ["none", "mmc", "lmc", "rfs"] }
+                }
+              },
+              "tolerance2": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "number" },
+                  "diameterSymbol": { "type": "boolean" },
+                  "materialCondition": { "type": "string", "enum": ["none", "mmc", "lmc", "rfs"] }
+                }
+              },
+              "datum1": {
+                "type": "object",
+                "properties": {
+                  "letter": { "type": "string" },
+                  "materialCondition": { "type": "string", "enum": ["none", "mmc", "lmc", "rfs"] }
+                }
+              },
+              "datum2": {
+                "type": "object",
+                "properties": {
+                  "letter": { "type": "string" },
+                  "materialCondition": { "type": "string", "enum": ["none", "mmc", "lmc", "rfs"] }
+                }
+              },
+              "datum3": {
+                "type": "object",
+                "properties": {
+                  "letter": { "type": "string" },
+                  "materialCondition": { "type": "string", "enum": ["none", "mmc", "lmc", "rfs"] }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["type", "insertionPoint"]
+    },
+
+    "HatchBoundaryEdge": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "edgeType": { "const": "line" },
+            "start": { "$ref": "#/$defs/Point2D" },
+            "end": { "$ref": "#/$defs/Point2D" }
+          },
+          "required": ["edgeType", "start", "end"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "edgeType": { "const": "arc" },
+            "center": { "$ref": "#/$defs/Point2D" },
+            "radius": { "type": "number" },
+            "startAngle": { "type": "number" },
+            "endAngle": { "type": "number" },
+            "counterClockwise": { "type": "boolean" }
+          },
+          "required": ["edgeType", "center", "radius", "startAngle", "endAngle"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "edgeType": { "const": "ellipticArc" },
+            "center": { "$ref": "#/$defs/Point2D" },
+            "majorAxisEndpoint": { "$ref": "#/$defs/Point2D" },
+            "minorAxisRatio": { "type": "number" },
+            "startAngle": { "type": "number" },
+            "endAngle": { "type": "number" },
+            "counterClockwise": { "type": "boolean" }
+          },
+          "required": ["edgeType", "center", "majorAxisEndpoint", "minorAxisRatio"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "edgeType": { "const": "spline" },
+            "degree": { "type": "integer" },
+            "rational": { "type": "boolean" },
+            "periodic": { "type": "boolean" },
+            "knots": { "type": "array", "items": { "type": "number" } },
+            "controlPoints": { "type": "array", "items": { "$ref": "#/$defs/Point2D" } },
+            "weights": { "type": "array", "items": { "type": "number" } },
+            "fitPoints": { "type": "array", "items": { "$ref": "#/$defs/Point2D" } }
+          },
+          "required": ["edgeType", "degree", "controlPoints"]
+        }
+      ]
+    },
+
+    "HatchBoundary": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["polyline", "edges", "default", "outermost"] },
+        "polyline": {
+          "type": "object",
+          "description": "Polyline boundary (when type=polyline)",
+          "properties": {
+            "closed": { "type": "boolean", "default": true },
+            "vertices": { "type": "array", "items": { "$ref": "#/$defs/LWPolylineVertex" } }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "description": "Edge boundary (when type=edges)",
+          "items": { "$ref": "#/$defs/HatchBoundaryEdge" }
+        },
+        "sourceRefs": {
+          "type": "array",
+          "description": "References to source entities (associative hatch)",
+          "items": { "$ref": "#/$defs/EntityRef" }
+        }
+      }
+    },
+
+    "HatchEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "HATCH" },
+        "elevation": { "type": "number", "default": 0 },
+        "patternName": { "type": "string" },
+        "solid": { "type": "boolean", "default": false },
+        "associative": { "type": "boolean", "default": false },
+        "boundaries": { "type": "array", "items": { "$ref": "#/$defs/HatchBoundary" } },
+        "patternType": { "type": "string", "enum": ["user_defined", "predefined", "custom"] },
+        "patternAngle": { "type": "number", "default": 0 },
+        "patternScale": { "type": "number", "default": 1.0 },
+        "patternDouble": { "type": "boolean", "default": false, "description": "Double hatch (cross-hatch for user-defined)" },
+        "patternDefinition": {
+          "type": "array",
+          "description": "Custom pattern lines",
+          "items": {
+            "type": "object",
+            "properties": {
+              "angle": { "type": "number" },
+              "basePoint": { "$ref": "#/$defs/Point2D" },
+              "offset": { "$ref": "#/$defs/Point2D" },
+              "dashes": { "type": "array", "items": { "type": "number" } }
+            }
+          }
+        },
+        "gradient": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "enum": ["LINEAR", "CYLINDER", "INVCYLINDER", "SPHERICAL", "INVSPHERICAL", "HEMISPHERICAL", "INVHEMISPHERICAL", "CURVED", "INVCURVED"] },
+            "angle": { "type": "number", "default": 0 },
+            "centered": { "type": "boolean", "default": false },
+            "shift": { "type": "number" },
+            "singleColor": { "type": "boolean" },
+            "tint": { "type": "number" },
+            "color1": { "$ref": "#/$defs/Color" },
+            "color2": { "$ref": "#/$defs/Color" }
+          }
+        },
+        "originPoint": { "$ref": "#/$defs/Point2D" },
+        "annotative": { "type": "boolean", "default": false }
+      },
+      "required": ["type", "boundaries"]
+    },
+
+    "SolidEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SOLID" },
+        "point1": { "$ref": "#/$defs/Point3D" },
+        "point2": { "$ref": "#/$defs/Point3D" },
+        "point3": { "$ref": "#/$defs/Point3D" },
+        "point4": { "$ref": "#/$defs/Point3D", "description": "Same as point3 for triangle" }
+      },
+      "required": ["type", "point1", "point2", "point3"]
+    },
+
+    "TraceEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "TRACE" },
+        "point1": { "$ref": "#/$defs/Point3D" },
+        "point2": { "$ref": "#/$defs/Point3D" },
+        "point3": { "$ref": "#/$defs/Point3D" },
+        "point4": { "$ref": "#/$defs/Point3D" }
+      },
+      "required": ["type", "point1", "point2", "point3"]
+    },
+
+    "Face3DEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "3DFACE" },
+        "point1": { "$ref": "#/$defs/Point3D" },
+        "point2": { "$ref": "#/$defs/Point3D" },
+        "point3": { "$ref": "#/$defs/Point3D" },
+        "point4": { "$ref": "#/$defs/Point3D" },
+        "invisibleEdges": {
+          "type": "object",
+          "properties": {
+            "edge1": { "type": "boolean", "default": false },
+            "edge2": { "type": "boolean", "default": false },
+            "edge3": { "type": "boolean", "default": false },
+            "edge4": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      "required": ["type", "point1", "point2", "point3"]
+    },
+
+    "BlockDefinition": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "basePoint": { "$ref": "#/$defs/Point3D" },
+        "description": { "type": "string" },
+        "isAnonymous": { "type": "boolean", "default": false },
+        "isXRef": { "type": "boolean", "default": false },
+        "isXRefOverlay": { "type": "boolean", "default": false },
+        "xRefPath": { "type": "string" },
+        "hasAttributes": { "type": "boolean", "default": false },
+        "entities": { "type": "array", "items": { "$ref": "#/$defs/Entity" } },
+        "attDefs": { "type": "array", "items": { "$ref": "#/$defs/AttDefEntity" } },
+        "layoutRef": { "$ref": "#/$defs/EntityRef" },
+        "dynamicBlock": {
+          "type": "object",
+          "description": "Dynamic block parameters and actions",
+          "properties": {
+            "parameters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string", "enum": ["linear", "polar", "xy", "rotation", "alignment", "flip", "visibility", "lookup", "base_point", "point"] },
+                  "basePoint": { "$ref": "#/$defs/Point3D" },
+                  "value": {},
+                  "valueList": { "type": "array" },
+                  "description": { "type": "string" }
+                }
+              }
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "enum": ["move", "scale", "stretch", "polar_stretch", "rotate", "flip", "array", "lookup"] },
+                  "parameter": { "type": "string" },
+                  "selectionSet": { "type": "array", "items": { "type": "integer" } }
+                }
+              }
+            },
+            "visibilityStates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "visibleEntities": { "type": "array", "items": { "type": "integer" } }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["name"]
+    },
+
+    "InsertEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "INSERT" },
+        "blockName": { "type": "string" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "scaleX": { "type": "number", "default": 1.0 },
+        "scaleY": { "type": "number", "default": 1.0 },
+        "scaleZ": { "type": "number", "default": 1.0 },
+        "rotation": { "type": "number", "default": 0 },
+        "attributes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AttribEntity" }
+        },
+        "columnCount": { "type": "integer", "default": 1, "description": "MINSERT column count" },
+        "rowCount": { "type": "integer", "default": 1, "description": "MINSERT row count" },
+        "columnSpacing": { "type": "number", "default": 0 },
+        "rowSpacing": { "type": "number", "default": 0 }
+      },
+      "required": ["type", "blockName", "insertionPoint"]
+    },
+
+    "AttDefEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ATTDEF" },
+        "tag": { "type": "string" },
+        "prompt": { "type": "string" },
+        "defaultValue": { "type": "string" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "alignmentPoint": { "$ref": "#/$defs/Point3D" },
+        "height": { "type": "number" },
+        "rotation": { "type": "number", "default": 0 },
+        "style": { "type": "string" },
+        "invisible": { "type": "boolean", "default": false },
+        "constant": { "type": "boolean", "default": false },
+        "verify": { "type": "boolean", "default": false },
+        "preset": { "type": "boolean", "default": false },
+        "horizontalAlignment": { "type": "string" },
+        "verticalAlignment": { "type": "string" },
+        "widthFactor": { "type": "number", "default": 1.0 },
+        "oblique": { "type": "number", "default": 0 },
+        "multiLine": { "type": "boolean", "default": false }
+      },
+      "required": ["type", "tag", "insertionPoint", "height"]
+    },
+
+    "AttribEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ATTRIB" },
+        "tag": { "type": "string" },
+        "value": { "type": "string" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "alignmentPoint": { "$ref": "#/$defs/Point3D" },
+        "height": { "type": "number" },
+        "rotation": { "type": "number", "default": 0 },
+        "style": { "type": "string" },
+        "invisible": { "type": "boolean", "default": false },
+        "horizontalAlignment": { "type": "string" },
+        "verticalAlignment": { "type": "string" },
+        "widthFactor": { "type": "number", "default": 1.0 },
+        "oblique": { "type": "number", "default": 0 }
+      },
+      "required": ["type", "tag", "value", "insertionPoint", "height"]
+    },
+
+    "ViewportEntity": {
+      "type": "object",
+      "description": "Paper space viewport - window into model space",
+      "properties": {
+        "type": { "const": "VIEWPORT" },
+        "center": { "$ref": "#/$defs/Point3D", "description": "Center in paper space" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "id": { "type": "integer" },
+        "viewCenter": { "$ref": "#/$defs/Point2D", "description": "View center in model space" },
+        "viewHeight": { "type": "number", "description": "View height in model space units" },
+        "viewDirection": { "$ref": "#/$defs/Point3D" },
+        "viewTarget": { "$ref": "#/$defs/Point3D" },
+        "lensLength": { "type": "number", "default": 50 },
+        "frontClip": { "type": "number" },
+        "backClip": { "type": "number" },
+        "snapBase": { "$ref": "#/$defs/Point2D" },
+        "snapSpacing": { "$ref": "#/$defs/Point2D" },
+        "gridSpacing": { "$ref": "#/$defs/Point2D" },
+        "snapAngle": { "type": "number" },
+        "twistAngle": { "type": "number", "default": 0 },
+        "circleSides": { "type": "integer" },
+        "frozenLayers": { "type": "array", "items": { "type": "string" } },
+        "ucsRef": { "$ref": "#/$defs/EntityRef" },
+        "scale": { "type": "number", "description": "Effective viewport scale (view height / paper height)" },
+        "locked": { "type": "boolean", "default": false },
+        "on": { "type": "boolean", "default": true },
+        "clipBoundary": { "$ref": "#/$defs/EntityRef", "description": "Non-rectangular clip boundary entity" }
+      },
+      "required": ["type", "center", "width", "height"]
+    },
+
+    "ImageEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IMAGE" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "uVector": { "$ref": "#/$defs/Point3D", "description": "U-direction vector (size and direction of one pixel)" },
+        "vVector": { "$ref": "#/$defs/Point3D", "description": "V-direction vector" },
+        "imageSize": { "$ref": "#/$defs/Point2D", "description": "[width, height] in pixels" },
+        "imagePath": { "type": "string" },
+        "imageData": { "type": "string", "description": "Base64-encoded image data (for embedded images)" },
+        "showImage": { "type": "boolean", "default": true },
+        "showFrame": { "type": "boolean", "default": false },
+        "brightness": { "type": "integer", "minimum": 0, "maximum": 100, "default": 50 },
+        "contrast": { "type": "integer", "minimum": 0, "maximum": 100, "default": 50 },
+        "fade": { "type": "integer", "minimum": 0, "maximum": 100, "default": 0 },
+        "clipping": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "type": { "type": "string", "enum": ["rectangular", "polygonal"] },
+            "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point2D" } }
+          }
+        }
+      },
+      "required": ["type", "insertionPoint", "uVector", "vVector", "imageSize"]
+    },
+
+    "WipeoutEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "WIPEOUT" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "uVector": { "$ref": "#/$defs/Point3D" },
+        "vVector": { "$ref": "#/$defs/Point3D" },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point2D" } },
+        "showFrame": { "type": "boolean", "default": false }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "TableEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "TABLE" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "rotation": { "type": "number", "default": 0 },
+        "style": { "type": "string" },
+        "direction": { "$ref": "#/$defs/Point3D" },
+        "rows": { "type": "integer" },
+        "columns": { "type": "integer" },
+        "rowHeights": { "type": "array", "items": { "type": "number" } },
+        "columnWidths": { "type": "array", "items": { "type": "number" } },
+        "cells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "row": { "type": "integer" },
+              "column": { "type": "integer" },
+              "text": { "type": "string" },
+              "blockName": { "type": "string" },
+              "textHeight": { "type": "number" },
+              "textStyle": { "type": "string" },
+              "textColor": { "$ref": "#/$defs/Color" },
+              "fillColor": { "$ref": "#/$defs/Color" },
+              "alignment": { "type": "string" },
+              "borderColor": {
+                "type": "object",
+                "properties": {
+                  "top": { "$ref": "#/$defs/Color" },
+                  "bottom": { "$ref": "#/$defs/Color" },
+                  "left": { "$ref": "#/$defs/Color" },
+                  "right": { "$ref": "#/$defs/Color" }
+                }
+              },
+              "borderLineweight": {
+                "type": "object",
+                "properties": {
+                  "top": { "type": "number" },
+                  "bottom": { "type": "number" },
+                  "left": { "type": "number" },
+                  "right": { "type": "number" }
+                }
+              },
+              "borderVisible": {
+                "type": "object",
+                "properties": {
+                  "top": { "type": "boolean" },
+                  "bottom": { "type": "boolean" },
+                  "left": { "type": "boolean" },
+                  "right": { "type": "boolean" }
+                }
+              },
+              "mergeRange": {
+                "type": "object",
+                "properties": {
+                  "rowSpan": { "type": "integer" },
+                  "colSpan": { "type": "integer" }
+                }
+              },
+              "formula": { "type": "string", "description": "Cell formula (e.g., =Sum(A1:A5))" },
+              "fieldRef": { "$ref": "#/$defs/EntityRef" }
+            }
+          }
+        }
+      },
+      "required": ["type", "insertionPoint", "rows", "columns"]
+    },
+
+    "Solid3DEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "3DSOLID" },
+        "acisData": { "type": "string", "description": "ACIS/ShapeManager solid modeling data" },
+        "modelerVersion": { "type": "integer" },
+        "brep": {
+          "type": "object",
+          "description": "Alternative B-rep representation",
+          "properties": {
+            "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+            "faces": { "type": "array", "items": { "type": "array", "items": { "type": "integer" } } },
+            "normals": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } }
+          }
+        }
+      },
+      "required": ["type"]
+    },
+
+    "RegionEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "REGION" },
+        "acisData": { "type": "string" },
+        "modelerVersion": { "type": "integer" }
+      },
+      "required": ["type"]
+    },
+
+    "BodyEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "BODY" },
+        "acisData": { "type": "string" },
+        "modelerVersion": { "type": "integer" }
+      },
+      "required": ["type"]
+    },
+
+    "SurfaceEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SURFACE" },
+        "surfaceType": { "type": "string", "enum": ["planar", "extruded", "revolved", "lofted", "swept", "nurbs"] },
+        "acisData": { "type": "string" },
+        "modelerVersion": { "type": "integer" }
+      },
+      "required": ["type", "surfaceType"]
+    },
+
+    "MeshEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "MESH" },
+        "subdivisionLevel": { "type": "integer", "default": 0 },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "faces": {
+          "type": "array",
+          "description": "Each face is an array of vertex indices",
+          "items": { "type": "array", "items": { "type": "integer" } }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "integer" },
+              "to": { "type": "integer" },
+              "crease": { "type": "number", "default": 0 }
+            }
+          }
+        }
+      },
+      "required": ["type", "vertices", "faces"]
+    },
+
+    "ShapeEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SHAPE" },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "shapeNumber": { "type": "integer" },
+        "shapeFile": { "type": "string" },
+        "size": { "type": "number" },
+        "rotation": { "type": "number", "default": 0 },
+        "xScale": { "type": "number", "default": 1.0 },
+        "oblique": { "type": "number", "default": 0 }
+      },
+      "required": ["type", "insertionPoint", "shapeNumber", "size"]
+    },
+
+    "OleEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "OLE2FRAME" },
+        "upperLeft": { "$ref": "#/$defs/Point3D" },
+        "lowerRight": { "$ref": "#/$defs/Point3D" },
+        "oleType": { "type": "string", "enum": ["linked", "embedded", "static"] },
+        "data": { "type": "string", "description": "Base64-encoded OLE data" }
+      },
+      "required": ["type"]
+    },
+
+    "UnderlayEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "UNDERLAY" },
+        "underlayType": { "type": "string", "enum": ["pdf", "dwf", "dgn"] },
+        "insertionPoint": { "$ref": "#/$defs/Point3D" },
+        "scaleX": { "type": "number", "default": 1.0 },
+        "scaleY": { "type": "number", "default": 1.0 },
+        "scaleZ": { "type": "number", "default": 1.0 },
+        "rotation": { "type": "number", "default": 0 },
+        "filePath": { "type": "string" },
+        "contrast": { "type": "integer", "default": 100 },
+        "fade": { "type": "integer", "default": 0 },
+        "monochrome": { "type": "boolean", "default": false },
+        "adjustColors": { "type": "boolean", "default": false },
+        "clipBoundary": { "type": "array", "items": { "$ref": "#/$defs/Point2D" } },
+        "clipInverted": { "type": "boolean", "default": false },
+        "on": { "type": "boolean", "default": true }
+      },
+      "required": ["type", "underlayType", "insertionPoint", "filePath"]
+    },
+
+    "LightEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "LIGHT" },
+        "lightType": { "type": "string", "enum": ["point", "spot", "distant"] },
+        "position": { "$ref": "#/$defs/Point3D" },
+        "target": { "$ref": "#/$defs/Point3D" },
+        "intensity": { "type": "number", "default": 1.0 },
+        "color": { "$ref": "#/$defs/Color" },
+        "on": { "type": "boolean", "default": true },
+        "castShadows": { "type": "boolean", "default": false },
+        "hotspotAngle": { "type": "number", "description": "Spot light inner cone angle" },
+        "falloffAngle": { "type": "number", "description": "Spot light outer cone angle" },
+        "attenuation": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["none", "inverse_linear", "inverse_square"] },
+            "startLimit": { "type": "number" },
+            "endLimit": { "type": "number" }
+          }
+        }
+      },
+      "required": ["type", "lightType", "position"]
+    },
+
+    "CameraEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "CAMERA" },
+        "position": { "$ref": "#/$defs/Point3D" },
+        "target": { "$ref": "#/$defs/Point3D" },
+        "lensLength": { "type": "number", "default": 50 },
+        "fieldOfView": { "type": "number" },
+        "frontClip": { "type": "number" },
+        "backClip": { "type": "number" },
+        "roll": { "type": "number", "default": 0 }
+      },
+      "required": ["type", "position", "target"]
+    },
+
+    "SectionEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SECTION" },
+        "vertices": { "type": "array", "items": { "$ref": "#/$defs/Point3D" } },
+        "direction": { "$ref": "#/$defs/Point3D" },
+        "state": { "type": "string", "enum": ["plane", "boundary", "volume"] },
+        "name": { "type": "string" }
+      },
+      "required": ["type", "vertices"]
+    },
+
+    "GeoMarkerEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "GEOPOSITIONMARKER" },
+        "position": { "$ref": "#/$defs/Point3D" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "altitude": { "type": "number" },
+        "text": { "type": "string" }
+      },
+      "required": ["type", "position"]
+    },
+
+    "ProxyEntity": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "PROXY" },
+        "originalType": { "type": "string" },
+        "applicationName": { "type": "string" },
+        "className": { "type": "string" },
+        "graphicsData": { "type": "string", "description": "Base64-encoded proxy graphics" },
+        "entityData": { "type": "string", "description": "Base64-encoded entity data" },
+        "proxyFlags": { "type": "integer" }
+      },
+      "required": ["type", "originalType"]
+    },
+
+    "DrawingObject": {
+      "type": "object",
+      "required": ["objectType"],
+      "properties": {
+        "objectType": { "type": "string" },
+        "handle": { "$ref": "#/$defs/Handle" }
+      },
+      "oneOf": [
+        { "$ref": "#/$defs/LayoutObject" },
+        { "$ref": "#/$defs/PlotSettingsObject" },
+        { "$ref": "#/$defs/GroupObject" },
+        { "$ref": "#/$defs/MLineStyleObject" },
+        { "$ref": "#/$defs/TableStyleObject" },
+        { "$ref": "#/$defs/MLeaderStyleObject" },
+        { "$ref": "#/$defs/ImageDefObject" },
+        { "$ref": "#/$defs/FieldObject" },
+        { "$ref": "#/$defs/GeoDataObject" },
+        { "$ref": "#/$defs/SortEntsTableObject" },
+        { "$ref": "#/$defs/MaterialObject" },
+        { "$ref": "#/$defs/VisualStyleObject" },
+        { "$ref": "#/$defs/ScaleObject" },
+        { "$ref": "#/$defs/DictionaryObject" },
+        { "$ref": "#/$defs/XRecordObject" }
+      ]
+    },
+
+    "LayoutObject": {
+      "type": "object",
+      "description": "Drawing sheet layout (paper space or model space)",
+      "properties": {
+        "objectType": { "const": "LAYOUT" },
+        "name": { "type": "string" },
+        "tabOrder": { "type": "integer" },
+        "isModelSpace": { "type": "boolean", "default": false },
+        "blockRecordRef": { "$ref": "#/$defs/EntityRef" },
+        "plotSettings": { "$ref": "#/$defs/PlotSettingsObject" },
+        "limitsMin": { "$ref": "#/$defs/Point2D" },
+        "limitsMax": { "$ref": "#/$defs/Point2D" },
+        "extentsMin": { "$ref": "#/$defs/Point3D" },
+        "extentsMax": { "$ref": "#/$defs/Point3D" },
+        "origin": { "$ref": "#/$defs/Point3D" },
+        "xAxis": { "$ref": "#/$defs/Point3D" },
+        "yAxis": { "$ref": "#/$defs/Point3D" },
+        "elevation": { "type": "number", "default": 0 }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "PlotSettingsObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "PLOTSETTINGS" },
+        "name": { "type": "string" },
+        "printer": { "type": "string" },
+        "paperSize": { "type": "string" },
+        "plotOrigin": { "$ref": "#/$defs/Point2D" },
+        "paperWidth": { "type": "number" },
+        "paperHeight": { "type": "number" },
+        "marginLeft": { "type": "number" },
+        "marginBottom": { "type": "number" },
+        "marginRight": { "type": "number" },
+        "marginTop": { "type": "number" },
+        "plotArea": { "type": "string", "enum": ["display", "extents", "limits", "view", "window", "layout"] },
+        "plotScale": { "type": "number", "description": "Custom scale factor" },
+        "scaleNumerator": { "type": "number" },
+        "scaleDenominator": { "type": "number" },
+        "scaleToFit": { "type": "boolean", "default": false },
+        "plotRotation": { "type": "string", "enum": ["0", "90", "180", "270"] },
+        "plotStyleTable": { "type": "string", "description": "CTB or STB file name" },
+        "plotStyleType": { "type": "string", "enum": ["color_dependent", "named"] },
+        "centerPlot": { "type": "boolean", "default": false },
+        "plotHidden": { "type": "boolean", "default": false },
+        "plotTransparency": { "type": "boolean", "default": false },
+        "plotViewportFirst": { "type": "boolean", "default": true },
+        "windowMin": { "$ref": "#/$defs/Point2D" },
+        "windowMax": { "$ref": "#/$defs/Point2D" },
+        "shadePlot": { "type": "string", "enum": ["as_displayed", "wireframe", "hidden", "rendered"] },
+        "quality": { "type": "string", "enum": ["draft", "preview", "normal", "presentation", "maximum", "custom"] },
+        "customDpi": { "type": "integer" }
+      }
+    },
+
+    "GroupObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "GROUP" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "selectable": { "type": "boolean", "default": true },
+        "members": { "type": "array", "items": { "$ref": "#/$defs/EntityRef" } }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "MLineStyleObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "MLINESTYLE" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "fillColor": { "$ref": "#/$defs/Color" },
+        "filled": { "type": "boolean", "default": false },
+        "startAngle": { "type": "number", "default": 1.5708 },
+        "endAngle": { "type": "number", "default": 1.5708 },
+        "showMiters": { "type": "boolean", "default": true },
+        "startCap": { "type": "string", "enum": ["none", "line", "inner_arcs", "outer_arcs"] },
+        "endCap": { "type": "string", "enum": ["none", "line", "inner_arcs", "outer_arcs"] },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "offset": { "type": "number" },
+              "color": { "$ref": "#/$defs/Color" },
+              "linetype": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "TableStyleObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "TABLESTYLE" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "flowDirection": { "type": "string", "enum": ["down", "up"], "default": "down" },
+        "cellStyles": {
+          "type": "object",
+          "properties": {
+            "title": { "$ref": "#/$defs/CellStyle" },
+            "header": { "$ref": "#/$defs/CellStyle" },
+            "data": { "$ref": "#/$defs/CellStyle" }
+          }
+        }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "CellStyle": {
+      "type": "object",
+      "properties": {
+        "textHeight": { "type": "number" },
+        "textStyle": { "type": "string" },
+        "textColor": { "$ref": "#/$defs/Color" },
+        "fillColor": { "$ref": "#/$defs/Color" },
+        "alignment": { "type": "string", "enum": ["top_left", "top_center", "top_right", "middle_left", "middle_center", "middle_right", "bottom_left", "bottom_center", "bottom_right"] },
+        "borderColor": { "$ref": "#/$defs/Color" },
+        "borderLineweight": { "type": "number" },
+        "borderVisible": { "type": "boolean", "default": true },
+        "hasFill": { "type": "boolean", "default": false }
+      }
+    },
+
+    "MLeaderStyleObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "MLEADERSTYLE" },
+        "name": { "type": "string" },
+        "contentType": { "type": "string", "enum": ["mtext", "block", "none"] },
+        "textStyle": { "type": "string" },
+        "textColor": { "$ref": "#/$defs/Color" },
+        "textHeight": { "type": "number" },
+        "textAlignment": { "type": "string" },
+        "blockName": { "type": "string" },
+        "blockColor": { "$ref": "#/$defs/Color" },
+        "arrowSize": { "type": "number" },
+        "arrowBlock": { "type": "string" },
+        "leaderType": { "type": "string", "enum": ["straight", "spline", "none"] },
+        "leaderColor": { "$ref": "#/$defs/Color" },
+        "leaderLineweight": { "type": "number" },
+        "leaderLinetype": { "type": "string" },
+        "doglegEnabled": { "type": "boolean", "default": true },
+        "doglegLength": { "type": "number" },
+        "maxLeaderPoints": { "type": "integer" },
+        "landingGap": { "type": "number" },
+        "scale": { "type": "number", "default": 1.0 }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "ImageDefObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "IMAGEDEF" },
+        "filePath": { "type": "string" },
+        "width": { "type": "integer" },
+        "height": { "type": "integer" },
+        "resolution": { "$ref": "#/$defs/Point2D", "description": "[x, y] pixels per unit" },
+        "isLoaded": { "type": "boolean", "default": true }
+      },
+      "required": ["objectType", "filePath"]
+    },
+
+    "FieldObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "FIELD" },
+        "formula": { "type": "string", "description": "Field expression code" },
+        "format": { "type": "string" },
+        "evaluatedValue": { "type": "string" },
+        "childFields": { "type": "array", "items": { "$ref": "#/$defs/EntityRef" } }
+      },
+      "required": ["objectType", "formula"]
+    },
+
+    "GeoDataObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "GEODATA" },
+        "coordinateSystem": { "type": "string", "description": "Coordinate system ID (e.g., EPSG code)" },
+        "designPoint": { "$ref": "#/$defs/Point3D" },
+        "referencePoint": { "$ref": "#/$defs/Point3D" },
+        "northDirection": { "$ref": "#/$defs/Point2D" },
+        "horizontalUnit": { "type": "string" },
+        "verticalUnit": { "type": "string" },
+        "scaleEstimation": { "type": "number" }
+      },
+      "required": ["objectType"]
+    },
+
+    "SortEntsTableObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "SORTENTSTABLE" },
+        "blockRef": { "$ref": "#/$defs/EntityRef" },
+        "entityOrder": { "type": "array", "items": { "$ref": "#/$defs/EntityRef" } }
+      },
+      "required": ["objectType"]
+    },
+
+    "MaterialObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "MATERIAL" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "ambient": { "$ref": "#/$defs/Color" },
+        "diffuse": { "$ref": "#/$defs/Color" },
+        "specular": { "$ref": "#/$defs/Color" },
+        "shininess": { "type": "number" },
+        "opacity": { "type": "number", "default": 1.0 },
+        "reflectance": { "type": "number" },
+        "refraction": { "type": "number" },
+        "selfIllumination": { "type": "number" },
+        "textures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mapType": { "type": "string", "enum": ["diffuse", "opacity", "bump", "reflection", "refraction"] },
+              "filePath": { "type": "string" },
+              "blendFactor": { "type": "number" },
+              "scaleU": { "type": "number" },
+              "scaleV": { "type": "number" }
+            }
+          }
+        }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "VisualStyleObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "VISUALSTYLE" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "faceStyle": { "type": "string", "enum": ["invisible", "real", "gooch", "none"] },
+        "edgeModel": { "type": "string", "enum": ["no_edges", "isolines", "facet_edges"] },
+        "faceColorMode": { "type": "string" },
+        "faceOpacity": { "type": "number" },
+        "edgeColor": { "$ref": "#/$defs/Color" },
+        "silhouetteColor": { "$ref": "#/$defs/Color" },
+        "silhouetteWidth": { "type": "integer" }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "ScaleObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "SCALE" },
+        "name": { "type": "string" },
+        "paperUnits": { "type": "number" },
+        "drawingUnits": { "type": "number" },
+        "isUnitScale": { "type": "boolean" }
+      },
+      "required": ["objectType", "name"]
+    },
+
+    "DictionaryObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "DICTIONARY" },
+        "entries": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/EntityRef" }
+        },
+        "hardOwned": { "type": "boolean", "default": false },
+        "defaultValue": { "$ref": "#/$defs/EntityRef" }
+      },
+      "required": ["objectType"]
+    },
+
+    "XRecordObject": {
+      "type": "object",
+      "properties": {
+        "objectType": { "const": "XRECORD" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "integer" },
+              "value": {}
+            }
+          }
+        }
+      },
+      "required": ["objectType"]
+    }
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "ifcx": "1.0",
+  "header": {
+    "application": "IFCX Example",
+    "author": "Ifc-Factory",
+    "createDate": "2026-03-24T00:00:00Z",
+    "units": {
+      "linear": "millimeters",
+      "measurement": "metric",
+      "linearPrecision": 4
+    },
+    "extents": {
+      "min": [0, 0, 0],
+      "max": [1000, 800, 0]
+    }
+  },
+  "tables": {
+    "layers": {
+      "0": {},
+      "Walls": { "color": { "r": 1, "g": 0, "b": 0 }, "lineweight": 0.5 },
+      "Dimensions": { "color": { "r": 0, "g": 0.5, "b": 0 }, "lineweight": 0.18 },
+      "Text": { "color": { "r": 0, "g": 0, "b": 1 } },
+      "Hatch": { "color": { "r": 0.5, "g": 0.5, "b": 0.5 } }
+    },
+    "linetypes": {
+      "Continuous": { "description": "Solid line", "pattern": [] },
+      "Dashed": { "description": "Dashed line", "patternLength": 12, "pattern": [8, -4] },
+      "Center": { "description": "Center line", "patternLength": 20, "pattern": [12, -4, 2, -4] }
+    },
+    "textStyles": {
+      "Standard": { "fontFamily": "Arial", "isTrueType": true },
+      "Heading": { "fontFamily": "Arial", "isTrueType": true, "bold": true }
+    },
+    "dimStyles": {
+      "Standard": {
+        "arrowSize": 2.5,
+        "textHeight": 2.5,
+        "textStyle": "Standard",
+        "extLineOffset": 1.5,
+        "extLineExtension": 1.25,
+        "dimLineColor": { "r": 0, "g": 0.5, "b": 0 },
+        "linearPrecision": 0,
+        "overallScale": 1
+      }
+    }
+  },
+  "blocks": {
+    "ARROW": {
+      "name": "ARROW",
+      "basePoint": [0, 0, 0],
+      "description": "Standard arrowhead",
+      "entities": [
+        { "type": "SOLID", "point1": [0, 0, 0], "point2": [-2.5, 0.8, 0], "point3": [-2.5, -0.8, 0], "layer": "0" }
+      ]
+    },
+    "TITLE_BLOCK": {
+      "name": "TITLE_BLOCK",
+      "basePoint": [0, 0, 0],
+      "hasAttributes": true,
+      "entities": [
+        { "type": "LINE", "start": [0, 0, 0], "end": [180, 0, 0], "layer": "0" },
+        { "type": "LINE", "start": [180, 0, 0], "end": [180, 40, 0], "layer": "0" },
+        { "type": "LINE", "start": [180, 40, 0], "end": [0, 40, 0], "layer": "0" },
+        { "type": "LINE", "start": [0, 40, 0], "end": [0, 0, 0], "layer": "0" },
+        { "type": "LINE", "start": [0, 20, 0], "end": [180, 20, 0], "layer": "0" },
+        { "type": "LINE", "start": [90, 0, 0], "end": [90, 40, 0], "layer": "0" }
+      ],
+      "attDefs": [
+        { "type": "ATTDEF", "tag": "TITLE", "prompt": "Drawing title", "defaultValue": "", "insertionPoint": [92, 25, 0], "height": 5 },
+        { "type": "ATTDEF", "tag": "DRAWNBY", "prompt": "Drawn by", "defaultValue": "", "insertionPoint": [2, 5, 0], "height": 3 },
+        { "type": "ATTDEF", "tag": "DATE", "prompt": "Date", "defaultValue": "", "insertionPoint": [92, 5, 0], "height": 3 },
+        { "type": "ATTDEF", "tag": "SCALE", "prompt": "Scale", "defaultValue": "1:100", "insertionPoint": [2, 25, 0], "height": 3 }
+      ]
+    }
+  },
+  "entities": [
+    {
+      "type": "LINE",
+      "handle": "1",
+      "layer": "Walls",
+      "start": [100, 100, 0],
+      "end": [500, 100, 0]
+    },
+    {
+      "type": "LINE",
+      "handle": "2",
+      "layer": "Walls",
+      "start": [500, 100, 0],
+      "end": [500, 400, 0]
+    },
+    {
+      "type": "LINE",
+      "handle": "3",
+      "layer": "Walls",
+      "start": [500, 400, 0],
+      "end": [100, 400, 0]
+    },
+    {
+      "type": "LINE",
+      "handle": "4",
+      "layer": "Walls",
+      "start": [100, 400, 0],
+      "end": [100, 100, 0]
+    },
+    {
+      "type": "CIRCLE",
+      "handle": "5",
+      "layer": "0",
+      "center": [300, 250, 0],
+      "radius": 50
+    },
+    {
+      "type": "ARC",
+      "handle": "6",
+      "layer": "0",
+      "center": [300, 250, 0],
+      "radius": 80,
+      "startAngle": 0,
+      "endAngle": 1.5707963
+    },
+    {
+      "type": "LWPOLYLINE",
+      "handle": "7",
+      "layer": "0",
+      "closed": true,
+      "vertices": [
+        { "x": 150, "y": 150 },
+        { "x": 250, "y": 150 },
+        { "x": 250, "y": 200, "bulge": 0.5 },
+        { "x": 150, "y": 200 }
+      ]
+    },
+    {
+      "type": "SPLINE",
+      "handle": "8",
+      "layer": "0",
+      "degree": 3,
+      "controlPoints": [
+        [550, 150, 0], [600, 300, 0], [700, 200, 0], [750, 350, 0]
+      ],
+      "knots": [0, 0, 0, 0, 1, 1, 1, 1]
+    },
+    {
+      "type": "ELLIPSE",
+      "handle": "9",
+      "layer": "0",
+      "center": [700, 500, 0],
+      "majorAxisEndpoint": [100, 0, 0],
+      "minorAxisRatio": 0.5,
+      "startParam": 0,
+      "endParam": 6.2831853
+    },
+    {
+      "type": "TEXT",
+      "handle": "A",
+      "layer": "Text",
+      "text": "FLOOR PLAN",
+      "insertionPoint": [300, 450, 0],
+      "height": 10,
+      "style": "Heading",
+      "horizontalAlignment": "center"
+    },
+    {
+      "type": "MTEXT",
+      "handle": "B",
+      "layer": "Text",
+      "text": "Room 101\\PArea: 120 m²\\PHeight: 3.0 m",
+      "insertionPoint": [200, 300, 0],
+      "height": 3,
+      "width": 100,
+      "style": "Standard",
+      "attachment": "top_left"
+    },
+    {
+      "type": "DIMENSION_LINEAR",
+      "handle": "C",
+      "layer": "Dimensions",
+      "dimStyle": "Standard",
+      "defPoint1": [100, 100, 0],
+      "defPoint2": [500, 100, 0],
+      "dimLinePoint": [300, 70, 0]
+    },
+    {
+      "type": "DIMENSION_LINEAR",
+      "handle": "D",
+      "layer": "Dimensions",
+      "dimStyle": "Standard",
+      "defPoint1": [500, 100, 0],
+      "defPoint2": [500, 400, 0],
+      "dimLinePoint": [530, 250, 0]
+    },
+    {
+      "type": "DIMENSION_RADIUS",
+      "handle": "E",
+      "layer": "Dimensions",
+      "dimStyle": "Standard",
+      "center": [300, 250, 0],
+      "chordPoint": [350, 250, 0],
+      "leaderLength": 30
+    },
+    {
+      "type": "HATCH",
+      "handle": "F",
+      "layer": "Hatch",
+      "patternName": "ANSI31",
+      "solid": false,
+      "patternAngle": 0.7854,
+      "patternScale": 2,
+      "boundaries": [
+        {
+          "type": "polyline",
+          "polyline": {
+            "vertices": [
+              { "x": 350, "y": 150 },
+              { "x": 480, "y": 150 },
+              { "x": 480, "y": 380 },
+              { "x": 350, "y": 380 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "LEADER",
+      "handle": "10",
+      "layer": "Dimensions",
+      "vertices": [[300, 250, 0], [350, 320, 0], [420, 320, 0]],
+      "hasArrowhead": true,
+      "pathType": "straight",
+      "dimStyle": "Standard"
+    },
+    {
+      "type": "INSERT",
+      "handle": "11",
+      "layer": "0",
+      "space": "paper",
+      "blockName": "TITLE_BLOCK",
+      "insertionPoint": [620, 10, 0],
+      "attributes": [
+        { "type": "ATTRIB", "tag": "TITLE", "value": "Example Floor Plan", "insertionPoint": [712, 35, 0], "height": 5 },
+        { "type": "ATTRIB", "tag": "DRAWNBY", "value": "IFCX", "insertionPoint": [622, 15, 0], "height": 3 },
+        { "type": "ATTRIB", "tag": "DATE", "value": "2026-03-24", "insertionPoint": [712, 15, 0], "height": 3 },
+        { "type": "ATTRIB", "tag": "SCALE", "value": "1:100", "insertionPoint": [622, 35, 0], "height": 3 }
+      ]
+    },
+    {
+      "type": "TABLE",
+      "handle": "12",
+      "layer": "Text",
+      "insertionPoint": [550, 100, 0],
+      "rows": 3,
+      "columns": 2,
+      "rowHeights": [8, 6, 6],
+      "columnWidths": [40, 30],
+      "cells": [
+        { "row": 0, "column": 0, "text": "Room" },
+        { "row": 0, "column": 1, "text": "Area (m²)" },
+        { "row": 1, "column": 0, "text": "Room 101" },
+        { "row": 1, "column": 1, "text": "120" },
+        { "row": 2, "column": 0, "text": "Room 102" },
+        { "row": 2, "column": 1, "text": "85" }
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "objectType": "LAYOUT",
+      "handle": "20",
+      "name": "Model",
+      "tabOrder": 0,
+      "isModelSpace": true
+    },
+    {
+      "objectType": "LAYOUT",
+      "handle": "21",
+      "name": "Layout1",
+      "tabOrder": 1,
+      "isModelSpace": false,
+      "plotSettings": {
+        "paperSize": "ISO A1 (841 x 594 mm)",
+        "paperWidth": 841,
+        "paperHeight": 594,
+        "plotScale": 100,
+        "scaleToFit": false,
+        "plotArea": "layout"
+      }
+    },
+    {
+      "objectType": "GROUP",
+      "handle": "22",
+      "name": "WallGroup",
+      "description": "All wall lines",
+      "members": ["1", "2", "3", "4"]
+    }
+  ]
+}

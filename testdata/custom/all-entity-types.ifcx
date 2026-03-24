@@ -1,0 +1,70 @@
+{
+  "ifcx": "1.0",
+  "header": {
+    "application": "IFCX Test - All Entity Types",
+    "units": { "linear": "millimeters", "measurement": "metric" }
+  },
+  "tables": {
+    "layers": {
+      "0": {},
+      "Test": { "color": { "r": 1, "g": 0, "b": 0 } }
+    },
+    "linetypes": {
+      "Continuous": { "pattern": [] },
+      "Dashed": { "patternLength": 12, "pattern": [8, -4] }
+    },
+    "textStyles": {
+      "Standard": { "fontFamily": "Arial", "isTrueType": true }
+    },
+    "dimStyles": {
+      "Standard": { "arrowSize": 2.5, "textHeight": 2.5 }
+    }
+  },
+  "blocks": {
+    "TestBlock": {
+      "name": "TestBlock",
+      "basePoint": [0, 0, 0],
+      "entities": [
+        { "type": "LINE", "start": [0, 0, 0], "end": [10, 0, 0] },
+        { "type": "CIRCLE", "center": [5, 5, 0], "radius": 3 }
+      ]
+    }
+  },
+  "entities": [
+    { "type": "LINE", "handle": "1", "layer": "Test", "start": [0, 0, 0], "end": [100, 0, 0] },
+    { "type": "POINT", "handle": "2", "position": [50, 50, 0] },
+    { "type": "CIRCLE", "handle": "3", "center": [50, 50, 0], "radius": 25 },
+    { "type": "ARC", "handle": "4", "center": [50, 50, 0], "radius": 40, "startAngle": 0, "endAngle": 1.5708 },
+    { "type": "ELLIPSE", "handle": "5", "center": [150, 50, 0], "majorAxisEndpoint": [50, 0, 0], "minorAxisRatio": 0.5 },
+    { "type": "SPLINE", "handle": "6", "degree": 3, "controlPoints": [[0, 100, 0], [30, 150, 0], [70, 80, 0], [100, 130, 0]], "knots": [0, 0, 0, 0, 1, 1, 1, 1] },
+    { "type": "RAY", "handle": "7", "origin": [0, 200, 0], "direction": [1, 0.5, 0] },
+    { "type": "XLINE", "handle": "8", "origin": [0, 220, 0], "direction": [1, 0, 0] },
+    { "type": "LWPOLYLINE", "handle": "9", "closed": true, "vertices": [{"x": 200, "y": 0}, {"x": 300, "y": 0}, {"x": 300, "y": 100, "bulge": 0.5}, {"x": 200, "y": 100}] },
+    { "type": "TEXT", "handle": "A", "text": "Hello IFCX", "insertionPoint": [0, -20, 0], "height": 5, "style": "Standard" },
+    { "type": "MTEXT", "handle": "B", "text": "Multi-line\\Ptext here", "insertionPoint": [0, -40, 0], "height": 3, "width": 80, "attachment": "top_left" },
+    { "type": "DIMENSION_LINEAR", "handle": "C", "dimStyle": "Standard", "defPoint1": [0, 0, 0], "defPoint2": [100, 0, 0], "dimLinePoint": [50, -30, 0] },
+    { "type": "DIMENSION_ALIGNED", "handle": "D", "dimStyle": "Standard", "defPoint1": [0, 0, 0], "defPoint2": [50, 50, 0], "dimLinePoint": [10, 40, 0] },
+    { "type": "DIMENSION_ANGULAR", "handle": "E", "dimStyle": "Standard", "center": [50, 50, 0], "defPoint1": [100, 50, 0], "defPoint2": [50, 100, 0], "arcPoint": [80, 80, 0] },
+    { "type": "DIMENSION_RADIUS", "handle": "F", "dimStyle": "Standard", "center": [50, 50, 0], "chordPoint": [75, 50, 0] },
+    { "type": "DIMENSION_DIAMETER", "handle": "10", "dimStyle": "Standard", "center": [50, 50, 0], "chordPoint": [75, 50, 0] },
+    { "type": "DIMENSION_ORDINATE", "handle": "11", "dimStyle": "Standard", "featurePoint": [100, 100, 0], "leaderEndpoint": [120, 120, 0], "isXOrdinate": true },
+    { "type": "LEADER", "handle": "12", "vertices": [[50, 50, 0], [80, 80, 0], [120, 80, 0]], "hasArrowhead": true },
+    { "type": "TOLERANCE", "handle": "13", "insertionPoint": [0, -60, 0] },
+    { "type": "HATCH", "handle": "14", "patternName": "ANSI31", "solid": false, "patternAngle": 0.7854, "boundaries": [{"type": "polyline", "polyline": {"vertices": [{"x": 200, "y": 0}, {"x": 300, "y": 0}, {"x": 300, "y": 100}, {"x": 200, "y": 100}]}}] },
+    { "type": "SOLID", "handle": "15", "point1": [350, 0, 0], "point2": [400, 0, 0], "point3": [375, 30, 0] },
+    { "type": "3DFACE", "handle": "16", "point1": [350, 50, 0], "point2": [400, 50, 0], "point3": [400, 100, 10], "point4": [350, 100, 10] },
+    { "type": "INSERT", "handle": "17", "blockName": "TestBlock", "insertionPoint": [400, 200, 0], "scaleX": 2, "scaleY": 2 },
+    { "type": "VIEWPORT", "handle": "18", "space": "paper", "center": [400, 300, 0], "width": 200, "height": 150, "viewCenter": [50, 50], "viewHeight": 200 },
+    { "type": "IMAGE", "handle": "19", "insertionPoint": [0, -100, 0], "uVector": [1, 0, 0], "vVector": [0, 1, 0], "imageSize": [100, 100], "imagePath": "test.png" },
+    { "type": "WIPEOUT", "handle": "1A", "vertices": [[0, 0], [50, 0], [50, 50], [0, 50]] },
+    { "type": "TABLE", "handle": "1B", "insertionPoint": [0, -150, 0], "rows": 2, "columns": 2, "rowHeights": [8, 6], "columnWidths": [40, 40], "cells": [{"row": 0, "column": 0, "text": "A"}, {"row": 0, "column": 1, "text": "B"}, {"row": 1, "column": 0, "text": "1"}, {"row": 1, "column": 1, "text": "2"}] },
+    { "type": "MESH", "handle": "1C", "vertices": [[0, 0, 0], [100, 0, 0], [100, 100, 0], [0, 100, 0], [50, 50, 50]], "faces": [[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]] },
+    { "type": "LIGHT", "handle": "1D", "lightType": "point", "position": [50, 50, 100], "intensity": 1.0, "color": { "r": 1, "g": 1, "b": 1 } },
+    { "type": "CAMERA", "handle": "1E", "position": [200, 200, 100], "target": [50, 50, 0], "lensLength": 50 }
+  ],
+  "objects": [
+    { "objectType": "LAYOUT", "handle": "30", "name": "Model", "tabOrder": 0, "isModelSpace": true },
+    { "objectType": "LAYOUT", "handle": "31", "name": "Layout1", "tabOrder": 1, "isModelSpace": false },
+    { "objectType": "GROUP", "handle": "32", "name": "TestGroup", "members": ["1", "3"] }
+  ]
+}
