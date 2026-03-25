@@ -408,6 +408,7 @@ table.mapping td:nth-child(3) { font-size: 12px; }
     <li class="nav-item" data-page="ifc5"><span class="nav-icon">&#9733;</span><span>IFC5 Reference</span></li>
     <li class="nav-item" data-page="mapping"><span class="nav-icon">&#8644;</span><span>Entity Mapping</span></li>
     <li class="nav-item" data-page="examples"><span class="nav-icon">&#9998;</span><span>Examples</span></li>
+    <li class="nav-item" data-page="graph"><span class="nav-icon">&#9672;</span><span>Schema Graph</span></li>
   </ul>
 </nav>
 
@@ -502,6 +503,31 @@ table.mapping td:nth-child(3) { font-size: 12px; }
   <h2>Example Nodes</h2>
   <p class="subtitle">Common IfcxNode patterns -- click to load into the Node Builder</p>
   <div class="example-cards" id="example-cards"></div>
+</div>
+
+<div id="page-graph" class="page">
+  <h2>Schema Graph</h2>
+  <p class="subtitle">Interactive node graph showing the complete IfcX v2 architecture (IFC5 + extensions)</p>
+  <div style="position:relative;width:100%;height:calc(100vh - 140px);border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+    <canvas id="graph-canvas" style="width:100%;height:100%;background:#0a0c14;"></canvas>
+    <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;font-size:9px;color:#666;">
+      <span style="color:#4da6ff">&#9632; IFC5</span>
+      <span style="color:#51cf66">&#9632; Geometry</span>
+      <span style="color:#da77f2">&#9632; Annotation</span>
+      <span style="color:#ffa94d">&#9632; Hatch</span>
+      <span style="color:#ffd43b">&#9632; Style/Layer</span>
+      <span style="color:#74c0fc">&#9632; Component</span>
+      <span style="color:#ff6b6b">&#9632; Sheet</span>
+      <span style="color:#20c997">&#9632; View</span>
+      <span style="color:#e599f7">&#9632; Revision</span>
+    </div>
+    <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:3px;">
+      <button onclick="graphFilter='all';drawGraph()" style="background:#1a1d28;border:1px solid #2a2d3a;color:#4da6ff;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:9px;">Alles</button>
+      <button onclick="graphFilter='ifc5';drawGraph()" style="background:#1a1d28;border:1px solid #2a2d3a;color:#aaa;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:9px;">IFC5</button>
+      <button onclick="graphFilter='drawing';drawGraph()" style="background:#1a1d28;border:1px solid #2a2d3a;color:#aaa;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:9px;">Tekeningen</button>
+      <button onclick="graphFilter='sheet';drawGraph()" style="background:#1a1d28;border:1px solid #2a2d3a;color:#aaa;padding:3px 8px;border-radius:3px;cursor:pointer;font-size:9px;">Sheets</button>
+    </div>
+  </div>
 </div>
 
 </div><!-- /main -->
@@ -1257,6 +1283,121 @@ function renderExamples() {
   `).join('');
 }
 renderExamples();
+
+// === GRAPH VIEW ===
+const GN=[
+{id:'proj',l:'IfcProject',c:'#4da6ff',g:'ifc5',x:550,y:30,a:['bsi::ifc::class']},
+{id:'site',l:'IfcSite',c:'#4da6ff',g:'ifc5',x:550,y:100,a:['bsi::ifc::class']},
+{id:'bldg',l:'IfcBuilding',c:'#4da6ff',g:'ifc5',x:550,y:165,a:['bsi::ifc::class']},
+{id:'stor',l:'IfcBuildingStorey',c:'#4da6ff',g:'ifc5',x:550,y:230,a:['bsi::ifc::prop::Elevation']},
+{id:'wall',l:'IfcWall',c:'#4da6ff',g:'ifc5',x:480,y:300,a:['bsi::ifc::material']},
+{id:'door',l:'IfcDoor',c:'#4da6ff',g:'ifc5',x:620,y:300,a:['bsi::ifc::prop::Width']},
+{id:'mesh',l:'USD Mesh',c:'#9775fa',g:'ifc5',x:420,y:370,a:['usd::usdgeom::mesh']},
+{id:'xf',l:'Transform',c:'#9775fa',g:'ifc5',x:680,y:370,a:['usd::xformop::matrix']},
+{id:'drw',l:'Drawings/',c:'#20c997',g:'drawing',x:150,y:30,a:['Views container']},
+{id:'v1',l:'Plattegrond BG',c:'#20c997',g:'drawing',x:60,y:120,a:['ifcx::view::scale: 50']},
+{id:'v2',l:'Doorsnede A-A',c:'#20c997',g:'drawing',x:220,y:120,a:['ifcx::view::projection: section']},
+{id:'g1',l:'line: wall',c:'#51cf66',g:'drawing',x:30,y:220,a:['ifcx::geom::line']},
+{id:'g2',l:'arc: door',c:'#51cf66',g:'drawing',x:130,y:220,a:['ifcx::geom::trimmedCurve']},
+{id:'g3',l:'polyline',c:'#51cf66',g:'drawing',x:230,y:220,a:['ifcx::geom::compositeCurve']},
+{id:'g4',l:'circle: kolom',c:'#51cf66',g:'drawing',x:330,y:220,a:['ifcx::geom::circle']},
+{id:'d1',l:'dim: breedte',c:'#da77f2',g:'drawing',x:60,y:310,a:['ifcx::annotation::dimension']},
+{id:'t1',l:'text: kamer',c:'#da77f2',g:'drawing',x:200,y:310,a:['ifcx::annotation::text']},
+{id:'h1',l:'hatch: beton',c:'#ffa94d',g:'drawing',x:340,y:310,a:['ifcx::hatch::material']},
+{id:'sc',l:'Style: Cut',c:'#ffd43b',g:'style',x:30,y:400,a:['ifcx::style::curveStyle']},
+{id:'sd',l:'Style: Dim',c:'#ffd43b',g:'style',x:160,y:400,a:['ifcx::style::curveStyle']},
+{id:'lw',l:'Layer: Walls',c:'#ffd43b',g:'style',x:300,y:400,a:['ifcx::layer::style']},
+{id:'sht',l:'Sheets/',c:'#ff6b6b',g:'sheet',x:850,y:30,a:['Sheets container']},
+{id:'s1',l:'A1-001',c:'#ff6b6b',g:'sheet',x:800,y:120,a:['ifcx::sheet::paper: 841x594']},
+{id:'vp1',l:'Viewport 1',c:'#ff6b6b',g:'sheet',x:750,y:210,a:['ifcx::sheet::viewport']},
+{id:'vp2',l:'Viewport 2',c:'#ff6b6b',g:'sheet',x:900,y:210,a:['ifcx::sheet::viewport']},
+{id:'def',l:'DoorType',c:'#74c0fc',g:'style',x:800,y:310,a:['ifcx::component::definition']},
+{id:'tb',l:'TitleBlock',c:'#74c0fc',g:'style',x:950,y:310,a:['ifcx::component::definition']},
+{id:'rev',l:'Revisions (opt)',c:'#e599f7',g:'version',x:900,y:400,a:['ifcx::revision::info']},
+{id:'geo',l:'CRS: EPSG:28992',c:'#aaa',g:'ifc5',x:700,y:30,a:['ifcx::geo::crs']},
+];
+const GE=[
+{f:'proj',g:'site',t:'c'},{f:'site',g:'bldg',t:'c'},{f:'bldg',g:'stor',t:'c'},
+{f:'stor',g:'wall',t:'c'},{f:'stor',g:'door',t:'c'},{f:'wall',g:'mesh',t:'c'},{f:'door',g:'xf',t:'c'},
+{f:'proj',g:'drw',t:'c'},{f:'proj',g:'sht',t:'c'},{f:'proj',g:'geo',t:'c'},
+{f:'drw',g:'v1',t:'c'},{f:'drw',g:'v2',t:'c'},
+{f:'v1',g:'g1',t:'c'},{f:'v1',g:'g2',t:'c'},{f:'v1',g:'g3',t:'c'},{f:'v1',g:'g4',t:'c'},
+{f:'v1',g:'d1',t:'c'},{f:'v1',g:'t1',t:'c'},{f:'v1',g:'h1',t:'c'},
+{f:'v2',g:'g1',t:'c'},{f:'v2',g:'g2',t:'c'},
+{f:'sht',g:'s1',t:'c'},{f:'s1',g:'vp1',t:'c'},{f:'s1',g:'vp2',t:'c'},
+{f:'g2',g:'def',t:'i'},{f:'s1',g:'tb',t:'i'},
+{f:'g1',g:'sc',t:'o'},{f:'g2',g:'sc',t:'o'},{f:'d1',g:'sd',t:'o'},
+{f:'g1',g:'lw',t:'o'},{f:'g2',g:'lw',t:'o'},
+{f:'g1',g:'wall',t:'o'},{f:'g2',g:'door',t:'o'},
+{f:'vp1',g:'v1',t:'o'},{f:'vp2',g:'v2',t:'o'},
+{f:'proj',g:'rev',t:'c'},
+];
+const GNM={};GN.forEach(n=>{GNM[n.id]=n;n.vx=0;n.vy=0;n.w=80;n.h=28});
+let graphFilter='all',gcam={x:480,y:220,z:1.2},gdrag=null,gpan=false,glx=0,gly=0;
+
+function gvis(n){if(graphFilter==='all')return true;return n.g===graphFilter||(graphFilter==='drawing'&&n.g==='drawing')}
+
+function initGraph(){
+  const gc=document.getElementById('graph-canvas');
+  if(!gc)return;
+  const gx=gc.getContext('2d');
+  function rs(){gc.width=gc.offsetWidth;gc.height=gc.offsetHeight}
+  rs();new ResizeObserver(rs).observe(gc);
+  function s2w(sx,sy){return[(sx-gc.width/2)/gcam.z+gcam.x,(sy-gc.height/2)/gcam.z+gcam.y]}
+
+  gc.addEventListener('mousedown',e=>{
+    const r=gc.getBoundingClientRect();const ex=e.clientX-r.left,ey=e.clientY-r.top;
+    const[mx,my]=s2w(ex,ey);
+    if(e.button>0){gpan=true;glx=ex;gly=ey;return}
+    for(let i=GN.length-1;i>=0;i--){const n=GN[i];if(!gvis(n))continue;
+      if(mx>n.x-n.w/2-3&&mx<n.x+n.w/2+3&&my>n.y-n.h/2-3&&my<n.y+n.h/2+3){gdrag=n;return}}
+    gpan=true;glx=ex;gly=ey;
+  });
+  gc.addEventListener('contextmenu',e=>e.preventDefault());
+  gc.addEventListener('mousemove',e=>{
+    const r=gc.getBoundingClientRect();const ex=e.clientX-r.left,ey=e.clientY-r.top;
+    if(gpan){gcam.x-=(ex-glx)/gcam.z;gcam.y-=(ey-gly)/gcam.z;glx=ex;gly=ey}
+    else if(gdrag){const[mx,my]=s2w(ex,ey);gdrag.x=mx;gdrag.y=my}
+  });
+  gc.addEventListener('mouseup',()=>{gdrag=null;gpan=false});
+  gc.addEventListener('wheel',e=>{e.preventDefault();gcam.z*=e.deltaY>0?0.92:1.08;gcam.z=Math.max(0.3,Math.min(5,gcam.z))},{passive:false});
+
+  let gt=0;
+  function drawG(){
+    gt+=0.008;gx.clearRect(0,0,gc.width,gc.height);gx.save();
+    gx.translate(gc.width/2,gc.height/2);gx.scale(gcam.z,gcam.z);gx.translate(-gcam.x,-gcam.y);
+    for(const e of GE){const a=GNM[e.f],b=GNM[e.g];if(!a||!b||!gvis(a)||!gvis(b))continue;
+      gx.beginPath();gx.moveTo(a.x,a.y);
+      if(e.t==='o'){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y;gx.quadraticCurveTo(mx-dy*0.1,my+dx*0.1,b.x,b.y)}
+      else gx.lineTo(b.x,b.y);
+      if(e.t==='c'){gx.strokeStyle='rgba(77,166,255,0.25)';gx.lineWidth=1.2;gx.setLineDash([])}
+      else if(e.t==='i'){gx.strokeStyle='rgba(81,207,102,0.4)';gx.lineWidth=1.5;gx.setLineDash([5,3])}
+      else{gx.strokeStyle='rgba(255,169,77,0.2)';gx.lineWidth=0.8;gx.setLineDash([2,2])}
+      gx.stroke();gx.setLineDash([]);}
+    gx.font='9px system-ui';
+    for(const n of GN){if(!gvis(n))continue;
+      n.w=Math.max(65,gx.measureText(n.l).width+14);
+      const bx=n.x-n.w/2,by=n.y-n.h/2,p=0.5+0.5*Math.sin(gt*2+n.x*0.01);
+      gx.shadowColor=n.c;gx.shadowBlur=4*p;
+      gx.beginPath();gx.moveTo(bx+4,by);gx.lineTo(bx+n.w-4,by);gx.arcTo(bx+n.w,by,bx+n.w,by+4,4);
+      gx.lineTo(bx+n.w,by+n.h-4);gx.arcTo(bx+n.w,by+n.h,bx+n.w-4,by+n.h,4);
+      gx.lineTo(bx+4,by+n.h);gx.arcTo(bx,by+n.h,bx,by+n.h-4,4);gx.lineTo(bx,by+4);gx.arcTo(bx,by,bx+4,by,4);gx.closePath();
+      gx.fillStyle=n.c+'18';gx.fill();gx.strokeStyle=n.c+'99';gx.lineWidth=1;gx.stroke();
+      gx.shadowBlur=0;gx.fillStyle='#ddd';gx.textAlign='center';gx.textBaseline='middle';gx.fillText(n.l,n.x,n.y);
+    }
+    gx.restore();requestAnimationFrame(drawG);
+  }
+  drawG();
+}
+
+// Start graph when page becomes visible
+const graphObs=new MutationObserver(()=>{
+  const pg=document.getElementById('page-graph');
+  if(pg&&pg.style.display!=='none'){initGraph();graphObs.disconnect()}
+});
+graphObs.observe(document.getElementById('page-graph'),{attributes:true,attributeFilter:['style']});
+// Also init if graph is first page shown
+setTimeout(()=>{const pg=document.getElementById('page-graph');if(pg&&pg.style.display!=='none')initGraph()},100);
 
 </script>
 </body>
