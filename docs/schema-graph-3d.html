@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IfcX Schema - 3D Interactive Graph</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060810;color:#ccc;font-family:system-ui,sans-serif;overflow:hidden;display:flex}
+#scene{flex:1;position:relative}
+canvas{display:block}
+
+/* Info overlay */
+#info{position:fixed;top:12px;left:12px;background:rgba(10,12,20,0.92);border:1px solid #2a2d3a;border-radius:10px;padding:14px 16px;max-width:280px;font-size:11px;z-index:10;pointer-events:none;backdrop-filter:blur(8px)}
+#info h2{color:#4da6ff;font-size:16px;margin-bottom:6px;font-weight:600}
+#info p{color:#667;font-size:10px;line-height:1.6;margin-bottom:2px}
+
+/* Controls */
+#controls{position:fixed;top:12px;right:12px;z-index:10;display:flex;flex-direction:column;gap:3px;transition:right .3s}
+#controls.shifted{right:435px}
+#controls button{background:rgba(20,22,34,0.9);border:1px solid #2a2d3a;color:#999;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:10px;text-align:left;backdrop-filter:blur(4px);transition:all .15s}
+#controls button:hover{background:#1a2040;color:#fff;border-color:#4a4d5a}
+#controls button.on{background:rgba(26,58,92,0.9);border-color:#4da6ff;color:#4da6ff}
+.sep{height:1px;background:#1a1d28;margin:2px 0}
+
+/* Side panel */
+#panel{width:0;min-width:0;background:rgba(10,14,24,0.98);border-left:1px solid #1e2130;overflow-y:auto;overflow-x:hidden;transition:width .3s,min-width .3s;z-index:30;flex-shrink:0;backdrop-filter:blur(12px)}
+#panel.open{width:420px;min-width:420px}
+#panel-inner{padding:18px;opacity:0;transition:opacity .2s}
+#panel.open #panel-inner{opacity:1}
+#panel-close{position:absolute;top:10px;right:10px;background:none;border:1px solid #333;color:#888;width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+#panel-close:hover{background:#1a1d28;color:#fff;border-color:#4da6ff}
+#panel-header{position:relative;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #1a1d28}
+#panel-header h2{font-size:20px;margin-bottom:2px;font-weight:600}
+#panel-header .sub{font-size:11px;color:#556;margin-top:3px}
+.badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:9px;font-weight:700;margin-top:8px;letter-spacing:.5px}
+.sec{margin-bottom:16px}
+.sec h3{font-size:11px;color:#4da6ff;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:6px;font-weight:600}
+.sec h3::before{content:'';display:inline-block;width:3px;height:14px;border-radius:2px;background:#4da6ff}
+.ptable{width:100%;border-collapse:collapse;font-size:11px}
+.ptable th{text-align:left;color:#556;font-weight:500;padding:5px 6px;border-bottom:1px solid #1a1d28;font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.ptable td{padding:5px 6px;border-bottom:1px solid #10121a;vertical-align:top}
+.ptable tr:hover td{background:#10121a}
+.pname{color:#7ec;font-family:'Cascadia Code',monospace;font-size:11px}
+.ptype{color:#b197fc;font-size:10px;font-family:monospace}
+.pdesc{color:#667;font-size:10px}
+.pval{color:#ffa94d;font-size:10px;font-family:monospace}
+.rel-list{list-style:none;padding:0}
+.rel-list li{padding:6px 8px;border-radius:5px;margin-bottom:3px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
+.rel-list li:hover{background:#141828}
+.rel-list li .dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+.rel-list li .rtype{color:#556;font-size:9px;margin-left:auto}
+#breadcrumb{display:flex;gap:4px;font-size:10px;margin-bottom:10px;flex-wrap:wrap}
+#breadcrumb span{color:#4da6ff;cursor:pointer;padding:2px 8px;background:#0c1020;border-radius:4px;transition:background .15s}
+#breadcrumb span:hover{background:#1a2a44}
+#breadcrumb span.current{color:#fff;cursor:default;background:#1a3a5c}
+#stats{position:fixed;bottom:12px;left:12px;font-size:10px;color:#445;z-index:10;pointer-events:none}
+#legend{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:10;pointer-events:none;flex-wrap:wrap;justify-content:center;max-width:80vw}
+.lg{display:flex;align-items:center;gap:4px;font-size:9px;color:#556}.lg .d{width:8px;height:8px;border-radius:3px}
+#panel::-webkit-scrollbar{width:6px}
+#panel::-webkit-scrollbar-track{background:#0a0e18}
+#panel::-webkit-scrollbar-thumb{background:#1e2130;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="scene">
+<div id="info">
+<h2>IfcX Schema 3D</h2>
+<p>Klik op een node voor details + Psets</p>
+<p>Drag = roteren | Scroll = zoom | Shift+drag = pan</p>
+</div>
+<div id="controls">
+<button class="on" id="b-all">Alles</button>
+<div class="sep"></div>
+<button id="b-ifc5">IFC5 Kern</button>
+<button id="b-elem">IFC5 Elementen</button>
+<button id="b-mep">IFC5 MEP</button>
+<button id="b-struct">IFC5 Structureel</button>
+<button id="b-infra">IFC5 Infra</button>
+<button id="b-mat">Materiaal/Props</button>
+<button id="b-usd">USD Geometrie</button>
+<div class="sep"></div>
+<button id="b-draw">Tekeningen</button>
+<button id="b-sheet">Sheets</button>
+<button id="b-style">Stijlen</button>
+<button id="b-brand">Branding/Report</button>
+<button id="b-geom">Geometrie Types</button>
+<button id="b-pkg">Binary/Package</button>
+<button id="b-version">Versioning</button>
+</div>
+<div id="stats"></div>
+<div id="legend">
+<div class="lg"><div class="d" style="background:#4da6ff"></div>IFC5 Spatial</div>
+<div class="lg"><div class="d" style="background:#5b9fff"></div>IFC5 Elements</div>
+<div class="lg"><div class="d" style="background:#38d9a9"></div>IFC5 MEP</div>
+<div class="lg"><div class="d" style="background:#74b4ff"></div>IFC5 Structural</div>
+<div class="lg"><div class="d" style="background:#3bc9db"></div>IFC5 Infra</div>
+<div class="lg"><div class="d" style="background:#9775fa"></div>USD Geometry</div>
+<div class="lg"><div class="d" style="background:#51cf66"></div>ifcx::geom</div>
+<div class="lg"><div class="d" style="background:#da77f2"></div>ifcx::annotation</div>
+<div class="lg"><div class="d" style="background:#ff6b6b"></div>ifcx::sheet</div>
+<div class="lg"><div class="d" style="background:#ffd43b"></div>ifcx::style</div>
+<div class="lg"><div class="d" style="background:#ff922b"></div>ifcx::branding</div>
+<div class="lg"><div class="d" style="background:#22b8cf"></div>ifcx::geom types</div>
+<div class="lg"><div class="d" style="background:#e64980"></div>IFCXB/IFCXZ</div>
+</div>
+</div>
+
+<!-- Side Panel -->
+<div id="panel">
+<div id="panel-inner">
+<div id="panel-header">
+<button id="panel-close">&times;</button>
+<div id="breadcrumb"></div>
+<h2 id="panel-title"></h2>
+<div class="sub" id="panel-sub"></div>
+<div id="panel-badge"></div>
+</div>
+<div id="panel-body"></div>
+</div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+</script>
+<script type="module">
+import*as THREE from'three';
+import{OrbitControls}from'three/addons/controls/OrbitControls.js';
+import{CSS2DRenderer,CSS2DObject}from'three/addons/renderers/CSS2DRenderer.js';
+
+// DOM refs
+const PNL=document.getElementById('panel'),PBODY=document.getElementById('panel-body'),
+  PTITLE=document.getElementById('panel-title'),PSUB=document.getElementById('panel-sub'),
+  PBADGE=document.getElementById('panel-badge'),PCLOSE=document.getElementById('panel-close'),
+  BREAD=document.getElementById('breadcrumb'),CTRLS=document.getElementById('controls'),
+  ST=document.getElementById('stats'),SCENE_DIV=document.getElementById('scene');
+
+// ===================================
+// PROPERTY SETS DATABASE
+// ===================================
+const PSETS={
+'Pset_SiteCommon':{d:'Bouwlocatie eigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie-ID'},{n:'BuildableArea',t:'IfcAreaMeasure',d:'Bebouwbaar oppervlak'},{n:'TotalArea',t:'IfcAreaMeasure',d:'Totaal kaveloppervlak'},{n:'BuildingHeightLimit',t:'IfcPositiveLengthMeasure',d:'Max bouwhoogte'}]},
+'Pset_BuildingCommon':{d:'Gebouweigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie-ID'},{n:'BuildingID',t:'IfcIdentifier',d:'Gebouw ID'},{n:'OccupancyType',t:'IfcLabel',d:'Gebruiksfunctie'},{n:'GrossPlannedArea',t:'IfcAreaMeasure',d:'Bruto vloeroppervlak'},{n:'NetPlannedArea',t:'IfcAreaMeasure',d:'Netto vloeroppervlak'},{n:'NumberOfStoreys',t:'IfcInteger',d:'Aantal verdiepingen'},{n:'YearOfConstruction',t:'IfcLabel',d:'Bouwjaar'},{n:'IsLandmarked',t:'IfcLogical',d:'Is monument'}]},
+'Pset_BuildingStoreyCommon':{d:'Verdiepingseigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'EntranceLevel',t:'IfcBoolean',d:'Is ingangsverdieping'},{n:'AboveGround',t:'IfcLogical',d:'Bovengronds'},{n:'SprinklerProtection',t:'IfcBoolean',d:'Sprinklerbeveiliging'},{n:'GrossAreaPlanned',t:'IfcAreaMeasure',d:'Bruto vloeroppervlak'},{n:'NetAreaPlanned',t:'IfcAreaMeasure',d:'Netto vloeroppervlak'}]},
+'Pset_SpaceCommon':{d:'Ruimte-eigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'IsExternal',t:'IfcBoolean',d:'Buitenruimte'},{n:'GrossPlannedArea',t:'IfcAreaMeasure',d:'BVO gepland'},{n:'NetPlannedArea',t:'IfcAreaMeasure',d:'NVO gepland'},{n:'PubliclyAccessible',t:'IfcBoolean',d:'Publiek toegankelijk'},{n:'HandicapAccessible',t:'IfcBoolean',d:'Rolstoeltoegankelijk'}]},
+'Pset_WallCommon':{d:'Wandeigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'NEW, EXISTING, DEMOLISH, TEMPORARY'},{n:'AcousticRating',t:'IfcLabel',d:'Geluidsisolatie (bijv. 52 dB)'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid (bijv. REI 120)'},{n:'Combustible',t:'IfcBoolean',d:'Brandbaar materiaal'},{n:'SurfaceSpreadOfFlame',t:'IfcLabel',d:'Vlamverspreidingsklasse'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde (W/m2K)'},{n:'IsExternal',t:'IfcBoolean',d:'Buitenwand'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'ExtendToStructure',t:'IfcBoolean',d:'Doorlopend tot constructie'},{n:'Compartmentation',t:'IfcBoolean',d:'Brandcompartiment scheidend'}]},
+'Pset_DoorCommon':{d:'Deureigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'IsExternal',t:'IfcBoolean',d:'Buitendeur'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid (bijv. EI 30)'},{n:'AcousticRating',t:'IfcLabel',d:'Geluidsisolatie'},{n:'SecurityRating',t:'IfcLabel',d:'Inbraakwerendheid'},{n:'HasDrive',t:'IfcBoolean',d:'Automatische aandrijving'},{n:'SelfClosing',t:'IfcBoolean',d:'Zelfsluitend'},{n:'SmokeStop',t:'IfcBoolean',d:'Rookwerend'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'GlazingAreaFraction',t:'IfcPositiveRatioMeasure',d:'Glasfractie'},{n:'HandicapAccessible',t:'IfcBoolean',d:'Rolstoeltoegankelijk'},{n:'FireExit',t:'IfcBoolean',d:'Nooduitgang'}]},
+'Pset_WindowCommon':{d:'Raameigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'IsExternal',t:'IfcBoolean',d:'Buitenraam'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'AcousticRating',t:'IfcLabel',d:'Geluidsisolatie'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'GlazingAreaFraction',t:'IfcPositiveRatioMeasure',d:'Glasfractie'},{n:'SmokeStop',t:'IfcBoolean',d:'Rookwerend'},{n:'HasSillExternal',t:'IfcBoolean',d:'Buitenvensterbank'},{n:'HasSillInternal',t:'IfcBoolean',d:'Binnenvensterbank'}]},
+'Pset_ColumnCommon':{d:'Kolomeigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Profiel (bijv. HEA200)'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid (bijv. R 90)'},{n:'Slope',t:'IfcPlaneAngleMeasure',d:'Helling'}]},
+'Pset_BeamCommon':{d:'Liggereigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Profiel (bijv. IPE300)'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'Slope',t:'IfcPlaneAngleMeasure',d:'Helling'},{n:'Span',t:'IfcPositiveLengthMeasure',d:'Overspanning'}]},
+'Pset_SlabCommon':{d:'Vloer/dak eigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'AcousticRating',t:'IfcLabel',d:'Geluidsisolatie'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'PitchAngle',t:'IfcPlaneAngleMeasure',d:'Hellingshoek'}]},
+'Pset_RoofCommon':{d:'Dakeigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'ProjectedArea',t:'IfcAreaMeasure',d:'Geprojecteerd oppervlak'},{n:'TotalArea',t:'IfcAreaMeasure',d:'Totaal dakoppervlak'}]},
+'Pset_StairCommon':{d:'Trapeigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'IsExternal',t:'IfcBoolean',d:'Buitentrap'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'FireExit',t:'IfcBoolean',d:'Noodtrap'},{n:'HandicapAccessible',t:'IfcBoolean',d:'Toegankelijk'},{n:'NumberOfRiser',t:'IfcCountMeasure',d:'Aantal optrede'},{n:'NumberOfTreads',t:'IfcCountMeasure',d:'Aantal aantrede'},{n:'RiserHeight',t:'IfcPositiveLengthMeasure',d:'Optrede hoogte'},{n:'TreadLength',t:'IfcPositiveLengthMeasure',d:'Aantrede diepte'}]},
+'Pset_PileCommon':{d:'Heipaal-eigenschappen',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'}]},
+'Pset_SanitaryTerminalCommon':{d:'Sanitair',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'NominalLength',t:'IfcPositiveLengthMeasure',d:'Lengte'},{n:'NominalWidth',t:'IfcPositiveLengthMeasure',d:'Breedte'},{n:'Color',t:'IfcLabel',d:'Kleur'}]},
+'Pset_LightFixtureCommon':{d:'Verlichtingsarmatuur',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'NumberOfSources',t:'IfcInteger',d:'Aantal lichtbronnen'},{n:'TotalWattage',t:'IfcPowerMeasure',d:'Totaal vermogen (W)'},{n:'LightFixtureMountingType',t:'IfcLabel',d:'Montage (SURFACE, RECESSED, PENDANT)'}]},
+'Pset_BoilerCommon':{d:'Ketel',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'PressureRating',t:'IfcPressureMeasure',d:'Max werkdruk'},{n:'NominalEnergyConsumption',t:'IfcPowerMeasure',d:'Nominaal vermogen (kW)'},{n:'EnergySource',t:'IfcLabel',d:'GAS, OIL, ELECTRIC'}]},
+'Qto_WallBaseQuantities':{d:'Wandhoeveelheden',p:[{n:'Length',t:'IfcQuantityLength',d:'Wandlengte'},{n:'Height',t:'IfcQuantityLength',d:'Hoogte'},{n:'Width',t:'IfcQuantityLength',d:'Dikte'},{n:'GrossArea',t:'IfcQuantityArea',d:'Bruto oppervlak'},{n:'NetArea',t:'IfcQuantityArea',d:'Netto oppervlak'},{n:'GrossVolume',t:'IfcQuantityVolume',d:'Bruto volume'},{n:'GrossWeight',t:'IfcQuantityWeight',d:'Bruto gewicht'}]},
+'Qto_SpaceBaseQuantities':{d:'Ruimtehoeveelheden',p:[{n:'Height',t:'IfcQuantityLength',d:'Vrije hoogte'},{n:'GrossFloorArea',t:'IfcQuantityArea',d:'BVO'},{n:'NetFloorArea',t:'IfcQuantityArea',d:'NVO'},{n:'GrossVolume',t:'IfcQuantityVolume',d:'Bruto volume'}]},
+'Pset_BBL':{d:'Bouwbesluit brandveiligheid (NL)',p:[{n:'Brandklasse',t:'IfcLabel',d:'A1, A2, B, C, D, E, F'},{n:'Rookklasse',t:'IfcLabel',d:'s1, s2, s3'},{n:'Brandwerendheid',t:'IfcInteger',d:'WBDBO (minuten)'},{n:'WBDBO',t:'IfcInteger',d:'Weerstand brandoverslag'}]},
+'Pset_BENG':{d:'BENG energieprestatie (NL)',p:[{n:'BENG1_EnergieBehoefte',t:'IfcReal',d:'kWh/m2/jaar'},{n:'BENG2_PrimairFossieleEnergie',t:'IfcReal',d:'kWh/m2/jaar'},{n:'BENG3_AandeelHernieuwbareEnergie',t:'IfcReal',d:'%'},{n:'BENG4_TemperatuurOverschrijding',t:'IfcReal',d:'TO-juli (uren)'}]}
+};
+
+const NODE_PSETS={
+  site:['Pset_SiteCommon'],bldg:['Pset_BuildingCommon'],stor:['Pset_BuildingStoreyCommon'],
+  space:['Pset_SpaceCommon','Qto_SpaceBaseQuantities'],
+  wall:['Pset_WallCommon','Qto_WallBaseQuantities','Pset_BBL','Pset_BENG'],
+  door:['Pset_DoorCommon'],window:['Pset_WindowCommon'],
+  column:['Pset_ColumnCommon'],beam:['Pset_BeamCommon'],
+  slab:['Pset_SlabCommon'],roof:['Pset_RoofCommon'],stair:['Pset_StairCommon'],
+  pile:['Pset_PileCommon'],sanitary:['Pset_SanitaryTerminalCommon'],
+  lightFix:['Pset_LightFixtureCommon'],boiler:['Pset_BoilerCommon']
+};
+
+// ===================================
+// NODE & EDGE DATA
+// ===================================
+// Positions: x=horizontal, y=up, z=depth (into screen)
+const nodes=[
+// === IFC5 SPATIAL (center, top) ===
+{id:'proj',l:'IfcProject',c:'#4da6ff',g:'ifc5',p:[0,12,0],a:['Root node van elk IFC5 bestand'],cat:'Spatial'},
+{id:'site',l:'IfcSite',c:'#4da6ff',g:'ifc5',p:[0,10,0],a:['Bouwlocatie','bsi::ifc::geo: lat/lon'],cat:'Spatial'},
+{id:'bldg',l:'IfcBuilding',c:'#4da6ff',g:'ifc5',p:[0,8,0],a:['Gebouw container'],cat:'Spatial'},
+{id:'stor',l:'IfcBuildingStorey',c:'#4da6ff',g:'ifc5',p:[0,6,0],a:['Verdieping','bsi::ifc::prop::Elevation'],cat:'Spatial'},
+{id:'space',l:'IfcSpace',c:'#4da6ff',g:'ifc5',p:[-2,4,0],a:['Ruimte / vertrek'],cat:'Spatial'},
+{id:'zone',l:'IfcZone',c:'#4da6ff',g:'ifc5',p:[2,4,0],a:['HVAC zone, brandcompartiment'],cat:'Spatial'},
+{id:'grid',l:'IfcGrid',c:'#4da6ff',g:'ifc5',p:[-3,8,1],a:['Stramien / assenstelsel'],cat:'Spatial'},
+
+// === IFC5 BUILDING ELEMENTS (front-left) ===
+{id:'wall',l:'IfcWall',c:'#5b9fff',g:'elem',p:[-6,4,-2],a:['Wand','bsi::ifc::material'],cat:'Building Element'},
+{id:'door',l:'IfcDoor',c:'#5b9fff',g:'elem',p:[-4,4,-2],a:['Deur','Width, Height'],cat:'Building Element'},
+{id:'window',l:'IfcWindow',c:'#5b9fff',g:'elem',p:[-2,4,-2],a:['Raam'],cat:'Building Element'},
+{id:'column',l:'IfcColumn',c:'#5b9fff',g:'elem',p:[0,4,-2],a:['Kolom'],cat:'Building Element'},
+{id:'beam',l:'IfcBeam',c:'#5b9fff',g:'elem',p:[2,4,-2],a:['Ligger / balk'],cat:'Building Element'},
+{id:'slab',l:'IfcSlab',c:'#5b9fff',g:'elem',p:[4,4,-2],a:['Vloerplaat','FLOOR, ROOF, LANDING'],cat:'Building Element'},
+{id:'roof',l:'IfcRoof',c:'#5b9fff',g:'elem',p:[-6,2,-2],a:['Dak container'],cat:'Building Element'},
+{id:'stair',l:'IfcStair',c:'#5b9fff',g:'elem',p:[-4,2,-2],a:['Trap container'],cat:'Building Element'},
+{id:'ramp',l:'IfcRamp',c:'#5b9fff',g:'elem',p:[-2,2,-2],a:['Helling'],cat:'Building Element'},
+{id:'railing',l:'IfcRailing',c:'#5b9fff',g:'elem',p:[0,2,-2],a:['Leuning / balustrade'],cat:'Building Element'},
+{id:'curtWall',l:'IfcCurtainWall',c:'#5b9fff',g:'elem',p:[2,2,-2],a:['Vliesgevel'],cat:'Building Element'},
+{id:'covering',l:'IfcCovering',c:'#5b9fff',g:'elem',p:[4,2,-2],a:['Afwerking'],cat:'Building Element'},
+{id:'footing',l:'IfcFooting',c:'#5b9fff',g:'elem',p:[-6,0,-2],a:['Fundering'],cat:'Building Element'},
+{id:'pile',l:'IfcPile',c:'#5b9fff',g:'elem',p:[-4,0,-2],a:['Heipaal'],cat:'Building Element'},
+{id:'plate',l:'IfcPlate',c:'#5b9fff',g:'elem',p:[-2,0,-2],a:['Stalen plaat'],cat:'Building Element'},
+{id:'member',l:'IfcMember',c:'#5b9fff',g:'elem',p:[0,0,-2],a:['Generiek staafelement'],cat:'Building Element'},
+{id:'opening',l:'IfcOpeningElement',c:'#5b9fff',g:'elem',p:[-5,3,-2],a:['Uitsparing'],cat:'Building Element'},
+{id:'furnish',l:'IfcFurnishingElement',c:'#5b9fff',g:'elem',p:[2,0,-2],a:['Meubilair'],cat:'Building Element'},
+
+// === IFC5 TYPES (behind elements) ===
+{id:'wallTp',l:'IfcWallType',c:'#b197fc',g:'elem',p:[-6,4,-5],a:['STANDARD, PARTITIONING, SHEAR'],cat:'Type'},
+{id:'doorTp',l:'IfcDoorType',c:'#b197fc',g:'elem',p:[-4,4,-5],a:['SINGLE_SWING_LEFT, DOUBLE_DOOR...'],cat:'Type'},
+{id:'windowTp',l:'IfcWindowType',c:'#b197fc',g:'elem',p:[-2,4,-5],a:['SINGLE_PANEL, DOUBLE_PANEL...'],cat:'Type'},
+{id:'colTp',l:'IfcColumnType',c:'#b197fc',g:'elem',p:[0,4,-5],a:['COLUMN, PILASTER'],cat:'Type'},
+{id:'beamTp',l:'IfcBeamType',c:'#b197fc',g:'elem',p:[2,4,-5],a:['BEAM, JOIST, HOLLOWCORE, LINTEL'],cat:'Type'},
+{id:'slabTp',l:'IfcSlabType',c:'#b197fc',g:'elem',p:[4,4,-5],a:['FLOOR, ROOF, LANDING, BASESLAB'],cat:'Type'},
+
+// === IFC5 MEP (right) ===
+{id:'distSys',l:'IfcDistributionSystem',c:'#38d9a9',g:'mep',p:[8,8,0],a:['HEATING, COOLING, VENTILATION, ELECTRICAL'],cat:'MEP'},
+{id:'distElem',l:'IfcDistributionElement',c:'#38d9a9',g:'mep',p:[8,6,0],a:['Basis MEP element'],cat:'MEP'},
+{id:'flowSeg',l:'IfcFlowSegment',c:'#38d9a9',g:'mep',p:[6,4,0],a:['Buis, kanaal, kabel'],cat:'MEP'},
+{id:'flowFit',l:'IfcFlowFitting',c:'#38d9a9',g:'mep',p:[8,4,0],a:['Bocht, T-stuk'],cat:'MEP'},
+{id:'flowTerm',l:'IfcFlowTerminal',c:'#38d9a9',g:'mep',p:[10,4,0],a:['Kraan, rooster, stopcontact'],cat:'MEP'},
+{id:'flowCtrl',l:'IfcFlowController',c:'#38d9a9',g:'mep',p:[6,4,2],a:['Klep, schakelaar'],cat:'MEP'},
+{id:'energyConv',l:'IfcEnergyConversionDevice',c:'#38d9a9',g:'mep',p:[10,4,2],a:['Ketel, warmtepomp'],cat:'MEP'},
+{id:'sanitary',l:'IfcSanitaryTerminal',c:'#38d9a9',g:'mep',p:[8,2,0],a:['BATH, SHOWER, SINK, TOILET'],cat:'MEP'},
+{id:'lightFix',l:'IfcLightFixture',c:'#38d9a9',g:'mep',p:[10,2,0],a:['Verlichtingsarmatuur'],cat:'MEP'},
+{id:'outlet',l:'IfcOutlet',c:'#38d9a9',g:'mep',p:[6,2,0],a:['Stopcontact'],cat:'MEP'},
+{id:'sensor',l:'IfcSensor',c:'#38d9a9',g:'mep',p:[6,2,2],a:['Temp, rook, beweging'],cat:'MEP'},
+{id:'valve',l:'IfcValve',c:'#38d9a9',g:'mep',p:[8,2,2],a:['Afsluiter'],cat:'MEP'},
+{id:'boiler',l:'IfcBoiler',c:'#38d9a9',g:'mep',p:[10,2,2],a:['CV-ketel'],cat:'MEP'},
+
+// === IFC5 STRUCTURAL (far right) ===
+{id:'structModel',l:'IfcStructuralAnalysisModel',c:'#74b4ff',g:'struct',p:[12,8,4],a:['Rekenmodel container'],cat:'Structural'},
+{id:'structMem',l:'IfcStructuralCurveMember',c:'#74b4ff',g:'struct',p:[11,6,4],a:['Staaf-element (1D)'],cat:'Structural'},
+{id:'structSurf',l:'IfcStructuralSurfaceMember',c:'#74b4ff',g:'struct',p:[13,6,4],a:['Vlak-element (2D)'],cat:'Structural'},
+{id:'structConn',l:'IfcStructuralConnection',c:'#74b4ff',g:'struct',p:[12,4,4],a:['Knooppunt / oplegging'],cat:'Structural'},
+{id:'reinforcing',l:'IfcReinforcingBar',c:'#74b4ff',g:'struct',p:[11,4,4],a:['Wapeningsstaaf'],cat:'Structural'},
+{id:'tendon',l:'IfcTendon',c:'#74b4ff',g:'struct',p:[13,4,4],a:['Voorspankabel'],cat:'Structural'},
+
+// === IFC5 INFRASTRUCTURE (far right bottom) ===
+{id:'facility',l:'IfcFacility',c:'#3bc9db',g:'infra',p:[12,10,-4],a:['Civiel bouwwerk'],cat:'Infrastructure'},
+{id:'alignment',l:'IfcAlignment',c:'#3bc9db',g:'infra',p:[12,8,-4],a:['Tracering'],cat:'Infrastructure'},
+{id:'road',l:'IfcRoad',c:'#3bc9db',g:'infra',p:[10,8,-4],a:['Weg'],cat:'Infrastructure'},
+{id:'railway',l:'IfcRailway',c:'#3bc9db',g:'infra',p:[14,8,-4],a:['Spoorweg'],cat:'Infrastructure'},
+{id:'bridge',l:'IfcBridge',c:'#3bc9db',g:'infra',p:[10,6,-4],a:['Brug'],cat:'Infrastructure'},
+{id:'tunnel',l:'IfcTunnel',c:'#3bc9db',g:'infra',p:[14,6,-4],a:['Tunnel'],cat:'Infrastructure'},
+
+// === IFC5 MATERIALS & PROPERTIES (below center) ===
+{id:'material',l:'IfcMaterial',c:'#e599f7',g:'mat',p:[-3,-2,0],a:['Materiaal definitie'],cat:'Material'},
+{id:'matLayer',l:'IfcMaterialLayerSet',c:'#e599f7',g:'mat',p:[-5,-4,0],a:['Laagopbouw (wand, vloer)'],cat:'Material'},
+{id:'matProfile',l:'IfcMaterialProfileSet',c:'#e599f7',g:'mat',p:[-3,-4,0],a:['Profielopbouw (kolom, ligger)'],cat:'Material'},
+{id:'matConstit',l:'IfcMaterialConstituentSet',c:'#e599f7',g:'mat',p:[-1,-4,0],a:['Samengesteld materiaal'],cat:'Material'},
+{id:'propSet',l:'IfcPropertySet',c:'#e599f7',g:'mat',p:[2,-2,0],a:['Pset_WallCommon etc.'],cat:'Properties'},
+{id:'elemQuant',l:'IfcElementQuantity',c:'#e599f7',g:'mat',p:[4,-2,0],a:['Qto_WallBaseQuantities etc.'],cat:'Quantities'},
+{id:'classif',l:'IfcClassification',c:'#e599f7',g:'mat',p:[6,-2,0],a:['NL-SfB, Uniclass, OmniClass'],cat:'Classification'},
+{id:'classRef',l:'IfcClassificationReference',c:'#e599f7',g:'mat',p:[6,-4,0],a:['Bijv. NL-SfB 21.22'],cat:'Classification'},
+
+// === USD GEOMETRY (above center) ===
+{id:'usdMesh',l:'UsdGeomMesh',c:'#9775fa',g:'usd',p:[4,10,2],a:['points + faceVertexIndices'],cat:'USD Geometry'},
+{id:'usdCurves',l:'UsdGeomBasisCurves',c:'#9775fa',g:'usd',p:[6,10,2],a:['3D curves'],cat:'USD Geometry'},
+{id:'usdPoints',l:'UsdGeomPoints',c:'#9775fa',g:'usd',p:[4,12,2],a:['Puntenwolk'],cat:'USD Geometry'},
+{id:'xformOp',l:'UsdXformOp',c:'#9775fa',g:'usd',p:[6,12,2],a:['4x4 matrix'],cat:'USD Geometry'},
+{id:'usdVis',l:'UsdGeomVisibility',c:'#9775fa',g:'usd',p:[5,11,4],a:['inherited / invisible'],cat:'USD Geometry'},
+{id:'usdMat',l:'UsdShadeMaterial',c:'#9775fa',g:'usd',p:[5,9,4],a:['Kleur, textuur'],cat:'USD Geometry'},
+
+// === IfcX DRAWINGS (left) ===
+{id:'drw',l:'Drawings/',c:'#20c997',g:'draw',p:[-8,12,0],a:['Container tekeningen'],cat:'IfcX View'},
+{id:'v1',l:'Plattegrond BG',c:'#20c997',g:'draw',p:[-10,10,0],a:['scale: 50, projection: plan'],cat:'IfcX View'},
+{id:'v2',l:'Doorsnede A-A',c:'#20c997',g:'draw',p:[-8,10,0],a:['scale: 50, projection: section'],cat:'IfcX View'},
+{id:'v3',l:'Detail 01',c:'#20c997',g:'draw',p:[-6,10,0],a:['scale: 5, projection: detail'],cat:'IfcX View'},
+{id:'g1',l:'line: wall_n',c:'#51cf66',g:'draw',p:[-11,8,0],a:['ifcx::geom::line'],cat:'IfcX Geometry'},
+{id:'g2',l:'arc: door',c:'#51cf66',g:'draw',p:[-9,8,0],a:['ifcx::geom::trimmedCurve'],cat:'IfcX Geometry'},
+{id:'g3',l:'polyline: keuken',c:'#51cf66',g:'draw',p:[-7,8,0],a:['ifcx::geom::compositeCurve'],cat:'IfcX Geometry'},
+{id:'d1',l:'dim: breedte',c:'#da77f2',g:'draw',p:[-11,6,0],a:['ifcx::annotation::dimension'],cat:'IfcX Annotation'},
+{id:'t1',l:'text: kamer',c:'#da77f2',g:'draw',p:[-9,6,0],a:['ifcx::annotation::text'],cat:'IfcX Annotation'},
+{id:'ld1',l:'leader: opmerking',c:'#da77f2',g:'draw',p:[-7,6,0],a:['ifcx::annotation::leader'],cat:'IfcX Annotation'},
+{id:'h1',l:'hatch: beton',c:'#ffa94d',g:'draw',p:[-10,4,0],a:['ifcx::hatch::material'],cat:'IfcX Hatch'},
+
+// === IfcX STYLES (below-left) ===
+{id:'sc',l:'Style: Cut',c:'#ffd43b',g:'style',p:[-10,2,0],a:['ifcx::style::curveStyle','black, 0.35mm'],cat:'IfcX Style'},
+{id:'sp',l:'Style: Projection',c:'#ffd43b',g:'style',p:[-8,2,0],a:['ifcx::style::curveStyle','grey, 0.18mm'],cat:'IfcX Style'},
+{id:'lw',l:'Layer: Walls',c:'#ffd43b',g:'style',p:[-10,0,0],a:['ifcx::layer::style'],cat:'IfcX Layer'},
+{id:'svg',l:'SVG: cut.IfcWall',c:'#ffd43b',g:'style',p:[-8,0,0],a:['ifcx::svg::class'],cat:'IfcX SVG'},
+
+// === IfcX SHEETS (front-right) ===
+{id:'sht',l:'Sheets/',c:'#ff6b6b',g:'sheet',p:[8,12,-4],a:['Container bladindelingen'],cat:'IfcX Sheet'},
+{id:'s1',l:'A1-001 Plattegronden',c:'#ff6b6b',g:'sheet',p:[7,10,-4],a:['841x594mm, landscape'],cat:'IfcX Sheet'},
+{id:'s2',l:'A1-002 Doorsneden',c:'#ff6b6b',g:'sheet',p:[10,10,-4],a:['841x594mm'],cat:'IfcX Sheet'},
+{id:'vp1',l:'Viewport: BG 1:50',c:'#ff6b6b',g:'sheet',p:[7,8,-4],a:['ifcx::sheet::viewport'],cat:'IfcX Sheet'},
+{id:'vp2',l:'Viewport: Sect 1:50',c:'#ff6b6b',g:'sheet',p:[10,8,-4],a:['ifcx::sheet::viewport'],cat:'IfcX Sheet'},
+
+// === IfcX BRANDING / REPORTS (new! front-left bottom) ===
+{id:'brand',l:'Branding/',c:'#ff922b',g:'brand',p:[-8,-2,-4],a:['ifcx::branding','Huisstijl container'],cat:'IfcX Branding'},
+{id:'brandLogo',l:'Logo',c:'#ff922b',g:'brand',p:[-10,-4,-4],a:['ifcx::branding::logo','SVG/PNG bedrijfslogo','mediaId: "logo-001"'],cat:'IfcX Branding'},
+{id:'brandColors',l:'Kleuren',c:'#ff922b',g:'brand',p:[-8,-4,-4],a:['ifcx::branding::colors','{primary:"#003366", secondary:"#0066CC", accent:"#FF6600"}'],cat:'IfcX Branding'},
+{id:'brandFonts',l:'Fonts',c:'#ff922b',g:'brand',p:[-6,-4,-4],a:['ifcx::branding::fonts','{heading:"Montserrat", body:"Open Sans", mono:"Fira Code"}'],cat:'IfcX Branding'},
+{id:'brandTemplate',l:'Rapport Template',c:'#ff922b',g:'brand',p:[-10,-6,-4],a:['ifcx::report::template','Layout definitie voor rapporten','Pagina-indeling, headers, footers'],cat:'IfcX Report'},
+{id:'brandReport',l:'Rapport',c:'#ff922b',g:'brand',p:[-8,-6,-4],a:['ifcx::report::instance','Gegenereerd rapport','Referenties naar data nodes','Dynamisch: update bij wijzigingen'],cat:'IfcX Report'},
+{id:'brandFrozen',l:'Frozen Report',c:'#ff922b',g:'brand',p:[-6,-6,-4],a:['ifcx::report::frozen','Onveranderlijk snapshot (PDF-achtig)','Datum + hash voor integriteit','Juridisch bindend document'],cat:'IfcX Report'},
+
+// === GEOMETRY TYPES (detailed, back) ===
+{id:'geomLine',l:'geom::line',c:'#22b8cf',g:'geom',p:[-4,8,6],a:['ifcx::geom::line','2 punten: [[x1,y1],[x2,y2]]'],cat:'Geometry Type'},
+{id:'geomPolyline',l:'geom::polyline',c:'#22b8cf',g:'geom',p:[-2,8,6],a:['ifcx::geom::polyline','N punten, optioneel gesloten'],cat:'Geometry Type'},
+{id:'geomCircle',l:'geom::circle',c:'#22b8cf',g:'geom',p:[0,8,6],a:['ifcx::geom::circle','center + radius'],cat:'Geometry Type'},
+{id:'geomArc',l:'geom::trimmedCurve',c:'#22b8cf',g:'geom',p:[2,8,6],a:['ifcx::geom::trimmedCurve','Boog: center, radius, start/end angle'],cat:'Geometry Type'},
+{id:'geomEllipse',l:'geom::ellipse',c:'#22b8cf',g:'geom',p:[4,8,6],a:['ifcx::geom::ellipse','center, semiAxis1, semiAxis2'],cat:'Geometry Type'},
+{id:'geomBspline',l:'geom::bspline',c:'#22b8cf',g:'geom',p:[-4,6,6],a:['ifcx::geom::bspline','NURBS curve: degree, controlPoints, knots'],cat:'Geometry Type'},
+{id:'geomCompCurve',l:'geom::compositeCurve',c:'#22b8cf',g:'geom',p:[-2,6,6],a:['ifcx::geom::compositeCurve','Gemengde lijn+boog segmenten'],cat:'Geometry Type'},
+{id:'geomIndexPoly',l:'geom::indexedPolyCurve',c:'#22b8cf',g:'geom',p:[0,6,6],a:['ifcx::geom::indexedPolyCurve','Punten + segment indices'],cat:'Geometry Type'},
+{id:'geomMesh',l:'geom::mesh',c:'#22b8cf',g:'geom',p:[2,6,6],a:['ifcx::geom::mesh','3D mesh (alias usd::usdgeom::mesh)'],cat:'Geometry Type'},
+{id:'geomSolid',l:'geom::solid',c:'#22b8cf',g:'geom',p:[4,6,6],a:['ifcx::geom::solid','ACIS/BRep solid data'],cat:'Geometry Type'},
+{id:'geomPoint',l:'geom::point',c:'#22b8cf',g:'geom',p:[-4,4,6],a:['ifcx::geom::point','Enkel punt [x,y,z]'],cat:'Geometry Type'},
+{id:'geomPointCloud',l:'geom::pointCloud',c:'#22b8cf',g:'geom',p:[-2,4,6],a:['ifcx::geom::pointCloud','Puntenwolk: positions[], colors[], intensities[]','Optioneel: normals[], classification[]'],cat:'Geometry Type'},
+{id:'geomSurface',l:'geom::surface',c:'#22b8cf',g:'geom',p:[0,4,6],a:['ifcx::geom::surface','Parametrisch oppervlak','NURBS surface, plane, cylinder'],cat:'Geometry Type'},
+{id:'geomRay',l:'geom::ray',c:'#22b8cf',g:'geom',p:[2,4,6],a:['ifcx::geom::ray','Semi-infinite lijn'],cat:'Geometry Type'},
+{id:'geomXline',l:'geom::constructionLine',c:'#22b8cf',g:'geom',p:[4,4,6],a:['ifcx::geom::constructionLine','Oneindige constructielijn'],cat:'Geometry Type'},
+
+// === BINARY / PACKAGING (bottom, separate island) ===
+{id:'ifcxJson',l:'IFCX (.ifcx)',c:'#e64980',g:'pkg',p:[0,-6,6],a:['JSON formaat','Menselijk leesbaar','UTF-8 tekst','Schema: ifcx-v2.schema.json'],cat:'Package Format'},
+{id:'ifcxBin',l:'IFCXB (.ifcxb)',c:'#e64980',g:'pkg',p:[-3,-8,6],a:['Binary formaat','CBOR encoding (RFC 8949)','Zstandard compressie','~94% kleiner dan DXF','Streaming support'],cat:'Package Format'},
+{id:'ifcxZip',l:'IFCXZ (.ifcxz)',c:'#e64980',g:'pkg',p:[3,-8,6],a:['ZIP container','Meerdere IFCX/IFCXB bestanden','Embedded media (afbeeldingen)','Manifest.json met metadata','Vergelijkbaar met .docx/.xlsx'],cat:'Package Format'},
+{id:'ifcxMedia',l:'Media Blobs',c:'#e64980',g:'pkg',p:[0,-10,6],a:['Ingebedde binaire data','Afbeeldingen, PDFs, puntenwolken','Content-addressed (hash)','Gedeeld tussen revisions'],cat:'Package Format'},
+
+// === VERSIONING (right bottom) ===
+{id:'rev',l:'Revisions/',c:'#e599f7',g:'version',p:[8,-2,4],a:['Optioneel versiebeheer'],cat:'IfcX Revision'},
+{id:'r1',l:'rev-001 v0.1',c:'#e599f7',g:'version',p:[7,-4,4],a:['author: architect@...','Eerste ontwerp'],cat:'IfcX Revision'},
+{id:'r2',l:'rev-002',c:'#e599f7',g:'version',p:[9,-4,4],a:['parent: rev-001','Muur verplaatst'],cat:'IfcX Revision'},
+
+// === GIS ===
+{id:'geo',l:'CRS: EPSG:28992',c:'#aaa',g:'ifc5',p:[2,12,0],a:['ifcx::geo::crs','RD New'],cat:'IfcX GIS'},
+];
+
+const edges=[
+// Spatial hierarchy
+{f:'proj',t:'site',k:'c'},{f:'site',t:'bldg',k:'c'},{f:'bldg',t:'stor',k:'c'},
+{f:'stor',t:'space',k:'c'},{f:'stor',t:'zone',k:'c'},{f:'bldg',t:'grid',k:'c'},
+// Spatial -> Elements
+{f:'stor',t:'wall',k:'c'},{f:'stor',t:'door',k:'c'},{f:'stor',t:'window',k:'c'},
+{f:'stor',t:'column',k:'c'},{f:'stor',t:'beam',k:'c'},{f:'stor',t:'slab',k:'c'},
+{f:'stor',t:'roof',k:'c'},{f:'stor',t:'stair',k:'c'},{f:'stor',t:'ramp',k:'c'},
+{f:'stor',t:'railing',k:'c'},{f:'stor',t:'curtWall',k:'c'},{f:'stor',t:'covering',k:'c'},
+{f:'stor',t:'footing',k:'c'},{f:'stor',t:'pile',k:'c'},{f:'stor',t:'plate',k:'c'},
+{f:'stor',t:'member',k:'c'},{f:'stor',t:'furnish',k:'c'},
+{f:'wall',t:'opening',k:'c'},
+// Types
+{f:'wall',t:'wallTp',k:'i'},{f:'door',t:'doorTp',k:'i'},{f:'window',t:'windowTp',k:'i'},
+{f:'column',t:'colTp',k:'i'},{f:'beam',t:'beamTp',k:'i'},{f:'slab',t:'slabTp',k:'i'},
+// USD
+{f:'wall',t:'usdMesh',k:'c'},{f:'column',t:'usdMesh',k:'c'},{f:'slab',t:'usdMesh',k:'c'},
+{f:'alignment',t:'usdCurves',k:'c'},
+// MEP
+{f:'bldg',t:'distSys',k:'c'},{f:'distSys',t:'distElem',k:'c'},
+{f:'distElem',t:'flowSeg',k:'c'},{f:'distElem',t:'flowFit',k:'c'},
+{f:'distElem',t:'flowTerm',k:'c'},{f:'distElem',t:'flowCtrl',k:'c'},
+{f:'distElem',t:'energyConv',k:'c'},
+{f:'sanitary',t:'flowTerm',k:'i'},{f:'lightFix',t:'flowTerm',k:'i'},
+{f:'outlet',t:'flowTerm',k:'i'},{f:'sensor',t:'flowCtrl',k:'i'},
+{f:'valve',t:'flowCtrl',k:'i'},{f:'boiler',t:'energyConv',k:'i'},
+// Structural
+{f:'proj',t:'structModel',k:'c'},
+{f:'structModel',t:'structMem',k:'c'},{f:'structModel',t:'structSurf',k:'c'},
+{f:'structModel',t:'structConn',k:'c'},
+{f:'structMem',t:'reinforcing',k:'c'},{f:'structMem',t:'tendon',k:'c'},
+// Infrastructure
+{f:'site',t:'facility',k:'c'},
+{f:'facility',t:'alignment',k:'c'},{f:'facility',t:'road',k:'c'},
+{f:'facility',t:'railway',k:'c'},{f:'facility',t:'bridge',k:'c'},{f:'facility',t:'tunnel',k:'c'},
+// Materials & Properties
+{f:'wall',t:'material',k:'o',lb:'material'},{f:'wall',t:'propSet',k:'o',lb:'properties'},
+{f:'material',t:'matLayer',k:'c'},{f:'material',t:'matProfile',k:'c'},{f:'material',t:'matConstit',k:'c'},
+{f:'classif',t:'classRef',k:'c'},{f:'wall',t:'classRef',k:'o',lb:'classification'},
+// Drawings
+{f:'proj',t:'drw',k:'c'},{f:'proj',t:'sht',k:'c'},{f:'proj',t:'geo',k:'c'},
+{f:'drw',t:'v1',k:'c'},{f:'drw',t:'v2',k:'c'},{f:'drw',t:'v3',k:'c'},
+{f:'v1',t:'g1',k:'c'},{f:'v1',t:'g2',k:'c'},{f:'v1',t:'g3',k:'c'},
+{f:'v1',t:'d1',k:'c'},{f:'v1',t:'t1',k:'c'},{f:'v1',t:'h1',k:'c'},
+{f:'v3',t:'ld1',k:'c'},
+// Styles
+{f:'g1',t:'sc',k:'o',lb:'style'},{f:'g1',t:'lw',k:'o',lb:'layer'},
+{f:'g1',t:'svg',k:'o',lb:'css'},{f:'g1',t:'wall',k:'o',lb:'source'},
+// Sheets
+{f:'sht',t:'s1',k:'c'},{f:'sht',t:'s2',k:'c'},
+{f:'s1',t:'vp1',k:'c'},{f:'s2',t:'vp2',k:'c'},
+{f:'vp1',t:'v1',k:'o',lb:'view'},{f:'vp2',t:'v2',k:'o',lb:'view'},
+// Branding / Reports
+{f:'proj',t:'brand',k:'c'},
+{f:'brand',t:'brandLogo',k:'c'},{f:'brand',t:'brandColors',k:'c'},{f:'brand',t:'brandFonts',k:'c'},
+{f:'brand',t:'brandTemplate',k:'c'},
+{f:'brandTemplate',t:'brandReport',k:'o',lb:'generates'},
+{f:'brandReport',t:'brandFrozen',k:'o',lb:'freeze'},
+{f:'brandFrozen',t:'ifcxMedia',k:'o',lb:'stores'},
+{f:'brandTemplate',t:'brandLogo',k:'o',lb:'uses'},
+{f:'brandTemplate',t:'brandColors',k:'o',lb:'uses'},
+{f:'brandTemplate',t:'brandFonts',k:'o',lb:'uses'},
+// Packaging
+{f:'ifcxJson',t:'ifcxBin',k:'o',lb:'encode'},{f:'ifcxJson',t:'ifcxZip',k:'o',lb:'package'},
+{f:'ifcxZip',t:'ifcxMedia',k:'c'},
+{f:'ifcxBin',t:'ifcxZip',k:'o',lb:'contains'},
+// Versioning
+{f:'proj',t:'rev',k:'c'},{f:'rev',t:'r1',k:'c'},{f:'rev',t:'r2',k:'c'},
+{f:'r2',t:'r1',k:'o',lb:'parent'},
+];
+
+// Build node map
+const NM={};nodes.forEach(n=>NM[n.id]=n);
+
+// ===================================
+// THREE.JS SETUP
+// ===================================
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x060810,0.018);
+const camera=new THREE.PerspectiveCamera(60,1,0.1,200);
+camera.position.set(10,14,22);
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x060810);
+SCENE_DIV.appendChild(renderer.domElement);
+
+const labelRenderer=new CSS2DRenderer();
+labelRenderer.setSize(100,100);
+labelRenderer.domElement.style.position='absolute';
+labelRenderer.domElement.style.top='0';
+labelRenderer.domElement.style.pointerEvents='none';
+SCENE_DIV.appendChild(labelRenderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.08;
+controls.minDistance=3;controls.maxDistance=60;
+controls.target.set(0,4,0);
+
+// Lighting
+scene.add(new THREE.AmbientLight(0x334466,0.6));
+const dirLight=new THREE.DirectionalLight(0xffffff,0.4);
+dirLight.position.set(10,20,10);scene.add(dirLight);
+
+// Grid helper
+const gridH=new THREE.GridHelper(40,40,0x111828,0x0a0e18);
+gridH.position.y=-12;scene.add(gridH);
+
+// Scale factor for positions
+const S=1.8;
+
+// ===================================
+// CREATE 3D NODES
+// ===================================
+let filter='all';
+const FGROUPS={
+  'all':()=>true,'ifc5':n=>n.g==='ifc5','elem':n=>n.g==='elem',
+  'mep':n=>n.g==='mep','struct':n=>n.g==='struct','infra':n=>n.g==='infra',
+  'mat':n=>n.g==='mat','usd':n=>n.g==='usd','draw':n=>n.g==='draw',
+  'sheet':n=>n.g==='sheet','style':n=>n.g==='style','brand':n=>n.g==='brand',
+  'geom':n=>n.g==='geom','pkg':n=>n.g==='pkg','version':n=>n.g==='version'
+};
+function vis(n){return(FGROUPS[filter]||FGROUPS.all)(n)}
+
+const nodeMeshes=[];const nodeMap={};
+
+// Sphere geometry shared
+const sphereGeo=new THREE.SphereGeometry(0.28,16,12);
+
+nodes.forEach(n=>{
+  const col=new THREE.Color(n.c);
+  const mat=new THREE.MeshPhongMaterial({color:col,emissive:col,emissiveIntensity:0.3,transparent:true,opacity:0.9});
+  const mesh=new THREE.Mesh(sphereGeo,mat);
+  mesh.position.set(n.p[0]*S,n.p[1]*S,n.p[2]*S);
+  mesh.userData={nodeId:n.id};
+  scene.add(mesh);
+
+  // Glow ring
+  const ringGeo=new THREE.RingGeometry(0.35,0.42,24);
+  const ringMat=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.15,side:THREE.DoubleSide});
+  const ring=new THREE.Mesh(ringGeo,ringMat);
+  ring.position.copy(mesh.position);
+  scene.add(ring);
+
+  // Label
+  const div=document.createElement('div');
+  div.style.cssText='color:#ccc;font-size:10px;background:rgba(6,8,16,0.75);padding:1px 6px;border-radius:3px;border:1px solid '+n.c+'44;white-space:nowrap;pointer-events:none;user-select:none';
+  div.textContent=n.l;
+  const label=new CSS2DObject(div);
+  label.position.set(0,0.45,0);
+  mesh.add(label);
+
+  // Pset indicator
+  if(NODE_PSETS[n.id]){
+    const indGeo=new THREE.SphereGeometry(0.08,8,6);
+    const indMat=new THREE.MeshBasicMaterial({color:0xffa94d});
+    const ind=new THREE.Mesh(indGeo,indMat);
+    ind.position.set(0.3,0.3,0);
+    mesh.add(ind);
+  }
+
+  n._mesh=mesh;n._ring=ring;n._label=label;n._mat=mat;n._div=div;
+  nodeMeshes.push(mesh);
+  nodeMap[n.id]=n;
+});
+
+// ===================================
+// CREATE 3D EDGES
+// ===================================
+const edgeLines=[];
+edges.forEach(e=>{
+  const a=NM[e.f],b=NM[e.t];if(!a||!b)return;
+  const col=e.k==='c'?0x4da6ff:e.k==='i'?0x51cf66:0xffa94d;
+  const opacity=e.k==='c'?0.15:e.k==='i'?0.3:0.12;
+  const pts=[
+    new THREE.Vector3(a.p[0]*S,a.p[1]*S,a.p[2]*S),
+    new THREE.Vector3(b.p[0]*S,b.p[1]*S,b.p[2]*S)
+  ];
+  const geo=new THREE.BufferGeometry().setFromPoints(pts);
+  const mat=new THREE.LineBasicMaterial({color:col,transparent:true,opacity});
+  if(e.k==='i')mat.dashSize=0.3,mat.gapSize=0.15;
+  const line=new THREE.Line(geo,mat);
+  scene.add(line);
+  e._line=line;e._mat=mat;e._origOp=opacity;
+  edgeLines.push(e);
+});
+
+// ===================================
+// RAYCASTING & INTERACTION
+// ===================================
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+let selected=null,hovered=null;
+const historyStack=[];
+
+renderer.domElement.addEventListener('mousemove',e=>{
+  const rect=renderer.domElement.getBoundingClientRect();
+  mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+  mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+});
+
+renderer.domElement.addEventListener('click',e=>{
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(nodeMeshes);
+  if(hits.length>0){
+    const nid=hits[0].object.userData.nodeId;
+    const node=NM[nid];if(node)openPanel(node);
+  }
+});
+
+renderer.domElement.addEventListener('dblclick',e=>{
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(nodeMeshes);
+  if(hits.length>0){
+    const pos=hits[0].object.position;
+    controls.target.lerp(pos,0.5);
+  }
+});
+
+// ===================================
+// FILTERING
+// ===================================
+function applyFilter(){
+  nodes.forEach(n=>{
+    const v=vis(n);
+    n._mesh.visible=v;n._ring.visible=v;
+  });
+  edges.forEach(e=>{
+    const a=NM[e.f],b=NM[e.t];
+    e._line.visible=a&&b&&vis(a)&&vis(b);
+  });
+  updateStats();
+}
+
+function updateStats(){
+  const vn=nodes.filter(vis).length;
+  const ve=edges.filter(e=>{const a=NM[e.f],b=NM[e.t];return a&&b&&vis(a)&&vis(b)}).length;
+  ST.textContent=vn+' nodes | '+ve+' edges';
+}
+
+document.querySelectorAll('#controls button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#controls button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');filter=b.id.replace('b-','');applyFilter();
+  });
+});
+updateStats();
+
+// ===================================
+// PANEL
+// ===================================
+function openPanel(node){
+  selected=node;historyStack.push(node.id);
+  PNL.classList.add('open');CTRLS.classList.add('shifted');
+  setTimeout(onResize,310);
+  renderPanel(node);
+  highlightNode(node);
+}
+function closePanel(){
+  selected=null;historyStack.length=0;
+  PNL.classList.remove('open');CTRLS.classList.remove('shifted');
+  setTimeout(onResize,310);
+  clearHighlight();
+}
+PCLOSE.addEventListener('click',closePanel);
+
+function highlightNode(node){
+  nodes.forEach(n=>{
+    const conn=isConn(node.id,n.id);
+    const isSel=n.id===node.id;
+    n._mat.emissiveIntensity=isSel?0.8:conn?0.5:0.15;
+    n._mat.opacity=isSel?1:conn?0.9:0.4;
+    n._div.style.opacity=isSel?'1':conn?'0.9':'0.4';
+    n._ring.material.opacity=isSel?0.4:conn?0.2:0.05;
+  });
+  edges.forEach(e=>{
+    const conn=e.f===node.id||e.t===node.id;
+    e._mat.opacity=conn?0.6:0.05;
+  });
+}
+function clearHighlight(){
+  nodes.forEach(n=>{n._mat.emissiveIntensity=0.3;n._mat.opacity=0.9;n._div.style.opacity='1';n._ring.material.opacity=0.15});
+  edges.forEach(e=>{e._mat.opacity=e._origOp});
+}
+
+function isConn(a,b){
+  for(const e of edges)if((e.f===a&&e.t===b)||(e.t===a&&e.f===b))return true;
+  return false;
+}
+
+function getConnected(id){
+  const children=[],parents=[],inherits=[],inheritedBy=[],connects=[];
+  for(const e of edges){
+    if(e.f===id){const n=NM[e.t];if(!n)continue;if(e.k==='c')children.push({node:n,label:e.lb||''});else if(e.k==='i')inherits.push({node:n,label:e.lb||'type'});else connects.push({node:n,label:e.lb||''});}
+    if(e.t===id){const n=NM[e.f];if(!n)continue;if(e.k==='c')parents.push({node:n,label:e.lb||''});else if(e.k==='i')inheritedBy.push({node:n,label:e.lb||'instance'});else connects.push({node:n,label:e.lb||''});}
+  }
+  return{children,parents,inherits,inheritedBy,connects};
+}
+
+function renderPanel(node){
+  PTITLE.textContent=node.l;
+  PSUB.textContent=node.cat||node.g;
+  PBADGE.innerHTML=`<span class="badge" style="background:${node.c}22;color:${node.c};border:1px solid ${node.c}44">${node.g.toUpperCase()}</span>`;
+
+  BREAD.innerHTML='';
+  [...new Set(historyStack)].forEach((hid,i,arr)=>{
+    const hn=NM[hid];if(!hn)return;
+    const sp=document.createElement('span');sp.textContent=hn.l;
+    if(i===arr.length-1)sp.classList.add('current');
+    else sp.addEventListener('click',()=>navigateTo(hid));
+    BREAD.appendChild(sp);
+  });
+
+  let html='';
+
+  // Attributes
+  if(node.a&&node.a.length){
+    html+='<div class="sec"><h3>Attributen</h3><table class="ptable"><tbody>';
+    for(const attr of node.a){
+      const parts=attr.split(': ');
+      if(parts.length>=2)html+=`<tr><td class="pname">${esc(parts[0])}</td><td class="pval">${esc(parts.slice(1).join(': '))}</td></tr>`;
+      else html+=`<tr><td class="pname" colspan="2">${esc(attr)}</td></tr>`;
+    }
+    html+='</tbody></table></div>';
+  }
+
+  // Psets
+  const psets=NODE_PSETS[node.id];
+  if(psets){
+    for(const pname of psets){
+      const ps=PSETS[pname];if(!ps)continue;
+      html+=`<div class="sec"><h3>${esc(pname)}</h3><p style="font-size:10px;color:#556;margin-bottom:8px">${esc(ps.d)}</p>`;
+      html+='<table class="ptable"><thead><tr><th>Property</th><th>Type</th><th>Omschrijving</th></tr></thead><tbody>';
+      for(const p of ps.p)html+=`<tr><td class="pname">${esc(p.n)}</td><td class="ptype">${esc(p.t)}</td><td class="pdesc">${esc(p.d)}</td></tr>`;
+      html+='</tbody></table></div>';
+    }
+  }
+
+  // Relations
+  const conn=getConnected(node.id);
+  if(conn.parents.length){
+    html+=`<div class="sec"><h3>Parent (${conn.parents.length})</h3><ul class="rel-list">`;
+    for(const r of conn.parents)html+=relItem(r.node,'#4da6ff','parent');
+    html+='</ul></div>';
+  }
+  if(conn.children.length){
+    html+=`<div class="sec"><h3>Children (${conn.children.length})</h3><ul class="rel-list">`;
+    for(const r of conn.children)html+=relItem(r.node,r.node.c,'child');
+    html+='</ul></div>';
+  }
+  if(conn.inherits.length){
+    html+=`<div class="sec"><h3>Type (${conn.inherits.length})</h3><ul class="rel-list">`;
+    for(const r of conn.inherits)html+=relItem(r.node,'#51cf66','type');
+    html+='</ul></div>';
+  }
+  if(conn.inheritedBy.length){
+    html+=`<div class="sec"><h3>Instances (${conn.inheritedBy.length})</h3><ul class="rel-list">`;
+    for(const r of conn.inheritedBy)html+=relItem(r.node,r.node.c,'instance');
+    html+='</ul></div>';
+  }
+  if(conn.connects.length){
+    html+=`<div class="sec"><h3>Connects (${conn.connects.length})</h3><ul class="rel-list">`;
+    for(const r of conn.connects)html+=relItem(r.node,'#ffa94d',r.label);
+    html+='</ul></div>';
+  }
+
+  PBODY.innerHTML=html;
+  PBODY.querySelectorAll('[data-nav]').forEach(el=>{
+    el.addEventListener('click',()=>navigateTo(el.dataset.nav));
+  });
+}
+
+function relItem(node,color,type){
+  return `<li data-nav="${node.id}"><div class="dot" style="background:${color}"></div>${esc(node.l)}<span class="rtype">${type}</span></li>`;
+}
+
+function navigateTo(id){
+  const node=NM[id];if(!node)return;
+  selected=node;historyStack.push(id);
+  renderPanel(node);highlightNode(node);
+  // Fly camera towards node
+  const target=new THREE.Vector3(node.p[0]*S,node.p[1]*S,node.p[2]*S);
+  controls.target.lerp(target,0.3);
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ===================================
+// ANIMATION LOOP
+// ===================================
+let time=0;
+function animate(){
+  requestAnimationFrame(animate);
+  time+=0.01;
+  controls.update();
+
+  // Gentle float for rings
+  nodes.forEach(n=>{
+    if(!n._mesh.visible)return;
+    n._ring.rotation.x=Math.sin(time+n.p[0])*0.3;
+    n._ring.rotation.y=time*0.5+n.p[1]*0.1;
+  });
+
+  // Hover detection
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(nodeMeshes.filter(m=>m.visible));
+  renderer.domElement.style.cursor=hits.length?'pointer':'grab';
+  if(hits.length&&!selected){
+    const nid=hits[0].object.userData.nodeId;
+    if(!hovered||hovered.id!==nid){
+      if(hovered)hovered._mat.emissiveIntensity=0.3;
+      hovered=NM[nid];
+      if(hovered)hovered._mat.emissiveIntensity=0.7;
+    }
+  }else if(!selected&&hovered){
+    hovered._mat.emissiveIntensity=0.3;hovered=null;
+  }
+
+  renderer.render(scene,camera);
+  labelRenderer.render(scene,camera);
+}
+
+function onResize(){
+  const w=SCENE_DIV.clientWidth,h=SCENE_DIV.clientHeight;
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+  renderer.setSize(w,h);labelRenderer.setSize(w,h);
+}
+window.addEventListener('resize',onResize);
+onResize();
+animate();
+</script>
+</body>
+</html>

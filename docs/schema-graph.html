@@ -3,253 +3,985 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IfcX Schema - Complete Graph (IFC5 + Extensions)</title>
+<title>IfcX Schema - Complete Interactive Graph</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0c14;color:#ccc;font-family:system-ui,sans-serif;overflow:hidden}
-canvas{display:block;cursor:grab}canvas.dragging{cursor:grabbing}
+body{background:#0a0c14;color:#ccc;font-family:system-ui,sans-serif;overflow:hidden;display:flex}
+canvas{display:block;cursor:grab;flex:1}canvas.dragging{cursor:grabbing}
+#panel{width:0;min-width:0;background:#0e1018;border-left:1px solid #2a2d3a;overflow-y:auto;overflow-x:hidden;transition:width .25s,min-width .25s;z-index:30;flex-shrink:0}
+#panel.open{width:420px;min-width:420px}
+#panel-inner{padding:16px;opacity:0;transition:opacity .15s}
+#panel.open #panel-inner{opacity:1}
+#panel-close{position:absolute;top:8px;right:8px;background:none;border:1px solid #333;color:#888;width:26px;height:26px;border-radius:4px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+#panel-close:hover{background:#1a1d28;color:#fff}
+#panel-header{position:relative;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1e2130}
+#panel-header h2{font-size:18px;margin-bottom:2px}
+#panel-header .sub{font-size:11px;color:#666;margin-top:2px}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;margin-top:6px;letter-spacing:.5px}
+.sec{margin-bottom:14px}
+.sec h3{font-size:12px;color:#4da6ff;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.sec h3::before{content:'';display:inline-block;width:3px;height:14px;border-radius:2px;background:#4da6ff}
+.ptable{width:100%;border-collapse:collapse;font-size:11px}
+.ptable th{text-align:left;color:#666;font-weight:500;padding:4px 6px;border-bottom:1px solid #1a1d28;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.ptable td{padding:5px 6px;border-bottom:1px solid #13151f;vertical-align:top}
+.ptable tr:hover td{background:#13151f}
+.pname{color:#7ec;font-family:monospace;font-size:11px}
+.ptype{color:#b197fc;font-size:10px;font-family:monospace}
+.pdesc{color:#777;font-size:10px}
+.pval{color:#ffa94d;font-size:10px;font-family:monospace}
+.rel-list{list-style:none;padding:0}
+.rel-list li{padding:5px 8px;border-radius:4px;margin-bottom:3px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.rel-list li:hover{background:#1a1d28}
+.rel-list li .dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.rel-list li .rtype{color:#666;font-size:9px;margin-left:auto}
+#breadcrumb{display:flex;gap:4px;font-size:10px;margin-bottom:10px;flex-wrap:wrap}
+#breadcrumb span{color:#4da6ff;cursor:pointer;padding:2px 6px;background:#111422;border-radius:3px}
+#breadcrumb span:hover{background:#1a2a44}
+#breadcrumb span.current{color:#fff;cursor:default;background:#1a3a5c}
 #info{position:fixed;top:10px;left:10px;background:rgba(15,17,25,0.94);border:1px solid #2a2d3a;border-radius:8px;padding:12px;max-width:260px;font-size:11px;z-index:10;pointer-events:none}
 #info h2{color:#4da6ff;font-size:14px;margin-bottom:4px}
 #info p{color:#777;font-size:10px;line-height:1.5;margin-bottom:3px}
 #info .k{color:#4da6ff;font-size:9px}
-#legend{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10;pointer-events:none;flex-wrap:wrap;justify-content:center}
+#legend{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10;pointer-events:none;flex-wrap:wrap;justify-content:center;max-width:85vw}
 .lg{display:flex;align-items:center;gap:3px;font-size:9px;color:#666}.lg .d{width:8px;height:8px;border-radius:2px}
-#tooltip{position:fixed;display:none;background:rgba(10,12,20,0.96);border:1px solid #4da6ff;border-radius:6px;padding:8px 12px;font-size:10px;z-index:20;pointer-events:none;max-width:300px}
-#tooltip h3{color:#4da6ff;font-size:12px;margin-bottom:3px}
-#tooltip .a{color:#7ec;font-family:monospace;font-size:9px;line-height:1.5}
-#controls{position:fixed;top:10px;right:10px;z-index:10;display:flex;flex-direction:column;gap:4px}
-#controls button{background:#1a1d28;border:1px solid #2a2d3a;color:#999;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px}
+#controls{position:fixed;top:10px;right:10px;z-index:10;display:flex;flex-direction:column;gap:3px;transition:right .25s;max-height:calc(100vh - 20px);overflow-y:auto}
+#controls.shifted{right:430px}
+#controls button{background:#1a1d28;border:1px solid #2a2d3a;color:#999;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;white-space:nowrap;text-align:left}
 #controls button:hover{background:#2a2d3a;color:#fff}
 #controls button.on{background:#1a3a5c;border-color:#4da6ff;color:#4da6ff}
+.sep{height:1px;background:#2a2d3a;margin:2px 0}
+#stats{position:fixed;bottom:40px;right:10px;font-size:9px;color:#555;z-index:10;pointer-events:none}
+#panel::-webkit-scrollbar{width:6px}
+#panel::-webkit-scrollbar-track{background:#0e1018}
+#panel::-webkit-scrollbar-thumb{background:#2a2d3a;border-radius:3px}
+#search{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:15;display:flex;flex-direction:column;align-items:center}
+#search-box{background:rgba(15,17,25,0.94);border:1px solid #2a2d3a;border-radius:8px;color:#ddd;padding:8px 14px 8px 32px;font-size:13px;width:320px;outline:none;font-family:system-ui;backdrop-filter:blur(8px)}
+#search-box:focus{border-color:#4da6ff;box-shadow:0 0 12px #4da6ff22}
+#search-box::placeholder{color:#445}
+#search-icon{position:absolute;left:12px;top:10px;color:#445;font-size:14px;pointer-events:none}
+#search-results{background:rgba(12,14,22,0.96);border:1px solid #2a2d3a;border-top:none;border-radius:0 0 8px 8px;max-height:320px;overflow-y:auto;width:320px;display:none;backdrop-filter:blur(8px)}
+#search-results.open{display:block}
+.sr{padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:12px;transition:background .1s;border-bottom:1px solid #0e1018}
+.sr:hover,.sr.active{background:#141828}
+.sr .sr-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
+.sr .sr-label{flex:1;color:#ccc}
+.sr .sr-cat{font-size:9px;color:#556;margin-left:auto}
+.sr .sr-origin{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700}
+#search-results::-webkit-scrollbar{width:5px}
+#search-results::-webkit-scrollbar-thumb{background:#2a2d3a;border-radius:3px}
 </style>
 </head>
 <body>
 <div id="info">
 <h2>IfcX = IFC5 + 2D Extensions</h2>
-<p>Volledig schema: IFC5 basis (blauw/paars) + IfcX extensies (groen/oranje/rood/geel)</p>
+<p>Klik op een node voor details + properties</p>
 <p>Sleep nodes | Scroll = zoom | Rechtermuisknop = pan</p>
-<p class="k">─ children &nbsp; ┄ inherits &nbsp; ╌ connects</p>
+<p class="k">&#9472; children &nbsp; &#9476; inherits &nbsp; &#9484; connects</p>
+</div>
+<div id="search">
+<span id="search-icon">&#x1F50D;</span>
+<input id="search-box" type="text" placeholder="Zoek node... (bijv. IfcWall, hatch, Git)" autocomplete="off">
+<div id="search-results"></div>
 </div>
 <div id="controls">
 <button class="on" id="b-all">Alles</button>
-<button id="b-ifc5">IFC5 Basis</button>
-<button id="b-drawing">Tekeningen</button>
+<button id="b-ifcx" style="background:#1a2a1a;border-color:#69db7c;color:#69db7c;font-weight:700">&#9733; IfcX Toevoegingen</button>
+<div class="sep"></div>
+<button id="b-ifc5">IFC5 Kern</button>
+<button id="b-elem">IFC5 Elementen</button>
+<button id="b-mep">IFC5 MEP</button>
+<button id="b-struct">IFC5 Structureel</button>
+<button id="b-infra">IFC5 Infra</button>
+<button id="b-mat">Materiaal/Props</button>
+<button id="b-usd">USD Geometrie</button>
+<div class="sep"></div>
+<button id="b-draw">Tekeningen</button>
 <button id="b-sheet">Sheets</button>
 <button id="b-style">Stijlen</button>
+<button id="b-geom">Geometrie Types</button>
+<button id="b-brand">Branding/Reports</button>
+<button id="b-pkg">Binary/Package</button>
+<button id="b-calc">Standards/Formulas</button>
+<button id="b-bcf">BCF Issues</button>
+<button id="b-git">Git by Design</button>
 <button id="b-version">Versioning</button>
 </div>
 <div id="legend">
-<div class="lg"><div class="d" style="background:#4da6ff"></div>IFC5: bsi::ifc</div>
-<div class="lg"><div class="d" style="background:#9775fa"></div>IFC5: usd::*</div>
-<div class="lg"><div class="d" style="background:#51cf66"></div>ifcx::geom</div>
-<div class="lg"><div class="d" style="background:#da77f2"></div>ifcx::annotation</div>
-<div class="lg"><div class="d" style="background:#ffa94d"></div>ifcx::hatch</div>
-<div class="lg"><div class="d" style="background:#ffd43b"></div>ifcx::style/layer</div>
-<div class="lg"><div class="d" style="background:#74c0fc"></div>ifcx::component</div>
-<div class="lg"><div class="d" style="background:#ff6b6b"></div>ifcx::sheet</div>
-<div class="lg"><div class="d" style="background:#20c997"></div>ifcx::view</div>
-<div class="lg"><div class="d" style="background:#e599f7"></div>ifcx::revision</div>
-<div class="lg"><div class="d" style="background:#aaa"></div>ifcx::image/geo</div>
+<div class="lg"><div class="d" style="background:#4da6ff"></div>IFC5 Spatial</div>
+<div class="lg"><div class="d" style="background:#5b9fff"></div>Elements</div>
+<div class="lg"><div class="d" style="background:#38d9a9"></div>MEP</div>
+<div class="lg"><div class="d" style="background:#74b4ff"></div>Structural</div>
+<div class="lg"><div class="d" style="background:#3bc9db"></div>Infra</div>
+<div class="lg"><div class="d" style="background:#b197fc"></div>Types</div>
+<div class="lg"><div class="d" style="background:#9775fa"></div>USD</div>
+<div class="lg"><div class="d" style="background:#51cf66"></div>geom</div>
+<div class="lg"><div class="d" style="background:#da77f2"></div>annotation</div>
+<div class="lg"><div class="d" style="background:#ffd43b"></div>style</div>
+<div class="lg"><div class="d" style="background:#ff6b6b"></div>sheet</div>
+<div class="lg"><div class="d" style="background:#ff922b"></div>branding</div>
+<div class="lg"><div class="d" style="background:#22b8cf"></div>geom types</div>
+<div class="lg"><div class="d" style="background:#e64980"></div>IFCXB/Z</div>
+<div class="lg"><div class="d" style="background:#fcc419"></div>Standards/Calc</div>
+<div class="lg"><div class="d" style="background:#f06595"></div>BCF</div>
+<div class="lg"><div class="d" style="background:#69db7c"></div>Git</div>
 </div>
-<div id="tooltip"></div>
+<div id="stats"></div>
 <canvas id="c"></canvas>
+<div id="panel"><div id="panel-inner">
+<div id="panel-header"><button id="panel-close">&times;</button><div id="breadcrumb"></div><h2 id="panel-title"></h2><div class="sub" id="panel-sub"></div><div id="panel-badge"></div></div>
+<div id="panel-body"></div>
+</div></div>
+
 <script>
-const C=document.getElementById('c'),X=C.getContext('2d'),TT=document.getElementById('tooltip');
-let W,H;function resize(){W=C.width=innerWidth;H=C.height=innerHeight}resize();addEventListener('resize',resize);
-
-// === ALL NODES ===
-const N=[
-// IFC5 Core (bsi::ifc)
-{id:'proj',l:'IfcProject',c:'#4da6ff',g:'ifc5',x:550,y:30,a:['bsi::ifc::class: IfcProject','IFC5 root node']},
-{id:'site',l:'IfcSite',c:'#4da6ff',g:'ifc5',x:550,y:110,a:['bsi::ifc::class: IfcSite','bsi::ifc::geo: lat/lon']},
-{id:'bldg',l:'IfcBuilding',c:'#4da6ff',g:'ifc5',x:550,y:180,a:['bsi::ifc::class: IfcBuilding']},
-{id:'stor',l:'IfcBuildingStorey',c:'#4da6ff',g:'ifc5',x:550,y:250,a:['bsi::ifc::class: IfcBuildingStorey','bsi::ifc::prop::Elevation: 0']},
-{id:'wall',l:'IfcWall',c:'#4da6ff',g:'ifc5',x:480,y:330,a:['bsi::ifc::class: IfcWall','bsi::ifc::material: Concrete','bsi::ifc::prop::Height: 2800']},
-{id:'door',l:'IfcDoor',c:'#4da6ff',g:'ifc5',x:620,y:330,a:['bsi::ifc::class: IfcDoor','bsi::ifc::prop::Width: 900']},
-{id:'space',l:'IfcSpace',c:'#4da6ff',g:'ifc5',x:550,y:400,a:['bsi::ifc::class: IfcSpace','bsi::ifc::prop::Area: 45']},
-
-// IFC5 USD Geometry
-{id:'mesh1',l:'Wall Mesh',c:'#9775fa',g:'ifc5',x:400,y:400,a:['usd::usdgeom::mesh','points + faceVertexIndices']},
-{id:'xform1',l:'Transform',c:'#9775fa',g:'ifc5',x:700,y:400,a:['usd::xformop::matrix','4x4 column-major']},
-
-// IfcX Drawing Views
-{id:'drw',l:'Drawings/',c:'#20c997',g:'drawing',x:150,y:30,a:['Container voor alle tekeningen']},
-{id:'v1',l:'Plattegrond BG',c:'#20c997',g:'drawing',x:50,y:130,a:['ifcx::view::scale: 50','ifcx::view::projection: plan','ifcx::view::cutHeight: 1200']},
-{id:'v2',l:'Doorsnede A-A',c:'#20c997',g:'drawing',x:200,y:130,a:['ifcx::view::scale: 50','ifcx::view::projection: section']},
-{id:'v3',l:'Detail 01',c:'#20c997',g:'drawing',x:350,y:130,a:['ifcx::view::scale: 5','ifcx::view::projection: detail']},
-
-// IfcX Geometry Elements
-{id:'g1',l:'line: wall_n',c:'#51cf66',g:'drawing',x:30,y:250,a:['ifcx::geom::line','[[0,0],[5000,0]]']},
-{id:'g2',l:'line: wall_e',c:'#51cf66',g:'drawing',x:130,y:250,a:['ifcx::geom::line','[[5000,0],[5000,4000]]']},
-{id:'g3',l:'arc: door',c:'#51cf66',g:'drawing',x:230,y:250,a:['ifcx::geom::trimmedCurve','radius: 900, sweep: 90°']},
-{id:'g4',l:'polyline: keuken',c:'#51cf66',g:'drawing',x:330,y:250,a:['ifcx::geom::compositeCurve','line + arc segments']},
-{id:'g5',l:'circle: kolom',c:'#51cf66',g:'drawing',x:130,y:330,a:['ifcx::geom::circle','center, radius: 150']},
-{id:'g6',l:'spline: contour',c:'#51cf66',g:'drawing',x:280,y:330,a:['ifcx::geom::bspline','degree: 3, 12 control pts']},
-
-// IfcX Annotations
-{id:'d1',l:'dim: breedte',c:'#da77f2',g:'drawing',x:30,y:430,a:['ifcx::annotation::dimension','subtype: linear, value: 5000']},
-{id:'d2',l:'dim: hoogte',c:'#da77f2',g:'drawing',x:150,y:430,a:['ifcx::annotation::dimension','subtype: linear, value: 2800']},
-{id:'t1',l:'text: kamer',c:'#da77f2',g:'drawing',x:280,y:430,a:['ifcx::annotation::text','"Woonkamer 45 m²"']},
-{id:'ld1',l:'leader: opmerking',c:'#da77f2',g:'drawing',x:400,y:430,a:['ifcx::annotation::leader','path + arrowhead + text']},
-
-// IfcX Hatching
-{id:'h1',l:'hatch: beton',c:'#ffa94d',g:'drawing',x:30,y:520,a:['ifcx::hatch::material','{standard:"ISO",code:"concrete"}']},
-{id:'h2',l:'hatch: isolatie',c:'#ffa94d',g:'drawing',x:180,y:520,a:['ifcx::hatch::pattern','diagonal lines, scale: 2']},
-{id:'h3',l:'fill: solid grijs',c:'#ffa94d',g:'drawing',x:330,y:520,a:['ifcx::hatch::solid','{r:0.8, g:0.8, b:0.8}']},
-
-// IfcX Styles (shared)
-{id:'sc',l:'Style: Cut',c:'#ffd43b',g:'style',x:30,y:620,a:['ifcx::style::curveStyle','black, 0.35mm']},
-{id:'sp',l:'Style: Projection',c:'#ffd43b',g:'style',x:150,y:620,a:['ifcx::style::curveStyle','grey, 0.18mm']},
-{id:'sd',l:'Style: Dimension',c:'#ffd43b',g:'style',x:280,y:620,a:['ifcx::style::curveStyle','green, 0.18mm']},
-{id:'st',l:'Style: Text',c:'#ffd43b',g:'style',x:400,y:620,a:['ifcx::style::textStyle','Arial, 2.5mm']},
-
-// IfcX Layers
-{id:'lw',l:'Layer: Walls',c:'#ffd43b',g:'style',x:530,y:620,a:['ifcx::layer::style','visible, plot, black']},
-{id:'ld',l:'Layer: Dims',c:'#ffd43b',g:'style',x:650,y:620,a:['ifcx::layer::style','visible, green']},
-
-// IfcX Sheets
-{id:'sht',l:'Sheets/',c:'#ff6b6b',g:'sheet',x:850,y:30,a:['Container voor bladindelingen']},
-{id:'s1',l:'A1-001 Plattegronden',c:'#ff6b6b',g:'sheet',x:800,y:130,a:['ifcx::sheet::paper','841x594mm, landscape']},
-{id:'s2',l:'A1-002 Doorsneden',c:'#ff6b6b',g:'sheet',x:950,y:130,a:['ifcx::sheet::paper','841x594mm']},
-{id:'vp1',l:'Viewport: BG 1:50',c:'#ff6b6b',g:'sheet',x:750,y:230,a:['ifcx::sheet::viewport','view: Plattegrond BG','position: [50,50], size: 350x450']},
-{id:'vp2',l:'Viewport: Sect 1:50',c:'#ff6b6b',g:'sheet',x:900,y:230,a:['ifcx::sheet::viewport','view: Doorsnede A-A']},
-{id:'vp3',l:'Viewport: Detail 1:5',c:'#ff6b6b',g:'sheet',x:1050,y:230,a:['ifcx::sheet::viewport','view: Detail 01']},
-
-// IfcX Components / Blocks
-{id:'def',l:'Definitions/',c:'#74c0fc',g:'style',x:850,y:350,a:['Herbruikbare definities']},
-{id:'df1',l:'DoorType 90cm',c:'#74c0fc',g:'style',x:800,y:440,a:['ifcx::component::definition','Deursymbool met swing arc']},
-{id:'df2',l:'TitleBlock A1',c:'#74c0fc',g:'style',x:950,y:440,a:['ifcx::component::definition','Titelblok template']},
-{id:'df3',l:'Arrow Marker',c:'#74c0fc',g:'style',x:1050,y:350,a:['ifcx::component::definition','Maatvoering pijlpunt']},
-
-// IfcX Image / GIS
-{id:'img',l:'Foto gevel.jpg',c:'#aaa',g:'drawing',x:800,y:540,a:['ifcx::image::raster','mediaId: "img-001"','1920x1080, 72dpi']},
-{id:'geo',l:'CRS: EPSG:28992',c:'#aaa',g:'ifc5',x:700,y:30,a:['ifcx::geo::crs','{epsg: 28992, name: "RD New"}']},
-
-// IfcX Versioning (optional)
-{id:'rev',l:'Revisions/ (opt)',c:'#e599f7',g:'version',x:950,y:540,a:['ifcx::revision::info','Optioneel versiebeheer']},
-{id:'r1',l:'rev-001 v0.1',c:'#e599f7',g:'version',x:880,y:620,a:['ifcx::revision::info','author: architect@...','message: "Eerste ontwerp"']},
-{id:'r2',l:'rev-002',c:'#e599f7',g:'version',x:1020,y:620,a:['ifcx::revision::info','parent: rev-001','message: "Muur verplaatst"']},
-
-// SVG/CSS
-{id:'svg',l:'SVG: cut.IfcWall',c:'#ffd43b',g:'style',x:400,y:520,a:['ifcx::svg::class','CSS class voor Bonsai/INB']},
-];
-
-// === ALL EDGES ===
-const E=[
-// IFC5 spatial hierarchy (children)
-{f:'proj',g:'site',t:'c'},{f:'site',g:'bldg',t:'c'},{f:'bldg',g:'stor',t:'c'},
-{f:'stor',g:'wall',t:'c'},{f:'stor',g:'door',t:'c'},{f:'stor',g:'space',t:'c'},
-{f:'wall',g:'mesh1',t:'c'},{f:'door',g:'xform1',t:'c'},
-
-// IfcX drawing structure (children)
-{f:'proj',g:'drw',t:'c'},{f:'proj',g:'sht',t:'c'},{f:'proj',g:'def',t:'c'},{f:'proj',g:'geo',t:'c'},
-{f:'drw',g:'v1',t:'c'},{f:'drw',g:'v2',t:'c'},{f:'drw',g:'v3',t:'c'},
-{f:'v1',g:'g1',t:'c'},{f:'v1',g:'g2',t:'c'},{f:'v1',g:'g3',t:'c'},{f:'v1',g:'g4',t:'c'},
-{f:'v1',g:'g5',t:'c'},{f:'v1',g:'d1',t:'c'},{f:'v1',g:'t1',t:'c'},{f:'v1',g:'h1',t:'c'},
-{f:'v2',g:'g1',t:'c'},{f:'v2',g:'g2',t:'c'},{f:'v2',g:'d2',t:'c'}, // shared geometry!
-{f:'v3',g:'g6',t:'c'},{f:'v3',g:'ld1',t:'c'},
-{f:'v1',g:'img',t:'c'},
-
-// Sheets -> viewports
-{f:'sht',g:'s1',t:'c'},{f:'sht',g:'s2',t:'c'},
-{f:'s1',g:'vp1',t:'c'},{f:'s1',g:'vp2',t:'c'},{f:'s2',g:'vp3',t:'c'},
-
-// Definitions
-{f:'def',g:'df1',t:'c'},{f:'def',g:'df2',t:'c'},{f:'def',g:'df3',t:'c'},
-
-// Inherits (green dashed)
-{f:'g3',g:'df1',t:'i'},{f:'s1',g:'df2',t:'i'},{f:'d1',g:'df3',t:'i'},
-
-// Connects (orange curved)
-{f:'g1',g:'sc',t:'o',lb:'style'},{f:'g2',g:'sc',t:'o',lb:'style'},{f:'g5',g:'sc',t:'o',lb:'style'},
-{f:'g3',g:'sp',t:'o',lb:'style'},{f:'g6',g:'sp',t:'o',lb:'style'},
-{f:'d1',g:'sd',t:'o',lb:'style'},{f:'d2',g:'sd',t:'o',lb:'style'},
-{f:'t1',g:'st',t:'o',lb:'style'},{f:'ld1',g:'sd',t:'o',lb:'style'},
-{f:'g1',g:'lw',t:'o',lb:'layer'},{f:'g2',g:'lw',t:'o',lb:'layer'},{f:'g5',g:'lw',t:'o',lb:'layer'},
-{f:'d1',g:'ld',t:'o',lb:'layer'},{f:'d2',g:'ld',t:'o',lb:'layer'},
-{f:'g1',g:'wall',t:'o',lb:'source'},{f:'g3',g:'door',t:'o',lb:'source'}, // drawing->model
-{f:'d1',g:'g1',t:'o',lb:'measures'},{f:'d1',g:'g2',t:'o',lb:'measures'},
-{f:'vp1',g:'v1',t:'o',lb:'view'},{f:'vp2',g:'v2',t:'o',lb:'view'},{f:'vp3',g:'v3',t:'o',lb:'view'},
-{f:'h1',g:'g4',t:'o',lb:'boundary'},
-{f:'g1',g:'svg',t:'o',lb:'css'},
-
-// Versioning
-{f:'proj',g:'rev',t:'c'},
-{f:'rev',g:'r1',t:'c'},{f:'rev',g:'r2',t:'c'},
-{f:'r2',g:'r1',t:'o',lb:'parent'},
-];
-
-const NM={};N.forEach(n=>{NM[n.id]=n;n.vx=0;n.vy=0;n.w=80;n.h=32});
-let filter='all',cam={x:500,y:340,z:0.95},drag=null,pan=false,lx=0,ly=0;
-
-function vis(n){
-  if(filter==='all')return true;
-  if(filter==='ifc5')return n.g==='ifc5';
-  if(filter==='drawing')return n.g==='drawing';
-  if(filter==='sheet')return n.g==='sheet';
-  if(filter==='style')return n.g==='style';
-  if(filter==='version')return n.g==='version';
-  return true;
+const CV=document.getElementById('c'),X=CV.getContext('2d'),
+  PNL=document.getElementById('panel'),PBODY=document.getElementById('panel-body'),
+  PTITLE=document.getElementById('panel-title'),PSUB=document.getElementById('panel-sub'),
+  PBADGE=document.getElementById('panel-badge'),PCLOSE=document.getElementById('panel-close'),
+  BREAD=document.getElementById('breadcrumb'),CTRLS=document.getElementById('controls'),
+  ST=document.getElementById('stats');
+const DPR=Math.min(devicePixelRatio||1,2);
+let W,H;
+function resize(){
+  const pw=innerWidth-(PNL.classList.contains('open')?420:0),ph=innerHeight;
+  CV.width=pw*DPR;CV.height=ph*DPR;
+  CV.style.width=pw+'px';CV.style.height=ph+'px';
+  X.setTransform(DPR,0,0,DPR,0,0);
+  W=pw;H=ph;
 }
+resize();addEventListener('resize',resize);
+
+// ===================================
+// PSETS DATABASE
+// ===================================
+const PSETS={
+'Pset_SiteCommon':{d:'Bouwlocatie',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'BuildableArea',t:'IfcAreaMeasure',d:'Bebouwbaar oppervlak'},{n:'TotalArea',t:'IfcAreaMeasure',d:'Totaal kaveloppervlak'},{n:'BuildingHeightLimit',t:'IfcPositiveLengthMeasure',d:'Max bouwhoogte'}]},
+'Pset_BuildingCommon':{d:'Gebouw',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'BuildingID',t:'IfcIdentifier',d:'Gebouw ID'},{n:'OccupancyType',t:'IfcLabel',d:'Gebruiksfunctie'},{n:'GrossPlannedArea',t:'IfcAreaMeasure',d:'BVO gepland'},{n:'NetPlannedArea',t:'IfcAreaMeasure',d:'NVO gepland'},{n:'NumberOfStoreys',t:'IfcInteger',d:'Aantal verdiepingen'},{n:'YearOfConstruction',t:'IfcLabel',d:'Bouwjaar'},{n:'IsLandmarked',t:'IfcLogical',d:'Monument'}]},
+'Pset_BuildingStoreyCommon':{d:'Verdieping',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'EntranceLevel',t:'IfcBoolean',d:'Ingangsverdieping'},{n:'AboveGround',t:'IfcLogical',d:'Bovengronds'},{n:'SprinklerProtection',t:'IfcBoolean',d:'Sprinkler'},{n:'GrossAreaPlanned',t:'IfcAreaMeasure',d:'BVO gepland'}]},
+'Pset_SpaceCommon':{d:'Ruimte',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'GrossPlannedArea',t:'IfcAreaMeasure',d:'BVO'},{n:'NetPlannedArea',t:'IfcAreaMeasure',d:'NVO'},{n:'PubliclyAccessible',t:'IfcBoolean',d:'Publiek'},{n:'HandicapAccessible',t:'IfcBoolean',d:'Rolstoel'}]},
+'Pset_WallCommon':{d:'Wand',p:[{n:'Reference',t:'IfcIdentifier',d:'Type referentie'},{n:'Status',t:'IfcLabel',d:'NEW, EXISTING, DEMOLISH, TEMPORARY'},{n:'AcousticRating',t:'IfcLabel',d:'Geluidsisolatie (bijv. 52 dB)'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid (bijv. REI 120)'},{n:'Combustible',t:'IfcBoolean',d:'Brandbaar'},{n:'SurfaceSpreadOfFlame',t:'IfcLabel',d:'Vlamverspreiding'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde (W/m2K)'},{n:'IsExternal',t:'IfcBoolean',d:'Buitenwand'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'ExtendToStructure',t:'IfcBoolean',d:'Doorlopend'},{n:'Compartmentation',t:'IfcBoolean',d:'Brandcompartiment'}]},
+'Pset_DoorCommon':{d:'Deur',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'AcousticRating',t:'IfcLabel',d:'Geluid'},{n:'SecurityRating',t:'IfcLabel',d:'Inbraakwerendheid'},{n:'HasDrive',t:'IfcBoolean',d:'Automatisch'},{n:'SelfClosing',t:'IfcBoolean',d:'Zelfsluitend'},{n:'SmokeStop',t:'IfcBoolean',d:'Rookwerend'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'GlazingAreaFraction',t:'IfcPositiveRatioMeasure',d:'Glasfractie'},{n:'HandicapAccessible',t:'IfcBoolean',d:'Rolstoel'},{n:'FireExit',t:'IfcBoolean',d:'Nooduitgang'}]},
+'Pset_WindowCommon':{d:'Raam',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'AcousticRating',t:'IfcLabel',d:'Geluid'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'GlazingAreaFraction',t:'IfcPositiveRatioMeasure',d:'Glasfractie'},{n:'HasSillExternal',t:'IfcBoolean',d:'Buitenbank'},{n:'HasSillInternal',t:'IfcBoolean',d:'Binnenbank'}]},
+'Pset_ColumnCommon':{d:'Kolom',p:[{n:'Reference',t:'IfcIdentifier',d:'Profiel (HEA200)'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid (R 90)'}]},
+'Pset_BeamCommon':{d:'Ligger',p:[{n:'Reference',t:'IfcIdentifier',d:'Profiel (IPE300)'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'Span',t:'IfcPositiveLengthMeasure',d:'Overspanning'}]},
+'Pset_SlabCommon':{d:'Vloer/dak',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'IsExternal',t:'IfcBoolean',d:'Buiten'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'},{n:'FireRating',t:'IfcLabel',d:'Brandwerendheid'},{n:'AcousticRating',t:'IfcLabel',d:'Geluid'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'PitchAngle',t:'IfcPlaneAngleMeasure',d:'Helling'}]},
+'Pset_RoofCommon':{d:'Dak',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'ThermalTransmittance',t:'IfcThermalTransmittanceMeasure',d:'U-waarde'},{n:'ProjectedArea',t:'IfcAreaMeasure',d:'Geprojecteerd oppervlak'},{n:'TotalArea',t:'IfcAreaMeasure',d:'Totaal dakoppervlak'}]},
+'Pset_StairCommon':{d:'Trap',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'FireExit',t:'IfcBoolean',d:'Noodtrap'},{n:'NumberOfRiser',t:'IfcCountMeasure',d:'Aantal optrede'},{n:'NumberOfTreads',t:'IfcCountMeasure',d:'Aantal aantrede'},{n:'RiserHeight',t:'IfcPositiveLengthMeasure',d:'Optrede (mm)'},{n:'TreadLength',t:'IfcPositiveLengthMeasure',d:'Aantrede (mm)'}]},
+'Pset_PileCommon':{d:'Heipaal',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'LoadBearing',t:'IfcBoolean',d:'Dragend'}]},
+'Pset_BoilerCommon':{d:'Ketel',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'PressureRating',t:'IfcPressureMeasure',d:'Max werkdruk'},{n:'NominalEnergyConsumption',t:'IfcPowerMeasure',d:'Vermogen (kW)'},{n:'EnergySource',t:'IfcLabel',d:'GAS, OIL, ELECTRIC'}]},
+'Pset_LightFixtureCommon':{d:'Verlichting',p:[{n:'NumberOfSources',t:'IfcInteger',d:'Lichtbronnen'},{n:'TotalWattage',t:'IfcPowerMeasure',d:'Vermogen (W)'},{n:'LightFixtureMountingType',t:'IfcLabel',d:'SURFACE, RECESSED, PENDANT'}]},
+'Qto_WallBaseQuantities':{d:'Wandhoeveelheden',p:[{n:'Length',t:'IfcQuantityLength',d:'Lengte'},{n:'Height',t:'IfcQuantityLength',d:'Hoogte'},{n:'Width',t:'IfcQuantityLength',d:'Dikte'},{n:'GrossArea',t:'IfcQuantityArea',d:'Bruto opp.'},{n:'NetArea',t:'IfcQuantityArea',d:'Netto opp.'},{n:'GrossVolume',t:'IfcQuantityVolume',d:'Volume'},{n:'GrossWeight',t:'IfcQuantityWeight',d:'Gewicht'}]},
+'Qto_SpaceBaseQuantities':{d:'Ruimtehoeveelheden',p:[{n:'Height',t:'IfcQuantityLength',d:'Vrije hoogte'},{n:'GrossFloorArea',t:'IfcQuantityArea',d:'BVO'},{n:'NetFloorArea',t:'IfcQuantityArea',d:'NVO'},{n:'GrossVolume',t:'IfcQuantityVolume',d:'Volume'}]},
+'Pset_BBL':{d:'Bouwbesluit brandveiligheid (NL)',p:[{n:'Brandklasse',t:'IfcLabel',d:'A1-F'},{n:'Rookklasse',t:'IfcLabel',d:'s1-s3'},{n:'Brandwerendheid',t:'IfcInteger',d:'WBDBO (min)'},{n:'WBDBO',t:'IfcInteger',d:'Brandoverslag'}]},
+'Pset_ReinforcingBarCommon':{d:'Wapeningsstaaf',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'Status',t:'IfcLabel',d:'Status'},{n:'NominalDiameter',t:'IfcPositiveLengthMeasure',d:'Diameter (mm): 6, 8, 10, 12, 16, 20, 25, 32, 40'},{n:'CrossSectionArea',t:'IfcAreaMeasure',d:'Doorsnede oppervlak (mm2)'},{n:'BarLength',t:'IfcPositiveLengthMeasure',d:'Staaflengte (mm)'},{n:'SteelGrade',t:'IfcLabel',d:'Staalsoort: B500A, B500B, B500C'},{n:'BarSurface',t:'IfcLabel',d:'Oppervlak: PLAIN, TEXTURED'},{n:'BendingShapeCode',t:'IfcLabel',d:'Buigvormcode (NEN/DIN/BS 8666)'},{n:'EffectiveDepth',t:'IfcPositiveLengthMeasure',d:'Effectieve hoogte (mm)'}]},
+'Pset_ReinforcingMeshCommon':{d:'Wapeningsnet',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'MeshLength',t:'IfcPositiveLengthMeasure',d:'Netlengte'},{n:'MeshWidth',t:'IfcPositiveLengthMeasure',d:'Netbreedte'},{n:'LongitudinalBarNominalDiameter',t:'IfcPositiveLengthMeasure',d:'Diameter langsstaven'},{n:'TransverseBarNominalDiameter',t:'IfcPositiveLengthMeasure',d:'Diameter dwarsstaven'},{n:'LongitudinalBarSpacing',t:'IfcPositiveLengthMeasure',d:'H.o.h. langsstaven'},{n:'TransverseBarSpacing',t:'IfcPositiveLengthMeasure',d:'H.o.h. dwarsstaven'},{n:'SteelGrade',t:'IfcLabel',d:'Staalsoort'}]},
+'Pset_TendonCommon':{d:'Voorspankabel',p:[{n:'Reference',t:'IfcIdentifier',d:'Referentie'},{n:'NominalDiameter',t:'IfcPositiveLengthMeasure',d:'Diameter'},{n:'CrossSectionArea',t:'IfcAreaMeasure',d:'Doorsnede'},{n:'TensionForce',t:'IfcForceMeasure',d:'Trekkracht (kN)'},{n:'PreStress',t:'IfcPressureMeasure',d:'Voorspanning (N/mm2)'},{n:'FrictionCoefficient',t:'IfcReal',d:'Wrijvingscoefficient'},{n:'AnchorageSlip',t:'IfcPositiveLengthMeasure',d:'Verankeringsinzinking (mm)'},{n:'SheathDiameter',t:'IfcPositiveLengthMeasure',d:'Kanaaldiameter'}]},
+'Pset_BENG':{d:'BENG energieprestatie (NL)',p:[{n:'BENG1',t:'IfcReal',d:'Energiebehoefte (kWh/m2/jr)'},{n:'BENG2',t:'IfcReal',d:'Primair fossiel (kWh/m2/jr)'},{n:'BENG3',t:'IfcReal',d:'Hernieuwbaar (%)'},{n:'BENG4',t:'IfcReal',d:'TO-juli (uren)'}]}
+};
+
+const NODE_PSETS={
+  site:['Pset_SiteCommon'],bldg:['Pset_BuildingCommon'],stor:['Pset_BuildingStoreyCommon'],
+  space:['Pset_SpaceCommon','Qto_SpaceBaseQuantities'],
+  wall:['Pset_WallCommon','Qto_WallBaseQuantities','Pset_BBL','Pset_BENG'],
+  door:['Pset_DoorCommon'],window:['Pset_WindowCommon'],column:['Pset_ColumnCommon'],
+  beam:['Pset_BeamCommon'],slab:['Pset_SlabCommon'],roof:['Pset_RoofCommon'],
+  stair:['Pset_StairCommon'],pile:['Pset_PileCommon'],
+  boiler:['Pset_BoilerCommon'],lightFix:['Pset_LightFixtureCommon'],
+  reinforcing:['Pset_ReinforcingBarCommon'],rebarMesh:['Pset_ReinforcingMeshCommon'],
+  tendon:['Pset_TendonCommon']
+};
+
+const C={sp:'#4da6ff',el:'#5b9fff',mep:'#38d9a9',str:'#74b4ff',inf:'#3bc9db',tp:'#b197fc',mat:'#e599f7',usd:'#9775fa',
+  geo:'#51cf66',ann:'#da77f2',hat:'#ffa94d',sty:'#ffd43b',cmp:'#74c0fc',sht:'#ff6b6b',viw:'#20c997',
+  rev:'#e599f7',brd:'#ff922b',gtp:'#22b8cf',pkg:'#e64980',git:'#69db7c',cal:'#fcc419',bcf:'#f06595',misc:'#aaa'};
+
+// Origin: 'ifc5' = exists in IFC5/USD standard, 'ifcx' = added by IfcX
+const ORIGIN_LABELS={'ifc5':'IFC5 (bestaand)','ifcx':'IfcX (wij voegen toe)'};
+
+// Icons per category
+const ICONS={
+  'Spatial':'\u{1F3D7}','Building Element':'\u{1F9F1}','Type':'\u{1F4CB}',
+  'MEP':'\u{2699}','Structural':'\u{1F3D7}','Infrastructure':'\u{1F6E3}',
+  'Material':'\u{1F9EA}','Properties':'\u{1F4CA}','Quantities':'\u{1F4D0}',
+  'Classification':'\u{1F3F7}','Cost':'\u{1F4B0}','IfcX Cost':'\u{1F4B0}',
+  'USD':'\u{1F4A0}','IFC Geometry':'\u{1F4D0}',
+  'IfcX View':'\u{1F441}','IfcX Geometry':'\u{270F}','IfcX Annotation':'\u{1F4CF}',
+  'IfcX Hatch':'\u{2592}','IfcX Style':'\u{1F3A8}','IfcX Layer':'\u{1F4C2}',
+  'IfcX SVG':'\u{1F3A8}','IfcX Sheet':'\u{1F4C4}','IfcX Component':'\u{1F9E9}',
+  'IfcX Branding':'\u{2B50}','IfcX Report':'\u{1F4DD}',
+  'IfcX Standards':'\u{2696}','IfcX Calc':'\u{1F9EE}',
+  'IfcX BCF':'\u{1F4AC}','Geometry Type':'\u{1F4D0}',
+  'Package Format':'\u{1F4E6}','Git by Design':'\u{1F500}',
+  'IfcX Revision':'\u{1F4C5}','IfcX GIS':'\u{1F30D}','IfcX Image':'\u{1F5BC}',
+  'Planning':'\u{1F4C6}','Group':'\u{1F4C1}',
+};
+
+// buildingSMART IFC4x3 documentation links
+const BSI='https://ifc43-docs.standards.buildingsmart.org/IFC/RELEASE/IFC4x3/HTML/lexical/';
+const BSI_LINKS={
+  proj:BSI+'IfcProject.htm',site:BSI+'IfcSite.htm',bldg:BSI+'IfcBuilding.htm',
+  stor:BSI+'IfcBuildingStorey.htm',space:BSI+'IfcSpace.htm',zone:BSI+'IfcZone.htm',
+  grid:BSI+'IfcGrid.htm',gridAx:BSI+'IfcGridAxis.htm',
+  wall:BSI+'IfcWall.htm',door:BSI+'IfcDoor.htm',window:BSI+'IfcWindow.htm',
+  column:BSI+'IfcColumn.htm',beam:BSI+'IfcBeam.htm',slab:BSI+'IfcSlab.htm',
+  roof:BSI+'IfcRoof.htm',stair:BSI+'IfcStair.htm',stairFl:BSI+'IfcStairFlight.htm',
+  ramp:BSI+'IfcRamp.htm',railing:BSI+'IfcRailing.htm',curtWall:BSI+'IfcCurtainWall.htm',
+  covering:BSI+'IfcCovering.htm',plate:BSI+'IfcPlate.htm',member:BSI+'IfcMember.htm',
+  footing:BSI+'IfcFooting.htm',pile:BSI+'IfcPile.htm',
+  opening:BSI+'IfcOpeningElement.htm',furnish:BSI+'IfcFurnishingElement.htm',
+  wallTp:BSI+'IfcWallType.htm',doorTp:BSI+'IfcDoorType.htm',windowTp:BSI+'IfcWindowType.htm',
+  colTp:BSI+'IfcColumnType.htm',beamTp:BSI+'IfcBeamType.htm',slabTp:BSI+'IfcSlabType.htm',
+  distSys:BSI+'IfcDistributionSystem.htm',distElem:BSI+'IfcDistributionElement.htm',
+  flowSeg:BSI+'IfcFlowSegment.htm',flowFit:BSI+'IfcFlowFitting.htm',
+  flowTerm:BSI+'IfcFlowTerminal.htm',flowCtrl:BSI+'IfcFlowController.htm',
+  energyConv:BSI+'IfcEnergyConversionDevice.htm',
+  sanitary:BSI+'IfcSanitaryTerminal.htm',lightFix:BSI+'IfcLightFixture.htm',
+  outlet:BSI+'IfcOutlet.htm',sensor:BSI+'IfcSensor.htm',
+  valve:BSI+'IfcValve.htm',boiler:BSI+'IfcBoiler.htm',airTerm:BSI+'IfcAirTerminal.htm',
+  ductSeg:BSI+'IfcDuctSegment.htm',pipeSeg:BSI+'IfcPipeSegment.htm',
+  structModel:BSI+'IfcStructuralAnalysisModel.htm',
+  structMem:BSI+'IfcStructuralCurveMember.htm',structSurf:BSI+'IfcStructuralSurfaceMember.htm',
+  structConn:BSI+'IfcStructuralConnection.htm',
+  reinforcing:BSI+'IfcReinforcingBar.htm',rebarType:BSI+'IfcReinforcingBarType.htm',
+  rebarMesh:BSI+'IfcReinforcingMesh.htm',rebarMeshType:BSI+'IfcReinforcingMeshType.htm',
+  rebarElement:BSI+'IfcReinforcingElement.htm',
+  tendon:BSI+'IfcTendon.htm',tendonAnchor:BSI+'IfcTendonAnchor.htm',tendonConduit:BSI+'IfcTendonConduit.htm',
+  facility:BSI+'IfcFacility.htm',alignment:BSI+'IfcAlignment.htm',
+  road:BSI+'IfcRoad.htm',railway:BSI+'IfcRailway.htm',bridge:BSI+'IfcBridge.htm',
+  tunnel:BSI+'IfcTunnel.htm',marine:BSI+'IfcMarineFacility.htm',
+  material:BSI+'IfcMaterial.htm',matLayer:BSI+'IfcMaterialLayerSet.htm',
+  matProfile:BSI+'IfcMaterialProfileSet.htm',matConstit:BSI+'IfcMaterialConstituentSet.htm',
+  propSet:BSI+'IfcPropertySet.htm',elemQuant:BSI+'IfcElementQuantity.htm',
+  classif:BSI+'IfcClassification.htm',classRef:BSI+'IfcClassificationReference.htm',
+  costSchedule:BSI+'IfcCostSchedule.htm',costItem:BSI+'IfcCostItem.htm',
+  costValue:BSI+'IfcCostValue.htm',costResource:BSI+'IfcConstructionResource.htm',
+  ifcRep:BSI+'IfcRepresentation.htm',ifcExtrud:BSI+'IfcExtrudedAreaSolid.htm',
+  ifcBrep:BSI+'IfcFacetedBrep.htm',ifcCsg:BSI+'IfcCsgSolid.htm',
+  ifcSwept:BSI+'IfcSweptAreaSolid.htm',ifcRevolved:BSI+'IfcRevolvedAreaSolid.htm',
+  ifcProf:BSI+'IfcProfileDef.htm',ifcRectProf:BSI+'IfcRectangleProfileDef.htm',
+  ifcCircProf:BSI+'IfcCircleProfileDef.htm',ifcIProf:BSI+'IfcIShapeProfileDef.htm',
+  ifcMapItem:BSI+'IfcMappedItem.htm',
+  ifcLProf:BSI+'IfcLShapeProfileDef.htm',ifcTProf:BSI+'IfcTShapeProfileDef.htm',
+  ifcUProf:BSI+'IfcUShapeProfileDef.htm',ifcCHSProf:BSI+'IfcCircleHollowProfileDef.htm',
+  ifcRHSProf:BSI+'IfcRectangleHollowProfileDef.htm',ifcAsymIProf:BSI+'IfcAsymmetricIShapeProfileDef.htm',
+  workPlan:BSI+'IfcWorkPlan.htm',workSched:BSI+'IfcWorkSchedule.htm',
+  task:BSI+'IfcTask.htm',taskTime:BSI+'IfcTaskTime.htm',
+  process:BSI+'IfcProcess.htm',event:BSI+'IfcEvent.htm',relSequence:BSI+'IfcRelSequence.htm',
+};
+
+// ===================================
+// NODES
+// ===================================
+const N=[
+// === IFC5 SPATIAL ===
+{id:'proj',l:'IfcProject',c:C.sp,g:'ifc5',x:600,y:30,a:['Root node IFC5 bestand'],cat:'Spatial'},
+{id:'site',l:'IfcSite',c:C.sp,g:'ifc5',x:600,y:110,a:['Bouwlocatie','lat/lon/elevation'],cat:'Spatial'},
+{id:'bldg',l:'IfcBuilding',c:C.sp,g:'ifc5',x:600,y:190,a:['Gebouw container'],cat:'Spatial'},
+{id:'stor',l:'IfcBuildingStorey',c:C.sp,g:'ifc5',x:600,y:270,a:['Verdieping'],cat:'Spatial'},
+{id:'space',l:'IfcSpace',c:C.sp,g:'ifc5',x:500,y:350,a:['Ruimte / vertrek'],cat:'Spatial'},
+{id:'zone',l:'IfcZone',c:C.sp,g:'ifc5',x:700,y:350,a:['HVAC zone, brandcompartiment'],cat:'Spatial'},
+{id:'grid',l:'IfcGrid',c:C.sp,g:'ifc5',x:480,y:190,a:['Stramien'],cat:'Spatial'},
+{id:'gridAx',l:'IfcGridAxis',c:C.sp,g:'ifc5',x:380,y:190,a:['Stramienas (A, B, 1, 2...)'],cat:'Spatial'},
+
+// === IFC5 BUILDING ELEMENTS ===
+{id:'wall',l:'IfcWall',c:C.el,g:'elem',x:280,y:440,a:['Wand'],cat:'Building Element'},
+{id:'door',l:'IfcDoor',c:C.el,g:'elem',x:390,y:440,a:['Deur'],cat:'Building Element'},
+{id:'window',l:'IfcWindow',c:C.el,g:'elem',x:500,y:440,a:['Raam'],cat:'Building Element'},
+{id:'column',l:'IfcColumn',c:C.el,g:'elem',x:610,y:440,a:['Kolom'],cat:'Building Element'},
+{id:'beam',l:'IfcBeam',c:C.el,g:'elem',x:710,y:440,a:['Ligger / balk'],cat:'Building Element'},
+{id:'slab',l:'IfcSlab',c:C.el,g:'elem',x:810,y:440,a:['Vloer/dak','FLOOR, ROOF, LANDING'],cat:'Building Element'},
+{id:'roof',l:'IfcRoof',c:C.el,g:'elem',x:280,y:510,a:['Dak container'],cat:'Building Element'},
+{id:'stair',l:'IfcStair',c:C.el,g:'elem',x:390,y:510,a:['Trap container'],cat:'Building Element'},
+{id:'stairFl',l:'IfcStairFlight',c:C.el,g:'elem',x:390,y:580,a:['Traploop'],cat:'Building Element'},
+{id:'ramp',l:'IfcRamp',c:C.el,g:'elem',x:500,y:510,a:['Helling'],cat:'Building Element'},
+{id:'railing',l:'IfcRailing',c:C.el,g:'elem',x:610,y:510,a:['Leuning'],cat:'Building Element'},
+{id:'curtWall',l:'IfcCurtainWall',c:C.el,g:'elem',x:710,y:510,a:['Vliesgevel'],cat:'Building Element'},
+{id:'covering',l:'IfcCovering',c:C.el,g:'elem',x:810,y:510,a:['Afwerking'],cat:'Building Element'},
+{id:'plate',l:'IfcPlate',c:C.el,g:'elem',x:280,y:580,a:['Stalen plaat'],cat:'Building Element'},
+{id:'member',l:'IfcMember',c:C.el,g:'elem',x:610,y:580,a:['Staafelement'],cat:'Building Element'},
+{id:'footing',l:'IfcFooting',c:C.el,g:'elem',x:710,y:580,a:['Fundering'],cat:'Building Element'},
+{id:'pile',l:'IfcPile',c:C.el,g:'elem',x:810,y:580,a:['Heipaal'],cat:'Building Element'},
+{id:'opening',l:'IfcOpeningElement',c:C.el,g:'elem',x:335,y:370,a:['Uitsparing'],cat:'Building Element'},
+{id:'furnish',l:'IfcFurnishingElement',c:C.el,g:'elem',x:500,y:580,a:['Meubilair'],cat:'Building Element'},
+
+// === IFC5 TYPES ===
+{id:'wallTp',l:'IfcWallType',c:C.tp,g:'elem',x:280,y:660,a:['STANDARD, PARTITIONING, SHEAR'],cat:'Type'},
+{id:'doorTp',l:'IfcDoorType',c:C.tp,g:'elem',x:390,y:660,a:['SINGLE_SWING_LEFT, DOUBLE_DOOR...'],cat:'Type'},
+{id:'windowTp',l:'IfcWindowType',c:C.tp,g:'elem',x:500,y:660,a:['SINGLE_PANEL, DOUBLE_PANEL...'],cat:'Type'},
+{id:'colTp',l:'IfcColumnType',c:C.tp,g:'elem',x:610,y:660,a:['COLUMN, PILASTER'],cat:'Type'},
+{id:'beamTp',l:'IfcBeamType',c:C.tp,g:'elem',x:710,y:660,a:['BEAM, JOIST, HOLLOWCORE'],cat:'Type'},
+{id:'slabTp',l:'IfcSlabType',c:C.tp,g:'elem',x:810,y:660,a:['FLOOR, ROOF, LANDING'],cat:'Type'},
+
+// === IFC5 MEP ===
+{id:'distSys',l:'IfcDistributionSystem',c:C.mep,g:'mep',x:1100,y:190,a:['HEATING, COOLING, VENTILATION, ELECTRICAL'],cat:'MEP'},
+{id:'distElem',l:'IfcDistributionElement',c:C.mep,g:'mep',x:1100,y:270,a:['Basis MEP element'],cat:'MEP'},
+{id:'flowSeg',l:'IfcFlowSegment',c:C.mep,g:'mep',x:970,y:350,a:['Buis, kanaal, kabel'],cat:'MEP'},
+{id:'flowFit',l:'IfcFlowFitting',c:C.mep,g:'mep',x:1080,y:350,a:['Bocht, T-stuk'],cat:'MEP'},
+{id:'flowTerm',l:'IfcFlowTerminal',c:C.mep,g:'mep',x:1190,y:350,a:['Kraan, rooster'],cat:'MEP'},
+{id:'flowCtrl',l:'IfcFlowController',c:C.mep,g:'mep',x:1300,y:350,a:['Klep, schakelaar'],cat:'MEP'},
+{id:'energyConv',l:'IfcEnergyConversionDevice',c:C.mep,g:'mep',x:1300,y:420,a:['Ketel, warmtepomp'],cat:'MEP'},
+{id:'sanitary',l:'IfcSanitaryTerminal',c:C.mep,g:'mep',x:970,y:490,a:['BATH, SHOWER, SINK, TOILET'],cat:'MEP'},
+{id:'lightFix',l:'IfcLightFixture',c:C.mep,g:'mep',x:1080,y:490,a:['Verlichtingsarmatuur'],cat:'MEP'},
+{id:'outlet',l:'IfcOutlet',c:C.mep,g:'mep',x:1190,y:490,a:['Stopcontact'],cat:'MEP'},
+{id:'sensor',l:'IfcSensor',c:C.mep,g:'mep',x:1300,y:490,a:['Temp, rook, beweging'],cat:'MEP'},
+{id:'valve',l:'IfcValve',c:C.mep,g:'mep',x:970,y:560,a:['Afsluiter'],cat:'MEP'},
+{id:'boiler',l:'IfcBoiler',c:C.mep,g:'mep',x:1080,y:560,a:['CV-ketel'],cat:'MEP'},
+{id:'airTerm',l:'IfcAirTerminal',c:C.mep,g:'mep',x:1190,y:560,a:['Luchtrooster'],cat:'MEP'},
+{id:'ductSeg',l:'IfcDuctSegment',c:C.mep,g:'mep',x:970,y:420,a:['Luchtkanaal'],cat:'MEP'},
+{id:'pipeSeg',l:'IfcPipeSegment',c:C.mep,g:'mep',x:1080,y:420,a:['Leiding'],cat:'MEP'},
+
+// === IFC5 STRUCTURAL ===
+// === IFC5 STRUCTURAL (shifted far right, clear zone) ===
+{id:'structModel',l:'IfcStructuralAnalysisModel',c:C.str,g:'struct',x:1850,y:200,a:['Rekenmodel'],cat:'Structural'},
+{id:'structMem',l:'IfcStructuralCurveMember',c:C.str,g:'struct',x:1780,y:290,a:['Staaf (1D)'],cat:'Structural'},
+{id:'structSurf',l:'IfcStructuralSurfaceMember',c:C.str,g:'struct',x:1920,y:290,a:['Vlak (2D)'],cat:'Structural'},
+{id:'structConn',l:'IfcStructuralConnection',c:C.str,g:'struct',x:1850,y:380,a:['Knooppunt'],cat:'Structural'},
+{id:'rebarElement',l:'IfcReinforcingElement',c:C.str,g:'struct',x:1850,y:460,a:['Abstracte basis wapening','SteelGrade: B500B, Y500'],cat:'Structural'},
+{id:'reinforcing',l:'IfcReinforcingBar',c:C.str,g:'struct',x:1730,y:540,a:['Wapeningsstaaf','NominalDiameter, BarLength','BarSurface: PLAIN, TEXTURED','PredefinedType: MAIN, SHEAR, STUD, LIGATURE'],cat:'Structural'},
+{id:'rebarType',l:'IfcReinforcingBarType',c:C.str,g:'struct',x:1730,y:620,a:['Type wapening','BendingShapeCode (NEN/DIN/BS)','BendingParameters'],cat:'Structural'},
+{id:'rebarMesh',l:'IfcReinforcingMesh',c:C.str,g:'struct',x:1870,y:540,a:['Wapeningsnet','MeshLength, MeshWidth','LongBarDia, TransBarDia, Spacing'],cat:'Structural'},
+{id:'rebarMeshType',l:'IfcReinforcingMeshType',c:C.str,g:'struct',x:1870,y:620,a:['Type wapeningsnet','Q335, Q524'],cat:'Structural'},
+{id:'tendon',l:'IfcTendon',c:C.str,g:'struct',x:2010,y:540,a:['Voorspankabel','TensionForce, PreStress','PredefinedType: BAR, STRAND, WIRE'],cat:'Structural'},
+{id:'tendonAnchor',l:'IfcTendonAnchor',c:C.str,g:'struct',x:2010,y:620,a:['Verankeringsblok','FIXED_END, TENSIONING_END'],cat:'Structural'},
+{id:'tendonConduit',l:'IfcTendonConduit',c:C.str,g:'struct',x:2140,y:620,a:['Voorspankanaal','DUCT, GROUTING_DUCT'],cat:'Structural'},
+
+// === IFC5 COST / QUANTITIES (shifted right + down) ===
+{id:'costSchedule',l:'IfcCostSchedule',c:C.sp,g:'ifc5',x:1200,y:900,a:['Kostenoverzicht / begroting','PredefinedType: BUDGET, COSTPLAN, ESTIMATE, TENDER, PRICEDBILLOFQUANTITIES','Status, SubmittedOn, UpdateDate'],cat:'Cost'},
+{id:'costItem',l:'IfcCostItem',c:C.sp,g:'ifc5',x:1200,y:980,a:['Kostenpost / begrotingsregel','Koppeling aan elementen via CostQuantities','Hiërarchisch: hoofd- en subposten'],cat:'Cost'},
+{id:'costValue',l:'IfcCostValue',c:C.sp,g:'ifc5',x:1050,y:980,a:['Kostenbedrag','AppliedValue: bedrag of formule','UnitBasis: per m2, per stuk, per m3','ArithmeticOperator: ADD, MULTIPLY','CostType: material, labor, equipment'],cat:'Cost'},
+{id:'costResource',l:'IfcConstructionResource',c:C.sp,g:'ifc5',x:1350,y:980,a:['Bouwresource','IfcLaborResource, IfcCrewResource','IfcConstructionEquipmentResource','IfcConstructionMaterialResource','IfcSubContractResource'],cat:'Cost'},
+// IfcX Cost Extensions
+{id:'costBreakdown',l:'Cost Breakdown',c:C.brd,g:'brand',x:1200,y:1060,a:['ifcx::cost::breakdown','Kostenonderverdeling per element','Materiaal + arbeid + materieel + onderaannemer','Percentage opslagen (AK, W&R)'],cat:'IfcX Cost'},
+{id:'costIndex',l:'Cost Index',c:C.brd,g:'brand',x:1050,y:1060,a:['ifcx::cost::index','Prijsindex referentie','BDB index, CBS bouwkostenindex','Peildatum + indexfactor'],cat:'IfcX Cost'},
+{id:'costPhase',l:'Cost Phase',c:C.brd,g:'brand',x:1350,y:1060,a:['ifcx::cost::phase','Kostenfase per NEN 2699','Bouwkosten, bijkomende kosten, grondkosten','Investeringskosten, exploitatiekosten'],cat:'IfcX Cost'},
+
+// === IFC5 PLANNING / PROCESS ===
+{id:'workPlan',l:'IfcWorkPlan',c:C.sp,g:'ifc5',x:1550,y:900,a:['Projectplanning container','PredefinedType: ACTUAL, BASELINE, PLANNED'],cat:'Planning'},
+{id:'workSched',l:'IfcWorkSchedule',c:C.sp,g:'ifc5',x:1550,y:980,a:['Planning / werkschema','PredefinedType: ACTUAL, BASELINE, PLANNED','CreationDate, StartTime, FinishTime'],cat:'Planning'},
+{id:'task',l:'IfcTask',c:C.sp,g:'ifc5',x:1450,y:1060,a:['Taak / activiteit','TaskTime: ScheduleStart, ScheduleFinish, ScheduleDuration','IsMilestone, Priority','PredefinedType: ATTENDANCE, CONSTRUCTION, DEMOLITION, MAINTENANCE, MOVE, RENOVATION'],cat:'Planning'},
+{id:'taskTime',l:'IfcTaskTime',c:C.sp,g:'ifc5',x:1450,y:1140,a:['Tijdplanning van een taak','ScheduleStart, ScheduleFinish','ScheduleDuration, ActualDuration','EarlyStart, LateFinish, FreeFloat, TotalFloat','DurationType: ELAPSEDTIME, WORKTIME'],cat:'Planning'},
+{id:'process',l:'IfcProcess',c:C.sp,g:'ifc5',x:1650,y:1060,a:['Abstract proces','Basis voor IfcTask en IfcEvent','IfcRelSequence voor volgorde'],cat:'Planning'},
+{id:'event',l:'IfcEvent',c:C.sp,g:'ifc5',x:1650,y:1140,a:['Gebeurtenis / milestone','PredefinedType: STARTEVENT, ENDEVENT, INTERMEDIATEEVENT','EventTriggerType: EVENTRULE, EVENTMESSAGE, EVENTTIME'],cat:'Planning'},
+{id:'relSequence',l:'IfcRelSequence',c:C.sp,g:'ifc5',x:1550,y:1140,a:['Volgorderelatie tussen taken','SequenceType: START_START, START_FINISH, FINISH_START, FINISH_FINISH','TimeLag: vertragingstijd'],cat:'Planning'},
+
+// === IFC5 INFRASTRUCTURE (shifted further right) ===
+{id:'facility',l:'IfcFacility',c:C.inf,g:'infra',x:1850,y:700,a:['Civiel bouwwerk'],cat:'Infrastructure'},
+{id:'alignment',l:'IfcAlignment',c:C.inf,g:'infra',x:1850,y:790,a:['Tracering'],cat:'Infrastructure'},
+{id:'road',l:'IfcRoad',c:C.inf,g:'infra',x:1730,y:790,a:['Weg'],cat:'Infrastructure'},
+{id:'railway',l:'IfcRailway',c:C.inf,g:'infra',x:1970,y:790,a:['Spoorweg'],cat:'Infrastructure'},
+{id:'bridge',l:'IfcBridge',c:C.inf,g:'infra',x:1730,y:870,a:['Brug'],cat:'Infrastructure'},
+{id:'tunnel',l:'IfcTunnel',c:C.inf,g:'infra',x:1850,y:870,a:['Tunnel'],cat:'Infrastructure'},
+{id:'marine',l:'IfcMarineFacility',c:C.inf,g:'infra',x:1970,y:870,a:['Haven, sluis'],cat:'Infrastructure'},
+
+// === IFC5 MATERIALS & PROPS ===
+{id:'material',l:'IfcMaterial',c:C.mat,g:'mat',x:300,y:780,a:['Materiaal'],cat:'Material'},
+{id:'matLayer',l:'IfcMaterialLayerSet',c:C.mat,g:'mat',x:200,y:850,a:['Laagopbouw'],cat:'Material'},
+{id:'matProfile',l:'IfcMaterialProfileSet',c:C.mat,g:'mat',x:350,y:850,a:['Profielopbouw'],cat:'Material'},
+{id:'matConstit',l:'IfcMaterialConstituentSet',c:C.mat,g:'mat',x:500,y:850,a:['Samengesteld'],cat:'Material'},
+{id:'propSet',l:'IfcPropertySet',c:C.mat,g:'mat',x:650,y:780,a:['Pset_*Common'],cat:'Properties'},
+{id:'elemQuant',l:'IfcElementQuantity',c:C.mat,g:'mat',x:800,y:780,a:['Qto_*BaseQuantities'],cat:'Quantities'},
+{id:'classif',l:'IfcClassification',c:C.mat,g:'mat',x:950,y:780,a:['NL-SfB, Uniclass'],cat:'Classification'},
+{id:'classRef',l:'IfcClassificationReference',c:C.mat,g:'mat',x:950,y:850,a:['NL-SfB 21.22'],cat:'Classification'},
+
+// === IFC GEOMETRY REPRESENTATIONS (moved to separate zone right of spatial) ===
+{id:'ifcRep',l:'IfcRepresentation',c:C.sp,g:'ifc5',x:950,y:270,a:['Container voor geometrie','Context: Body, Axis, FootPrint, Reference'],cat:'IFC Geometry'},
+{id:'ifcExtrud',l:'IfcExtrudedAreaSolid',c:C.sp,g:'ifc5',x:900,y:360,a:['Extrusie van een profiel','Meest gebruikte solid in IFC','Profile + Direction + Depth'],cat:'IFC Geometry'},
+{id:'ifcBrep',l:'IfcFacetedBrep',c:C.sp,g:'ifc5',x:1020,y:360,a:['Boundary representation','Faces + edges + vertices','Voor complexe vormen'],cat:'IFC Geometry'},
+{id:'ifcCsg',l:'IfcCsgSolid',c:C.sp,g:'ifc5',x:1140,y:360,a:['Constructive Solid Geometry','Boolean operations (union, difference)'],cat:'IFC Geometry'},
+{id:'ifcSwept',l:'IfcSweptAreaSolid',c:C.sp,g:'ifc5',x:900,y:450,a:['Gesweept profiel','Basis voor extrusie + revolutie'],cat:'IFC Geometry'},
+{id:'ifcRevolved',l:'IfcRevolvedAreaSolid',c:C.sp,g:'ifc5',x:1020,y:450,a:['Rotatie van een profiel','Om een as gedraaid'],cat:'IFC Geometry'},
+{id:'ifcMapItem',l:'IfcMappedItem',c:C.sp,g:'ifc5',x:1140,y:450,a:['Hergebruik geometrie','Vergelijkbaar met block/component'],cat:'IFC Geometry'},
+{id:'ifcProf',l:'IfcProfileDef',c:C.sp,g:'ifc5',x:900,y:540,a:['Profiel definitie','Rectangle, Circle, I-Shape, L-Shape'],cat:'IFC Geometry'},
+{id:'ifcRectProf',l:'IfcRectangleProfileDef',c:C.sp,g:'ifc5',x:850,y:620,a:['Rechthoekig profiel','XDim, YDim'],cat:'IFC Geometry'},
+{id:'ifcCircProf',l:'IfcCircleProfileDef',c:C.sp,g:'ifc5',x:980,y:620,a:['Cirkelvormig profiel','Radius'],cat:'IFC Geometry'},
+{id:'ifcIProf',l:'IfcIShapeProfileDef',c:C.sp,g:'ifc5',x:1110,y:620,a:['I-profiel (HEA, IPE)','OverallWidth, OverallDepth, WebThickness, FlangeThickness'],cat:'IFC Geometry'},
+{id:'ifcLProf',l:'IfcLShapeProfileDef',c:C.sp,g:'ifc5',x:850,y:700,a:['L-profiel (hoekstaal)','Depth, Width, Thickness, FilletRadius'],cat:'IFC Geometry'},
+{id:'ifcTProf',l:'IfcTShapeProfileDef',c:C.sp,g:'ifc5',x:980,y:700,a:['T-profiel','Depth, FlangeWidth, WebThickness, FlangeThickness'],cat:'IFC Geometry'},
+{id:'ifcUProf',l:'IfcUShapeProfileDef',c:C.sp,g:'ifc5',x:1110,y:700,a:['U-profiel (UNP)','Depth, FlangeWidth, WebThickness, FlangeThickness'],cat:'IFC Geometry'},
+{id:'ifcCHSProf',l:'IfcCircleHollowProfileDef',c:C.sp,g:'ifc5',x:850,y:780,a:['Buisprofiel (CHS)','Radius, WallThickness'],cat:'IFC Geometry'},
+{id:'ifcRHSProf',l:'IfcRectangleHollowProfileDef',c:C.sp,g:'ifc5',x:1020,y:780,a:['Koker (RHS/SHS)','XDim, YDim, WallThickness, InnerFilletRadius'],cat:'IFC Geometry'},
+{id:'ifcAsymIProf',l:'IfcAsymmetricIShapeProfileDef',c:C.sp,g:'ifc5',x:1190,y:780,a:['Asymmetrisch I-profiel','TopFlangeWidth != BottomFlangeWidth'],cat:'IFC Geometry'},
+
+// === USD GEOMETRY ===
+{id:'usdMesh',l:'UsdGeomMesh',c:C.usd,g:'usd',x:840,y:110,a:['points + faceVertexIndices'],cat:'USD'},
+{id:'usdCurves',l:'UsdGeomBasisCurves',c:C.usd,g:'usd',x:960,y:110,a:['3D curves'],cat:'USD'},
+{id:'usdPoints',l:'UsdGeomPoints',c:C.usd,g:'usd',x:1080,y:110,a:['Punten'],cat:'USD'},
+{id:'xformOp',l:'UsdXformOp',c:C.usd,g:'usd',x:840,y:190,a:['4x4 matrix'],cat:'USD'},
+{id:'usdVis',l:'UsdGeomVisibility',c:C.usd,g:'usd',x:960,y:190,a:['inherited / invisible'],cat:'USD'},
+{id:'usdMat',l:'UsdShadeMaterial',c:C.usd,g:'usd',x:1080,y:190,a:['Kleur, textuur'],cat:'USD'},
+
+// === IfcX DRAWINGS ===
+{id:'drw',l:'Drawings/',c:C.viw,g:'draw',x:-50,y:30,a:['Container tekeningen'],cat:'IfcX View'},
+{id:'v1',l:'Plattegrond BG',c:C.viw,g:'draw',x:-150,y:130,a:['scale: 50, plan, cutHeight: 1200'],cat:'IfcX View'},
+{id:'v2',l:'Doorsnede A-A',c:C.viw,g:'draw',x:0,y:130,a:['scale: 50, section'],cat:'IfcX View'},
+{id:'v3',l:'Detail 01',c:C.viw,g:'draw',x:150,y:130,a:['scale: 5, detail'],cat:'IfcX View'},
+{id:'g1',l:'line: wall_n',c:C.geo,g:'draw',x:-230,y:250,a:['ifcx::geom::line'],cat:'IfcX Geometry'},
+{id:'g2',l:'line: wall_e',c:C.geo,g:'draw',x:-110,y:250,a:['ifcx::geom::line'],cat:'IfcX Geometry'},
+{id:'g3',l:'arc: door',c:C.geo,g:'draw',x:10,y:250,a:['ifcx::geom::trimmedCurve'],cat:'IfcX Geometry'},
+{id:'g4',l:'polyline: keuken',c:C.geo,g:'draw',x:130,y:250,a:['ifcx::geom::compositeCurve'],cat:'IfcX Geometry'},
+{id:'g5',l:'circle: kolom',c:C.geo,g:'draw',x:-110,y:330,a:['ifcx::geom::circle'],cat:'IfcX Geometry'},
+{id:'g6',l:'spline: contour',c:C.geo,g:'draw',x:40,y:330,a:['ifcx::geom::bspline'],cat:'IfcX Geometry'},
+{id:'d1',l:'dim: breedte',c:C.ann,g:'draw',x:-230,y:430,a:['ifcx::annotation::dimension'],cat:'IfcX Annotation'},
+{id:'d2',l:'dim: hoogte',c:C.ann,g:'draw',x:-110,y:430,a:['ifcx::annotation::dimension'],cat:'IfcX Annotation'},
+{id:'t1',l:'text: kamer',c:C.ann,g:'draw',x:20,y:430,a:['ifcx::annotation::text'],cat:'IfcX Annotation'},
+{id:'ld1',l:'leader: opmerking',c:C.ann,g:'draw',x:150,y:430,a:['ifcx::annotation::leader'],cat:'IfcX Annotation'},
+{id:'h1',l:'hatch: beton',c:C.hat,g:'draw',x:-230,y:520,a:['ifcx::hatch::material'],cat:'IfcX Hatch'},
+{id:'h2',l:'hatch: isolatie',c:C.hat,g:'draw',x:-80,y:520,a:['ifcx::hatch::pattern'],cat:'IfcX Hatch'},
+
+// === IfcX STYLES ===
+{id:'sc',l:'Style: Cut',c:C.sty,g:'style',x:-230,y:640,a:['black, 0.35mm'],cat:'IfcX Style'},
+{id:'sp',l:'Style: Projection',c:C.sty,g:'style',x:-100,y:640,a:['grey, 0.18mm'],cat:'IfcX Style'},
+{id:'sd',l:'Style: Dimension',c:C.sty,g:'style',x:30,y:640,a:['green, 0.18mm'],cat:'IfcX Style'},
+{id:'st',l:'Style: Text',c:C.sty,g:'style',x:160,y:640,a:['Arial, 2.5mm'],cat:'IfcX Style'},
+{id:'lw',l:'Layer: Walls',c:C.sty,g:'style',x:-230,y:720,a:['ifcx::layer::style'],cat:'IfcX Layer'},
+{id:'ld',l:'Layer: Dims',c:C.sty,g:'style',x:-100,y:720,a:['ifcx::layer::style'],cat:'IfcX Layer'},
+{id:'svg',l:'SVG: cut.IfcWall',c:C.sty,g:'style',x:80,y:720,a:['ifcx::svg::class'],cat:'IfcX SVG'},
+
+// === IfcX SHEETS ===
+{id:'sht',l:'Sheets/',c:C.sht,g:'sheet',x:2300,y:30,a:['Container bladindelingen'],cat:'IfcX Sheet'},
+{id:'s1',l:'A1-001 Plattegronden',c:C.sht,g:'sheet',x:2200,y:120,a:['841x594mm'],cat:'IfcX Sheet'},
+{id:'s2',l:'A1-002 Doorsneden',c:C.sht,g:'sheet',x:2400,y:120,a:['841x594mm'],cat:'IfcX Sheet'},
+{id:'vp1',l:'Viewport: BG 1:50',c:C.sht,g:'sheet',x:2200,y:210,a:['ifcx::sheet::viewport'],cat:'IfcX Sheet'},
+{id:'vp2',l:'Viewport: Sect 1:50',c:C.sht,g:'sheet',x:2350,y:210,a:['ifcx::sheet::viewport'],cat:'IfcX Sheet'},
+{id:'vp3',l:'Viewport: Detail 1:5',c:C.sht,g:'sheet',x:2500,y:210,a:['ifcx::sheet::viewport'],cat:'IfcX Sheet'},
+
+// === IfcX COMPONENTS ===
+{id:'def',l:'Definitions/',c:C.cmp,g:'style',x:2300,y:650,a:['Herbruikbare definities'],cat:'IfcX Component'},
+{id:'df1',l:'DoorType 90cm',c:C.cmp,g:'style',x:2250,y:740,a:['ifcx::component::definition'],cat:'IfcX Component'},
+{id:'df2',l:'TitleBlock A1',c:C.cmp,g:'style',x:2400,y:740,a:['ifcx::component::definition'],cat:'IfcX Component'},
+
+// === IfcX BRANDING / REPORTS (NEW) ===
+{id:'brand',l:'Branding/',c:C.brd,g:'brand',x:-350,y:850,a:['ifcx::branding','Huisstijl container'],cat:'IfcX Branding'},
+{id:'brandLogo',l:'Logo',c:C.brd,g:'brand',x:-480,y:940,a:['ifcx::branding::logo','SVG/PNG bedrijfslogo','mediaId referentie'],cat:'IfcX Branding'},
+{id:'brandColors',l:'Kleuren',c:C.brd,g:'brand',x:-350,y:940,a:['ifcx::branding::colors','{primary:"#003366", accent:"#FF6600"}'],cat:'IfcX Branding'},
+{id:'brandFonts',l:'Fonts',c:C.brd,g:'brand',x:-220,y:940,a:['ifcx::branding::fonts','{heading:"Montserrat", body:"Open Sans"}'],cat:'IfcX Branding'},
+{id:'brandTmpl',l:'Rapport Template',c:C.brd,g:'brand',x:-480,y:1030,a:['ifcx::report::template','Pagina-indeling, headers, footers','Dynamische velden (datum, project)'],cat:'IfcX Report'},
+{id:'brandReport',l:'Rapport',c:C.brd,g:'brand',x:-350,y:1030,a:['ifcx::report::instance','Gegenereerd rapport','Referenties naar data nodes','Update bij wijzigingen model'],cat:'IfcX Report'},
+{id:'brandFrozen',l:'Frozen Report',c:C.brd,g:'brand',x:-220,y:1030,a:['ifcx::report::frozen','Onveranderlijk snapshot','SHA-256 hash voor integriteit','Juridisch bindend document','Datum + auteur verzegeld'],cat:'IfcX Report'},
+
+// === BCF (BIM Collaboration Format) - far right, separate zone ===
+{id:'bcf',l:'BCF Issues/',c:C.bcf,g:'bcf',x:2300,y:350,a:['ifcx::bcf','BIM Collaboration Format','Issues geintegreerd in bestand'],cat:'IfcX BCF'},
+{id:'bcfTopic',l:'BCF Topic',c:C.bcf,g:'bcf',x:2200,y:440,a:['ifcx::bcf::topic','Issue/opmerking/clash','title, description, priority','status: OPEN, IN_PROGRESS, CLOSED'],cat:'IfcX BCF'},
+{id:'bcfComment',l:'BCF Comment',c:C.bcf,g:'bcf',x:2350,y:440,a:['ifcx::bcf::comment','Reactie: author, date, text','Threaded discussie'],cat:'IfcX BCF'},
+{id:'bcfViewpoint',l:'BCF Viewpoint',c:C.bcf,g:'bcf',x:2200,y:530,a:['ifcx::bcf::viewpoint','Camera positie + richting','Geselecteerde elementen'],cat:'IfcX BCF'},
+{id:'bcfSnapshot',l:'BCF Snapshot',c:C.bcf,g:'bcf',x:2350,y:530,a:['ifcx::bcf::snapshot','Screenshot (PNG/JPG)'],cat:'IfcX BCF'},
+{id:'bcfLabel',l:'BCF Label',c:C.bcf,g:'bcf',x:2500,y:440,a:['ifcx::bcf::label','Tags / categorisering'],cat:'IfcX BCF'},
+{id:'bcfAssign',l:'BCF Assignment',c:C.bcf,g:'bcf',x:2500,y:530,a:['ifcx::bcf::assignment','Toewijzing persoon/rol','dueDate'],cat:'IfcX BCF'},
+
+// === GEOMETRY TYPES (NEW) ===
+{id:'gtLine',l:'geom::line',c:C.gtp,g:'geom',x:-500,y:-80,a:['2 punten: [[x1,y1],[x2,y2]]'],cat:'Geometry Type'},
+{id:'gtPoly',l:'geom::polyline',c:C.gtp,g:'geom',x:-370,y:-80,a:['N punten, optioneel gesloten'],cat:'Geometry Type'},
+{id:'gtCircle',l:'geom::circle',c:C.gtp,g:'geom',x:-240,y:-80,a:['center + radius'],cat:'Geometry Type'},
+{id:'gtArc',l:'geom::trimmedCurve',c:C.gtp,g:'geom',x:-100,y:-80,a:['Boog: center, radius, angles'],cat:'Geometry Type'},
+{id:'gtEllipse',l:'geom::ellipse',c:C.gtp,g:'geom',x:50,y:-80,a:['center, semiAxis1, semiAxis2'],cat:'Geometry Type'},
+{id:'gtBspline',l:'geom::bspline',c:C.gtp,g:'geom',x:-500,y:-150,a:['NURBS: degree, controlPoints, knots, weights'],cat:'Geometry Type'},
+{id:'gtComp',l:'geom::compositeCurve',c:C.gtp,g:'geom',x:-350,y:-150,a:['Gemengde lijn+boog segmenten'],cat:'Geometry Type'},
+{id:'gtMesh',l:'geom::mesh',c:C.gtp,g:'geom',x:-200,y:-150,a:['3D mesh (points + faces)'],cat:'Geometry Type'},
+{id:'gtSolid',l:'geom::solid',c:C.gtp,g:'geom',x:-50,y:-150,a:['ACIS/BRep solid'],cat:'Geometry Type'},
+{id:'gtPoint',l:'geom::point',c:C.gtp,g:'geom',x:-500,y:-220,a:['Enkel punt [x,y,z]'],cat:'Geometry Type'},
+{id:'gtCloud',l:'geom::pointCloud',c:C.gtp,g:'geom',x:-350,y:-220,a:['positions[], colors[]','intensities[], normals[]','classification[]'],cat:'Geometry Type'},
+{id:'gtSurf',l:'geom::surface',c:C.gtp,g:'geom',x:-200,y:-220,a:['NURBS surface, plane, cylinder'],cat:'Geometry Type'},
+{id:'gtRay',l:'geom::ray',c:C.gtp,g:'geom',x:-50,y:-220,a:['Semi-infinite lijn'],cat:'Geometry Type'},
+{id:'gtXline',l:'geom::constructionLine',c:C.gtp,g:'geom',x:100,y:-220,a:['Oneindige constructielijn'],cat:'Geometry Type'},
+{id:'gtIdxPoly',l:'geom::indexedPolyCurve',c:C.gtp,g:'geom',x:100,y:-150,a:['Punten + segment indices'],cat:'Geometry Type'},
+
+// === STANDARDS / RULES / FORMULAS (NEW) ===
+{id:'standards',l:'Standards/',c:C.cal,g:'calc',x:100,y:1050,a:['ifcx::standards','Container voor normen en regelgeving','Bijv. Eurocode, Bouwbesluit, NEN'],cat:'IfcX Standards'},
+{id:'rule',l:'Rule',c:C.cal,g:'calc',x:-30,y:1130,a:['ifcx::standards::rule','Enkele regel/eis uit een norm','Bijv. "Max U-waarde gevel: 0.22"','Referentie naar norm + artikel','Condition + threshold + unit'],cat:'IfcX Standards'},
+{id:'ruleSet',l:'Rule Set',c:C.cal,g:'calc',x:100,y:1130,a:['ifcx::standards::ruleSet','Groep gerelateerde regels','Bijv. "Thermische eisen BBL Afd. 5.1"','Alle regels voor een toetsingsdomein'],cat:'IfcX Standards'},
+{id:'formulaDef',l:'Formula Definition',c:C.cal,g:'calc',x:230,y:1130,a:['ifcx::calc::formulaDefinition','Herbruikbare formule-template','Bijv. Rc = d / lambda','Parameters: inputs[], output, unit','Versioned (norm-editie gebonden)'],cat:'IfcX Calc'},
+{id:'formula',l:'Formula Instance',c:C.cal,g:'calc',x:100,y:1210,a:['ifcx::calc::formula','Ingevulde formule met waarden','Verwijst naar formulaDefinition','Inputs gebonden aan node properties','Automatisch herberekend bij wijziging'],cat:'IfcX Calc'},
+{id:'calcSheet',l:'Calc Sheet',c:C.cal,g:'calc',x:230,y:1210,a:['ifcx::calc::sheet','Rekenblad (spreadsheet-achtig)','Meerdere formules + tussenresultaten','Stap-voor-stap berekening','Exporteerbaar als rapport'],cat:'IfcX Calc'},
+{id:'checkResult',l:'Check Result',c:C.cal,g:'calc',x:-30,y:1210,a:['ifcx::standards::checkResult','Toetsingsresultaat','PASS / FAIL / WARNING','Verwijst naar rule + element','Datum + versie norm'],cat:'IfcX Standards'},
+
+// === BINARY / PACKAGING (NEW) ===
+{id:'ifcxJson',l:'IFCX (.ifcx)',c:C.pkg,g:'pkg',x:500,y:1050,a:['JSON formaat','Menselijk leesbaar','UTF-8 tekst','Schema: ifcx-v2.schema.json'],cat:'Package Format'},
+{id:'ifcxBin',l:'IFCXB (.ifcxb)',c:C.pkg,g:'pkg',x:350,y:1140,a:['Binary formaat','CBOR encoding (RFC 8949)','Zstandard compressie','~94% kleiner dan DXF','Streaming support'],cat:'Package Format'},
+{id:'ifcxZip',l:'IFCXZ (.ifcxz)',c:C.pkg,g:'pkg',x:650,y:1140,a:['ZIP container','Meerdere IFCX/IFCXB bestanden','Embedded media (afbeeldingen, puntenwolken)','Manifest.json','Vergelijkbaar met .docx'],cat:'Package Format'},
+{id:'ifcxMedia',l:'Media Blobs',c:C.pkg,g:'pkg',x:500,y:1220,a:['Embedded binaire data','Afbeeldingen, PDFs, puntenwolken','Content-addressed (SHA-256)','Gedeeld tussen revisions'],cat:'Package Format'},
+
+// === GIT BY DESIGN (NEW) ===
+{id:'gitRepo',l:'Git Repository',c:C.git,g:'git',x:1100,y:920,a:['IFCX is ontworpen voor Git','Elke .ifcx is JSON = text-based diffing','Nodes zijn individueel diff-baar','Branches = parallelle ontwerpen'],cat:'Git by Design'},
+{id:'gitMain',l:'main branch',c:C.git,g:'git',x:1000,y:1000,a:['Productie-versie','Protected branch','Alleen via merge/PR'],cat:'Git by Design'},
+{id:'gitFeat',l:'feature branch',c:C.git,g:'git',x:1200,y:1000,a:['Ontwerp-iteratie','Bijv. feature/gevel-update','Parallel aan main'],cat:'Git by Design'},
+{id:'gitCommit',l:'Commit',c:C.git,g:'git',x:1100,y:1080,a:['Snapshot van alle nodes','SHA hash = integriteitsgarantie','Author + timestamp + message','Automatische history'],cat:'Git by Design'},
+{id:'gitMerge',l:'Merge / PR',c:C.git,g:'git',x:1000,y:1160,a:['Samenvoegen van branches','Pull Request = review workflow','Conflict resolution op node-niveau','Approval door projectleider'],cat:'Git by Design'},
+{id:'gitDiff',l:'Node-level Diff',c:C.git,g:'git',x:1200,y:1160,a:['JSON diff per node','Welke muur verplaatst?','Welke property gewijzigd?','Visueel vergelijkbaar'],cat:'Git by Design'},
+{id:'gitAttr',l:'.gitattributes',c:C.git,g:'git',x:1100,y:1240,a:['*.ifcx text diff=ifcx','*.ifcxb binary filter=lfs','*.ifcxz binary filter=lfs','Custom merge driver voor .ifcx'],cat:'Git by Design'},
+{id:'gitLFS',l:'Git LFS',c:C.git,g:'git',x:1250,y:1240,a:['Large File Storage','Binaire bestanden (IFCXB, media)','Puntenwolken, afbeeldingen','Pointer files in repo'],cat:'Git by Design'},
+{id:'gitHook',l:'Git Hooks',c:C.git,g:'git',x:950,y:1240,a:['pre-commit: schema validatie','pre-push: integriteitscheck','post-merge: rapport regeneratie','CI/CD: automatische checks'],cat:'Git by Design'},
+
+// === VERSIONING ===
+{id:'rev',l:'Revisions/ (opt)',c:C.rev,g:'version',x:2300,y:840,a:['Optioneel in-file versiebeheer','Aanvullend op Git history'],cat:'IfcX Revision'},
+{id:'r1',l:'rev-001',c:C.rev,g:'version',x:2250,y:930,a:['Eerste ontwerp'],cat:'IfcX Revision'},
+{id:'r2',l:'rev-002',c:C.rev,g:'version',x:2400,y:930,a:['Muur verplaatst'],cat:'IfcX Revision'},
+
+// === GIS ===
+{id:'geo',l:'CRS: EPSG:28992',c:C.misc,g:'ifc5',x:750,y:30,a:['ifcx::geo::crs','RD New'],cat:'IfcX GIS'},
+{id:'img',l:'Foto gevel.jpg',c:C.misc,g:'draw',x:2500,y:740,a:['ifcx::image::raster'],cat:'IfcX Image'},
+];
+
+// === EDGES ===
+const E=[
+// Spatial
+{f:'proj',t:'site',k:'c'},{f:'site',t:'bldg',k:'c'},{f:'bldg',t:'stor',k:'c'},
+{f:'stor',t:'space',k:'c'},{f:'stor',t:'zone',k:'c'},{f:'bldg',t:'grid',k:'c'},{f:'grid',t:'gridAx',k:'c'},
+// Elements
+{f:'stor',t:'wall',k:'c'},{f:'stor',t:'door',k:'c'},{f:'stor',t:'window',k:'c'},
+{f:'stor',t:'column',k:'c'},{f:'stor',t:'beam',k:'c'},{f:'stor',t:'slab',k:'c'},
+{f:'stor',t:'roof',k:'c'},{f:'stor',t:'stair',k:'c'},{f:'stor',t:'ramp',k:'c'},
+{f:'stor',t:'railing',k:'c'},{f:'stor',t:'curtWall',k:'c'},{f:'stor',t:'covering',k:'c'},
+{f:'stor',t:'plate',k:'c'},{f:'stor',t:'member',k:'c'},{f:'stor',t:'footing',k:'c'},
+{f:'stor',t:'pile',k:'c'},{f:'stor',t:'furnish',k:'c'},
+{f:'wall',t:'opening',k:'c'},{f:'opening',t:'door',k:'o',lb:'fills'},{f:'opening',t:'window',k:'o',lb:'fills'},
+{f:'stair',t:'stairFl',k:'c'},
+// Types
+{f:'wall',t:'wallTp',k:'i'},{f:'door',t:'doorTp',k:'i'},{f:'window',t:'windowTp',k:'i'},
+{f:'column',t:'colTp',k:'i'},{f:'beam',t:'beamTp',k:'i'},{f:'slab',t:'slabTp',k:'i'},
+// IFC Geometry
+{f:'wall',t:'ifcRep',k:'c'},{f:'column',t:'ifcRep',k:'c'},{f:'slab',t:'ifcRep',k:'c'},
+{f:'ifcRep',t:'ifcExtrud',k:'c'},{f:'ifcRep',t:'ifcBrep',k:'c'},{f:'ifcRep',t:'ifcCsg',k:'c'},
+{f:'ifcRep',t:'ifcMapItem',k:'c'},
+{f:'ifcExtrud',t:'ifcSwept',k:'i'},{f:'ifcRevolved',t:'ifcSwept',k:'i'},
+{f:'ifcSwept',t:'ifcProf',k:'o',lb:'profile'},
+{f:'ifcProf',t:'ifcRectProf',k:'c'},{f:'ifcProf',t:'ifcCircProf',k:'c'},{f:'ifcProf',t:'ifcIProf',k:'c'},
+{f:'ifcProf',t:'ifcLProf',k:'c'},{f:'ifcProf',t:'ifcTProf',k:'c'},{f:'ifcProf',t:'ifcUProf',k:'c'},
+{f:'ifcProf',t:'ifcCHSProf',k:'c'},{f:'ifcProf',t:'ifcRHSProf',k:'c'},{f:'ifcProf',t:'ifcAsymIProf',k:'c'},
+// USD
+{f:'wall',t:'usdMesh',k:'c'},{f:'column',t:'usdMesh',k:'c'},{f:'slab',t:'usdMesh',k:'c'},
+{f:'alignment',t:'usdCurves',k:'c'},{f:'usdMesh',t:'usdMat',k:'o',lb:'material'},
+// MEP
+{f:'bldg',t:'distSys',k:'c'},{f:'distSys',t:'distElem',k:'c'},
+{f:'distElem',t:'flowSeg',k:'c'},{f:'distElem',t:'flowFit',k:'c'},
+{f:'distElem',t:'flowTerm',k:'c'},{f:'distElem',t:'flowCtrl',k:'c'},{f:'distElem',t:'energyConv',k:'c'},
+{f:'ductSeg',t:'flowSeg',k:'i'},{f:'pipeSeg',t:'flowSeg',k:'i'},
+{f:'sanitary',t:'flowTerm',k:'i'},{f:'lightFix',t:'flowTerm',k:'i'},
+{f:'outlet',t:'flowTerm',k:'i'},{f:'airTerm',t:'flowTerm',k:'i'},
+{f:'sensor',t:'flowCtrl',k:'i'},{f:'valve',t:'flowCtrl',k:'i'},
+{f:'boiler',t:'energyConv',k:'i'},
+// Structural
+{f:'proj',t:'structModel',k:'c'},
+{f:'structModel',t:'structMem',k:'c'},{f:'structModel',t:'structSurf',k:'c'},
+{f:'structModel',t:'structConn',k:'c'},
+{f:'structModel',t:'rebarElement',k:'c'},
+{f:'reinforcing',t:'rebarElement',k:'i'},{f:'rebarMesh',t:'rebarElement',k:'i'},{f:'tendon',t:'rebarElement',k:'i'},
+{f:'reinforcing',t:'rebarType',k:'i'},{f:'rebarMesh',t:'rebarMeshType',k:'i'},
+{f:'tendon',t:'tendonAnchor',k:'c'},{f:'tendon',t:'tendonConduit',k:'c'},
+{f:'structMem',t:'reinforcing',k:'c'},{f:'structMem',t:'rebarMesh',k:'c'},{f:'structMem',t:'tendon',k:'c'},
+// Cost
+{f:'proj',t:'costSchedule',k:'c'},
+{f:'costSchedule',t:'costItem',k:'c'},{f:'costItem',t:'costValue',k:'c'},
+{f:'costItem',t:'costResource',k:'o',lb:'resource'},
+{f:'costItem',t:'wall',k:'o',lb:'calculates'},{f:'costItem',t:'slab',k:'o',lb:'calculates'},
+{f:'costItem',t:'elemQuant',k:'o',lb:'quantities'},
+{f:'costItem',t:'costBreakdown',k:'c'},
+{f:'costBreakdown',t:'costIndex',k:'o',lb:'index'},
+{f:'costSchedule',t:'costPhase',k:'c'},
+// Planning
+{f:'proj',t:'workPlan',k:'c'},
+{f:'workPlan',t:'workSched',k:'c'},
+{f:'workSched',t:'task',k:'c'},{f:'workSched',t:'process',k:'c'},
+{f:'task',t:'taskTime',k:'c'},{f:'task',t:'relSequence',k:'o',lb:'sequence'},
+{f:'process',t:'event',k:'c'},
+{f:'task',t:'wall',k:'o',lb:'constructs'},{f:'task',t:'slab',k:'o',lb:'constructs'},
+{f:'task',t:'costItem',k:'o',lb:'costs'},
+// Infra
+{f:'site',t:'facility',k:'c'},
+{f:'facility',t:'alignment',k:'c'},{f:'facility',t:'road',k:'c'},
+{f:'facility',t:'railway',k:'c'},{f:'facility',t:'bridge',k:'c'},
+{f:'facility',t:'tunnel',k:'c'},{f:'facility',t:'marine',k:'c'},
+// Materials & Props
+{f:'wall',t:'material',k:'o',lb:'material'},{f:'wall',t:'propSet',k:'o',lb:'props'},
+{f:'wall',t:'elemQuant',k:'o',lb:'qty'},
+{f:'material',t:'matLayer',k:'c'},{f:'material',t:'matProfile',k:'c'},{f:'material',t:'matConstit',k:'c'},
+{f:'classif',t:'classRef',k:'c'},{f:'wall',t:'classRef',k:'o',lb:'class'},
+// Drawings
+{f:'proj',t:'drw',k:'c'},{f:'proj',t:'sht',k:'c'},{f:'proj',t:'def',k:'c'},{f:'proj',t:'geo',k:'c'},
+{f:'drw',t:'v1',k:'c'},{f:'drw',t:'v2',k:'c'},{f:'drw',t:'v3',k:'c'},
+{f:'v1',t:'g1',k:'c'},{f:'v1',t:'g2',k:'c'},{f:'v1',t:'g3',k:'c'},{f:'v1',t:'g4',k:'c'},
+{f:'v1',t:'g5',k:'c'},{f:'v1',t:'d1',k:'c'},{f:'v1',t:'t1',k:'c'},{f:'v1',t:'h1',k:'c'},
+{f:'v2',t:'g1',k:'c'},{f:'v2',t:'g2',k:'c'},{f:'v2',t:'d2',k:'c'},
+{f:'v3',t:'g6',k:'c'},{f:'v3',t:'ld1',k:'c'},{f:'v1',t:'img',k:'c'},
+// Styles
+{f:'g1',t:'sc',k:'o',lb:'style'},{f:'g2',t:'sc',k:'o',lb:'style'},
+{f:'g3',t:'sp',k:'o',lb:'style'},{f:'g6',t:'sp',k:'o',lb:'style'},
+{f:'d1',t:'sd',k:'o',lb:'style'},{f:'d2',t:'sd',k:'o',lb:'style'},
+{f:'t1',t:'st',k:'o',lb:'style'},{f:'g1',t:'lw',k:'o',lb:'layer'},
+{f:'g1',t:'svg',k:'o',lb:'css'},{f:'g1',t:'wall',k:'o',lb:'source'},{f:'g3',t:'door',k:'o',lb:'source'},
+// Sheets
+{f:'sht',t:'s1',k:'c'},{f:'sht',t:'s2',k:'c'},
+{f:'s1',t:'vp1',k:'c'},{f:'s1',t:'vp2',k:'c'},{f:'s2',t:'vp3',k:'c'},
+{f:'vp1',t:'v1',k:'o',lb:'view'},{f:'vp2',t:'v2',k:'o',lb:'view'},{f:'vp3',t:'v3',k:'o',lb:'view'},
+// Definitions
+{f:'def',t:'df1',k:'c'},{f:'def',t:'df2',k:'c'},
+{f:'g3',t:'df1',k:'i'},{f:'s1',t:'df2',k:'i'},
+// BCF
+{f:'proj',t:'bcf',k:'c'},
+{f:'bcf',t:'bcfTopic',k:'c'},{f:'bcf',t:'bcfLabel',k:'c'},
+{f:'bcfTopic',t:'bcfComment',k:'c'},{f:'bcfTopic',t:'bcfViewpoint',k:'c'},
+{f:'bcfTopic',t:'bcfAssign',k:'c'},
+{f:'bcfViewpoint',t:'bcfSnapshot',k:'c'},
+{f:'bcfTopic',t:'wall',k:'o',lb:'references'},{f:'bcfTopic',t:'door',k:'o',lb:'references'},
+{f:'bcfViewpoint',t:'v1',k:'o',lb:'view'},
+// Standards / Formulas
+{f:'proj',t:'standards',k:'c'},
+{f:'standards',t:'ruleSet',k:'c'},{f:'standards',t:'rule',k:'c'},
+{f:'standards',t:'formulaDef',k:'c'},
+{f:'formulaDef',t:'formula',k:'o',lb:'instantiate'},
+{f:'formula',t:'calcSheet',k:'c'},
+{f:'rule',t:'checkResult',k:'o',lb:'evaluate'},
+{f:'ruleSet',t:'rule',k:'c'},
+{f:'checkResult',t:'wall',k:'o',lb:'toetst'},
+{f:'formula',t:'wall',k:'o',lb:'berekent'},
+{f:'calcSheet',t:'brandReport',k:'o',lb:'export'},
+{f:'checkResult',t:'brandReport',k:'o',lb:'export'},
+// Branding
+{f:'proj',t:'brand',k:'c'},
+{f:'brand',t:'brandLogo',k:'c'},{f:'brand',t:'brandColors',k:'c'},{f:'brand',t:'brandFonts',k:'c'},
+{f:'brand',t:'brandTmpl',k:'c'},
+{f:'brandTmpl',t:'brandReport',k:'o',lb:'generates'},
+{f:'brandReport',t:'brandFrozen',k:'o',lb:'freeze'},
+{f:'brandTmpl',t:'brandLogo',k:'o',lb:'uses'},{f:'brandTmpl',t:'brandColors',k:'o',lb:'uses'},
+{f:'brandTmpl',t:'brandFonts',k:'o',lb:'uses'},
+{f:'brandFrozen',t:'ifcxMedia',k:'o',lb:'stores'},
+// Packaging
+{f:'ifcxJson',t:'ifcxBin',k:'o',lb:'encode'},{f:'ifcxJson',t:'ifcxZip',k:'o',lb:'package'},
+{f:'ifcxZip',t:'ifcxMedia',k:'c'},{f:'ifcxBin',t:'ifcxZip',k:'o',lb:'contains'},
+// Git
+{f:'proj',t:'gitRepo',k:'o',lb:'stored in'},
+{f:'gitRepo',t:'gitMain',k:'c'},{f:'gitRepo',t:'gitFeat',k:'c'},
+{f:'gitMain',t:'gitCommit',k:'c'},{f:'gitFeat',t:'gitCommit',k:'c'},
+{f:'gitCommit',t:'gitMerge',k:'o',lb:'merge'},{f:'gitCommit',t:'gitDiff',k:'o',lb:'compare'},
+{f:'gitRepo',t:'gitAttr',k:'c'},{f:'gitRepo',t:'gitLFS',k:'c'},{f:'gitRepo',t:'gitHook',k:'c'},
+{f:'gitLFS',t:'ifcxBin',k:'o',lb:'tracks'},{f:'gitLFS',t:'ifcxMedia',k:'o',lb:'tracks'},
+{f:'gitHook',t:'ifcxJson',k:'o',lb:'validates'},
+{f:'gitDiff',t:'ifcxJson',k:'o',lb:'diffs'},
+{f:'gitMerge',t:'gitMain',k:'o',lb:'into'},
+// Versioning
+{f:'proj',t:'rev',k:'c'},{f:'rev',t:'r1',k:'c'},{f:'rev',t:'r2',k:'c'},
+{f:'r2',t:'r1',k:'o',lb:'parent'},
+// Geom types -> drawing geom (inherits)
+{f:'g1',t:'gtLine',k:'i'},{f:'g3',t:'gtArc',k:'i'},{f:'g4',t:'gtComp',k:'i'},
+{f:'g5',t:'gtCircle',k:'i'},{f:'g6',t:'gtBspline',k:'i'},
+{f:'gtCloud',t:'usdPoints',k:'o',lb:'3D alias'},
+{f:'gtMesh',t:'usdMesh',k:'o',lb:'3D alias'},
+];
+
+// Origin groups: single source of truth for IFC5 vs IfcX distinction
+const IFC5_GROUPS=new Set(['ifc5','elem','mep','struct','infra','mat','usd']);
+const IFCX_GROUPS=new Set(['draw','sheet','style','brand','geom','pkg','calc','git','bcf','version']);
+
+// Build lookup + assign origin
+const NM={};
+N.forEach(n=>{
+  NM[n.id]=n;n.vx=0;n.vy=0;n.w=80;n.h=32;
+  n.o=IFC5_GROUPS.has(n.g)?'ifc5':'ifcx';
+});
+let filter='all',cam={x:500,y:400,z:0.5},drag=null,pan=false,lx=0,ly=0,selected=null,hovered=null;
+const history=[];
+const FGROUPS={
+  'all':()=>true,
+  'ifcx':n=>IFCX_GROUPS.has(n.g),
+  'ifc5':n=>n.g==='ifc5','elem':n=>n.g==='ifc5'||n.g==='elem',
+  'mep':n=>n.g==='mep','struct':n=>n.g==='struct','infra':n=>n.g==='infra',
+  'mat':n=>n.g==='mat','usd':n=>n.g==='usd','draw':n=>n.g==='draw',
+  'sheet':n=>n.g==='sheet','style':n=>n.g==='style','brand':n=>n.g==='brand',
+  'geom':n=>n.g==='geom','pkg':n=>n.g==='pkg','calc':n=>n.g==='calc','bcf':n=>n.g==='bcf','git':n=>n.g==='git','version':n=>n.g==='version'
+};
+function vis(n){return(FGROUPS[filter]||FGROUPS.all)(n)}
 function s2w(sx,sy){return[(sx-W/2)/cam.z+cam.x,(sy-H/2)/cam.z+cam.y]}
+function updateStats(){
+  const vn=N.filter(vis);
+  const ve=E.filter(e=>{const a=NM[e.f],b=NM[e.t];return a&&b&&vis(a)&&vis(b)}).length;
+  const i5=vn.filter(n=>n.o==='ifc5').length, ix=vn.filter(n=>n.o==='ifcx').length;
+  ST.textContent=`${vn.length} nodes (IFC5: ${i5} | IfcX: ${ix}) | ${ve} edges`;
+}
 
-document.querySelectorAll('#controls button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('#controls button').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on');filter=b.id.replace('b-','');
+function getConnected(id){
+  const ch=[],pa=[],inh=[],inhBy=[],co=[];
+  for(const e of E){
+    if(e.f===id){const n=NM[e.t];if(!n)continue;if(e.k==='c')ch.push({n:n,lb:e.lb||''});else if(e.k==='i')inh.push({n:n,lb:e.lb||'type'});else co.push({n:n,lb:e.lb||''});}
+    if(e.t===id){const n=NM[e.f];if(!n)continue;if(e.k==='c')pa.push({n:n,lb:e.lb||''});else if(e.k==='i')inhBy.push({n:n,lb:e.lb||'instance'});else co.push({n:n,lb:e.lb||''});}
+  }
+  return{ch,pa,inh,inhBy,co};
+}
+function isConn(a,b){for(const e of E)if((e.f===a&&e.t===b)||(e.t===a&&e.f===b))return true;return false}
+
+// === CATEGORY PROPERTIES (optional extra info per group) ===
+const CAT_PROPS={
+  'Spatial':{title:'IFC5 Spatial Attributes',items:[
+    {n:'bsi::ifc::class',d:'IFC entity classificatie (IfcProject, IfcSite, IfcBuilding...)'},{n:'bsi::ifc::guid',d:'Unieke IFC GlobalId (UUID)'},{n:'usd::xformop::matrix',d:'4x4 transformatie t.o.v. parent'},{n:'usd::usdgeom::visibility',d:'Zichtbaarheid (inherited/invisible)'}
+  ]},
+  'Building Element':{title:'IFC5 Element Attributes',items:[
+    {n:'bsi::ifc::class',d:'Element type (IfcWall, IfcDoor, IfcColumn...)'},{n:'bsi::ifc::material',d:'Materiaal toewijzing'},{n:'bsi::ifc::prop::*',d:'BIM eigenschappen (Height, Width, Area...)'},{n:'usd::usdgeom::mesh',d:'3D geometrie (vertices + faces)'},{n:'usd::xformop::matrix',d:'Positie/rotatie/schaal'}
+  ]},
+  'Type':{title:'IFC5 Type Attributes',items:[
+    {n:'bsi::ifc::class',d:'Type classificatie (IfcWallType, IfcDoorType...)'},{n:'PredefinedType',d:'Subtype enumeratie per element'},{n:'HasPropertySets',d:'Gedeelde property sets voor alle instances'},{n:'RepresentationMaps',d:'Gedeelde geometrie-template'}
+  ]},
+  'MEP':{title:'IFC5 MEP Attributes',items:[
+    {n:'bsi::ifc::class',d:'MEP classificatie'},{n:'bsi::ifc::prop::FlowRate',d:'Debiet (m3/h)'},{n:'bsi::ifc::prop::Pressure',d:'Druk (Pa/bar)'},{n:'bsi::ifc::prop::Power',d:'Vermogen (W/kW)'},{n:'DistributionSystem',d:'Systeem waar element bij hoort'}
+  ]},
+  'Structural':{title:'IFC5 Structural Attributes',items:[
+    {n:'AnalysisType',d:'Type analyse (2D_TRUSS, 3D_FRAME...)'},{n:'LoadedBy',d:'Belastinggroepen'},{n:'HasResults',d:'Rekenresultaten'},{n:'PredefinedType',d:'RIGID_JOINED, PIN_JOINED, SLIDING...'}
+  ]},
+  'Infrastructure':{title:'IFC5 Infra Attributes',items:[
+    {n:'bsi::ifc::class',d:'Infra type (IfcRoad, IfcBridge...)'},{n:'IfcAlignment',d:'Horizontaal + verticaal alignement'},{n:'usd::usdgeom::basiscurves',d:'3D tracerings-curves'}
+  ]},
+  'Cost':{title:'IFC5 Cost Attributes',items:[
+    {n:'PredefinedType',d:'BUDGET, COSTPLAN, ESTIMATE, TENDER, PRICEDBILLOFQUANTITIES'},{n:'Status',d:'DRAFT, SUBMITTED, APPROVED, AGREED'},{n:'AppliedValue',d:'Bedrag (fixed) of formule (berekend)'},{n:'UnitBasis',d:'Eenheid: per m2, per stuk, per m3, per kg'},{n:'CostQuantities',d:'Gekoppelde hoeveelheden (IfcElementQuantity)'}
+  ]},
+  'IfcX Cost':{title:'IfcX Cost Extensions',items:[
+    {n:'ifcx::cost::breakdown',d:'Materiaal + arbeid + materieel + onderaannemer + opslagen'},{n:'ifcx::cost::index',d:'Prijsindexreferentie (BDB, CBS) + peildatum + factor'},{n:'ifcx::cost::phase',d:'NEN 2699 kostenfasen: bouwkosten, bijkomend, grond, investering, exploitatie'},{n:'ifcx::cost::currency',d:'Valuta (EUR, USD, GBP) + BTW-percentage'}
+  ]},
+  'IFC Geometry':{title:'IFC Geometry Representation',items:[
+    {n:'RepresentationIdentifier',d:'Body, Axis, FootPrint, Box, Reference, Clearance'},{n:'RepresentationType',d:'SweptSolid, Brep, CSG, MappedRepresentation, Tessellation'},{n:'ContextOfItems',d:'Model (3D) of Plan (2D)'},{n:'Items',d:'Lijst van geometrie-items'}
+  ]},
+  'IfcX View':{title:'IfcX View Attributes',items:[
+    {n:'ifcx::view::scale',d:'Tekenscchaal (bijv. 50 = 1:50)'},{n:'ifcx::view::projection',d:'plan / section / elevation / detail / 3d'},{n:'ifcx::view::cutHeight',d:'Snijhoogte voor plattegronden (mm)'},{n:'ifcx::view::clipBox',d:'Optioneel 3D clip volume'},{n:'ifcx::purpose',d:'drawing'}
+  ]},
+  'IfcX Geometry':{title:'IfcX Geometry Attributes',items:[
+    {n:'ifcx::geom::*',d:'Geometrie type (line, circle, arc, polyline...)'},{n:'ifcx::xform::matrix',d:'2D/3D transformatie'},{n:'ifcx::style::curveStyle',d:'Lijnstijl (kleur, dikte, patroon)'},{n:'ifcx::layer::assignment',d:'Laag toewijzing'},{n:'ifcx::svg::class',d:'CSS class voor SVG export'}
+  ]},
+  'IfcX Annotation':{title:'IfcX Annotation Attributes',items:[
+    {n:'ifcx::annotation::dimension',d:'Maatvoering (linear, angular, radius...)'},{n:'ifcx::annotation::text',d:'Tekst met placement en alignment'},{n:'ifcx::annotation::leader',d:'Verwijslijn met pijl en tekst'},{n:'ifcx::annotation::table',d:'Datatabel'},{n:'ifcx::annotation::symbol',d:'Symbool plaatsing'}
+  ]},
+  'IfcX Hatch':{title:'IfcX Hatch Attributes',items:[
+    {n:'ifcx::hatch::pattern',d:'Arceringpatroon (lijnen, hoek, schaal)'},{n:'ifcx::hatch::material',d:'Materiaalarcering per standaard (ISO, NEN)'},{n:'ifcx::hatch::solid',d:'Effen kleurvulling'},{n:'ifcx::hatch::boundary',d:'Arceringsgrenzen (outer + inner)'}
+  ]},
+  'IfcX Style':{title:'IfcX Style Attributes',items:[
+    {n:'ifcx::style::curveStyle',d:'Lijn: kleur, dikte, patroon'},{n:'ifcx::style::fillStyle',d:'Vulling: kleur, patroon, transparantie'},{n:'ifcx::style::textStyle',d:'Tekst: font, grootte, gewicht'}
+  ]},
+  'IfcX Layer':{title:'IfcX Layer Attributes',items:[
+    {n:'ifcx::layer::assignment',d:'Laagnaam + beschrijving'},{n:'ifcx::layer::style',d:'Standaard stijl (kleur, lijndikte, zichtbaar, bevroren, plot)'}
+  ]},
+  'IfcX Sheet':{title:'IfcX Sheet Attributes',items:[
+    {n:'ifcx::sheet::paper',d:'Papierformaat, marges, orientatie'},{n:'ifcx::sheet::viewport',d:'Venster: center, size, scale, viewTarget'},{n:'ifcx::sheet::titleBlock',d:'Titelblok referentie'},{n:'ifcx::sheet::plotSettings',d:'Print configuratie'}
+  ]},
+  'IfcX Branding':{title:'IfcX Branding Attributes',items:[
+    {n:'ifcx::branding::logo',d:'Bedrijfslogo (SVG/PNG mediaId)'},{n:'ifcx::branding::colors',d:'Kleurenpalet (primary, secondary, accent)'},{n:'ifcx::branding::fonts',d:'Lettertypen (heading, body, mono)'}
+  ]},
+  'IfcX Report':{title:'IfcX Report Attributes',items:[
+    {n:'ifcx::report::template',d:'Layout definitie: paginas, secties, velden'},{n:'ifcx::report::instance',d:'Gevuld rapport met referenties naar data'},{n:'ifcx::report::frozen',d:'Verzegeld rapport: hash, datum, auteur'}
+  ]},
+  'IfcX Standards':{title:'IfcX Standards Attributes',items:[
+    {n:'ifcx::standards::rule',d:'Norm + artikel + condition + threshold + unit'},{n:'ifcx::standards::ruleSet',d:'Groep regels per toetsingsdomein'},{n:'ifcx::standards::checkResult',d:'PASS/FAIL/WARNING + datum + norm-versie'}
+  ]},
+  'IfcX Calc':{title:'IfcX Calc Attributes',items:[
+    {n:'ifcx::calc::formulaDefinition',d:'Template: inputs[], output, unit, expression'},{n:'ifcx::calc::formula',d:'Ingevuld: gekoppeld aan node properties, auto-recalc'},{n:'ifcx::calc::sheet',d:'Rekenblad: meerdere formules + tussenresultaten'}
+  ]},
+  'Geometry Type':{title:'IfcX Geometry Type System',items:[
+    {n:'Parametrisch',d:'Curves bewaren parameters, niet triangulatie'},{n:'2D + 3D',d:'Zelfde types voor 2D tekeningen en 3D modellen'},{n:'DXF-compatible',d:'1:1 mapping naar DXF entities'},{n:'IFC-compatible',d:'Mapping naar IfcLine, IfcCircle, IfcBSpline...'}
+  ]},
+  'Package Format':{title:'IfcX Package Formats',items:[
+    {n:'.ifcx (JSON)',d:'Menselijk leesbaar, Git-friendly, text diff'},{n:'.ifcxb (Binary)',d:'CBOR + Zstandard, 94% kleiner, streaming'},{n:'.ifcxz (ZIP)',d:'Multi-file container met media blobs'},{n:'Content-addressing',d:'SHA-256 hashes voor integriteitsgarantie'}
+  ]},
+  'Git by Design':{title:'Git Integration',items:[
+    {n:'JSON = Text Diff',d:'Elke wijziging is zichtbaar in git diff'},{n:'Node-level Merge',d:'Conflicten op node-niveau, niet op bestandsniveau'},{n:'Branch = Ontwerp',d:'Feature branches voor parallelle ontwerpen'},{n:'Git LFS',d:'Binaire bestanden (IFCXB, media) via LFS'},{n:'CI/CD Hooks',d:'Schema validatie, integriteitscheck, rapport generatie'}
+  ]},
+  'IfcX BCF':{title:'IfcX BCF Attributes',items:[
+    {n:'ifcx::bcf::topic',d:'Issue: title, description, type, status, priority, creationDate'},{n:'ifcx::bcf::comment',d:'Reactie: author, date, text (threaded)'},{n:'ifcx::bcf::viewpoint',d:'Camera: position, direction, upVector, fov, clippingPlanes'},{n:'ifcx::bcf::snapshot',d:'Screenshot: mediaId, width, height'},{n:'ifcx::bcf::label',d:'Tag/categorie voor filtering'},{n:'ifcx::bcf::assignment',d:'Toewijzing: assignedTo, dueDate'},{n:'Component refs',d:'Verwijzingen naar IFC elementen via node path'}
+  ]},
+  'IfcX Revision':{title:'IfcX In-file Versioning',items:[
+    {n:'ifcx::revision::info',d:'Revision metadata: id, parent, author, message, timestamp'},{n:'ifcx::revision::modified',d:'Wijzigingsrecord met undo data'},{n:'ifcx::revision::branch',d:'In-file branching'},{n:'Aanvullend op Git',d:'Voor omgevingen zonder Git (bijv. cloud viewer)'}
+  ]}
+};
+
+// === SEARCH ===
+const SBOX=document.getElementById('search-box'),SRES=document.getElementById('search-results');
+let sIdx=-1;
+
+SBOX.addEventListener('input',()=>{
+  const q=SBOX.value.trim().toLowerCase();
+  if(!q){SRES.classList.remove('open');SRES.innerHTML='';sIdx=-1;return}
+  const matches=N.filter(n=>{
+    return n.l.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)||
+      (n.cat&&n.cat.toLowerCase().includes(q))||
+      n.g.toLowerCase().includes(q)||
+      n.a.some(a=>a.toLowerCase().includes(q));
+  }).slice(0,15);
+  if(!matches.length){SRES.classList.remove('open');SRES.innerHTML='';sIdx=-1;return}
+  SRES.classList.add('open');sIdx=-1;
+  SRES.innerHTML=matches.map((n,i)=>{
+    const oCol=n.o==='ifcx'?'#69db7c':'#4da6ff';
+    const oLbl=n.o==='ifcx'?'IfcX':'IFC5';
+    return `<div class="sr" data-id="${n.id}"><div class="sr-dot" style="background:${n.c}"></div><span class="sr-label">${esc(n.l)}</span><span class="sr-cat">${esc(n.cat||'')}</span><span class="sr-origin" style="background:${oCol}18;color:${oCol}">${oLbl}</span></div>`;
+  }).join('');
+  SRES.querySelectorAll('.sr').forEach(el=>el.addEventListener('click',()=>selectSearchResult(el.dataset.id)));
+});
+
+SBOX.addEventListener('keydown',e=>{
+  const items=SRES.querySelectorAll('.sr');
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();sIdx=Math.min(sIdx+1,items.length-1);updateSrActive(items)}
+  else if(e.key==='ArrowUp'){e.preventDefault();sIdx=Math.max(sIdx-1,0);updateSrActive(items)}
+  else if(e.key==='Enter'&&sIdx>=0){e.preventDefault();selectSearchResult(items[sIdx].dataset.id)}
+  else if(e.key==='Escape'){SBOX.blur();SRES.classList.remove('open');sIdx=-1}
+});
+
+SBOX.addEventListener('focus',()=>{if(SBOX.value.trim())SBOX.dispatchEvent(new Event('input'))});
+document.addEventListener('click',e=>{if(!e.target.closest('#search')){SRES.classList.remove('open');sIdx=-1}});
+
+function updateSrActive(items){items.forEach((el,i)=>el.classList.toggle('active',i===sIdx))}
+
+function selectSearchResult(id){
+  const node=NM[id];if(!node)return;
+  SRES.classList.remove('open');SBOX.value='';sIdx=-1;
+  // Navigate camera to node
+  cam.x=node.x;cam.y=node.y;
+  if(cam.z<0.4)cam.z=0.7;
+  openPanel(node);
+}
+
+// === PANEL ===
+function openPanel(node){
+  selected=node;history.push(node.id);
+  PNL.classList.add('open');CTRLS.classList.add('shifted');
+  setTimeout(resize,260);renderPanel(node);
+}
+function closePanel(){
+  selected=null;history.length=0;PNL.classList.remove('open');CTRLS.classList.remove('shifted');
+  setTimeout(resize,260);
+}
+PCLOSE.addEventListener('click',closePanel);
+
+function renderPanel(node){
+  PTITLE.textContent=node.l;
+  PSUB.textContent=node.cat||node.g;
+  const originCol=node.o==='ifcx'?'#69db7c':'#4da6ff';
+  const originLabel=node.o==='ifcx'?'IfcX (wij voegen toe)':'IFC5 (bestaande standaard)';
+  const bsiUrl=BSI_LINKS[node.id];
+  PBADGE.innerHTML=`<span class="badge" style="background:${node.c}22;color:${node.c};border:1px solid ${node.c}44">${node.g.toUpperCase()}</span> <span class="badge" style="background:${originCol}18;color:${originCol};border:1px solid ${originCol}44">${originLabel}</span>`
+    +(bsiUrl?`<br><a href="${bsiUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:11px;color:#4da6ff;text-decoration:none;padding:3px 10px;border:1px solid #4da6ff33;border-radius:4px;background:#4da6ff0a">&#x2197; buildingSMART docs</a>`:'')
+  BREAD.innerHTML='';
+  [...new Set(history)].forEach((hid,i,arr)=>{
+    const hn=NM[hid];if(!hn)return;const sp=document.createElement('span');sp.textContent=hn.l;
+    if(i===arr.length-1)sp.classList.add('current');else sp.addEventListener('click',()=>navTo(hid));
+    BREAD.appendChild(sp);
   });
-});
-
-C.addEventListener('mousedown',e=>{
-  const[mx,my]=s2w(e.clientX,e.clientY);
-  if(e.button>0){pan=true;lx=e.clientX;ly=e.clientY;C.classList.add('dragging');return}
-  for(let i=N.length-1;i>=0;i--){const n=N[i];if(!vis(n))continue;
-    if(mx>n.x-n.w/2-3&&mx<n.x+n.w/2+3&&my>n.y-n.h/2-3&&my<n.y+n.h/2+3){
-      drag=n;C.classList.add('dragging');
-      TT.style.display='block';TT.innerHTML='<h3>'+n.l+'</h3><div class="a">'+n.a.join('<br>')+'</div>';
-      TT.style.left=(e.clientX+12)+'px';TT.style.top=(e.clientY-8)+'px';return;
-    }}
-  pan=true;lx=e.clientX;ly=e.clientY;C.classList.add('dragging');
-});
-C.addEventListener('contextmenu',e=>e.preventDefault());
-C.addEventListener('mousemove',e=>{
-  if(pan){cam.x-=(e.clientX-lx)/cam.z;cam.y-=(e.clientY-ly)/cam.z;lx=e.clientX;ly=e.clientY}
-  else if(drag){const[mx,my]=s2w(e.clientX,e.clientY);drag.x=mx;drag.y=my;
-    TT.style.left=(e.clientX+12)+'px';TT.style.top=(e.clientY-8)+'px'}
-});
-C.addEventListener('mouseup',()=>{drag=null;pan=false;C.classList.remove('dragging')});
-C.addEventListener('mouseleave',()=>{drag=null;pan=false;C.classList.remove('dragging');TT.style.display='none'});
-C.addEventListener('wheel',e=>{e.preventDefault();cam.z*=e.deltaY>0?0.92:1.08;cam.z=Math.max(0.25,Math.min(5,cam.z))},{passive:false});
-
-function rr(x,y,w,h,r){X.beginPath();X.moveTo(x+r,y);X.lineTo(x+w-r,y);X.arcTo(x+w,y,x+w,y+r,r);X.lineTo(x+w,y+h-r);X.arcTo(x+w,y+h,x+w-r,y+h,r);X.lineTo(x+r,y+h);X.arcTo(x,y+h,x,y+h-r,r);X.lineTo(x,y+r);X.arcTo(x,y,x+r,y,r);X.closePath()}
-
-let t=0;
-function draw(){
-  t+=0.008;X.clearRect(0,0,W,H);X.save();X.translate(W/2,H/2);X.scale(cam.z,cam.z);X.translate(-cam.x,-cam.y);
-
-  // Edges
-  for(const e of E){const a=NM[e.f],b=NM[e.g];if(!a||!b||!vis(a)||!vis(b))continue;
-    X.beginPath();X.moveTo(a.x,a.y);
-    if(e.t==='o'){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y;X.quadraticCurveTo(mx-dy*0.12,my+dx*0.12,b.x,b.y)}
-    else X.lineTo(b.x,b.y);
-    if(e.t==='c'){X.strokeStyle='rgba(77,166,255,0.25)';X.lineWidth=1.2;X.setLineDash([])}
-    else if(e.t==='i'){X.strokeStyle='rgba(81,207,102,0.45)';X.lineWidth=1.8;X.setLineDash([5,3])}
-    else{X.strokeStyle='rgba(255,169,77,0.2)';X.lineWidth=0.8;X.setLineDash([2,2])}
-    X.stroke();X.setLineDash([]);
-    if(e.lb){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;X.font='7px system-ui';X.fillStyle='rgba(255,169,77,0.5)';X.textAlign='center';X.fillText(e.lb,mx,my-3);X.textAlign='start'}
+  let h='';
+  if(node.a&&node.a.length){
+    h+='<div class="sec"><h3>Attributen</h3><table class="ptable"><tbody>';
+    for(const a of node.a){const p=a.split(': ');
+      if(p.length>=2)h+=`<tr><td class="pname">${esc(p[0])}</td><td class="pval">${esc(p.slice(1).join(': '))}</td></tr>`;
+      else h+=`<tr><td class="pname" colspan="2">${esc(a)}</td></tr>`;
+    }h+='</tbody></table></div>';
+  }
+  const ps=NODE_PSETS[node.id];
+  if(ps){for(const pn of ps){const p=PSETS[pn];if(!p)continue;
+    h+=`<div class="sec"><h3>${esc(pn)}</h3><p style="font-size:10px;color:#666;margin-bottom:6px">${esc(p.d)}</p>`;
+    h+='<table class="ptable"><thead><tr><th>Property</th><th>Type</th><th>Omschrijving</th></tr></thead><tbody>';
+    for(const pr of p.p)h+=`<tr><td class="pname">${esc(pr.n)}</td><td class="ptype">${esc(pr.t)}</td><td class="pdesc">${esc(pr.d)}</td></tr>`;
+    h+='</tbody></table></div>';
+  }}
+  // Category properties
+  const cp=CAT_PROPS[node.cat];
+  if(cp){
+    h+=`<div class="sec"><h3>${esc(cp.title)}</h3><table class="ptable"><thead><tr><th>Namespace / Attribuut</th><th>Beschrijving</th></tr></thead><tbody>`;
+    for(const it of cp.items)h+=`<tr><td class="pname">${esc(it.n)}</td><td class="pdesc">${esc(it.d)}</td></tr>`;
+    h+='</tbody></table></div>';
   }
 
+  const cn=getConnected(node.id);
+  if(cn.pa.length)h+=relSec('Parent',cn.pa,'#4da6ff','parent');
+  if(cn.ch.length)h+=relSec('Children',cn.ch,null,'child');
+  if(cn.inh.length)h+=relSec('Type',cn.inh,'#51cf66','type');
+  if(cn.inhBy.length)h+=relSec('Instances',cn.inhBy,null,'instance');
+  if(cn.co.length)h+=relSec('Connects',cn.co,'#ffa94d',null);
+  PBODY.innerHTML=h;
+  PBODY.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>navTo(el.dataset.nav)));
+}
+function relSec(title,items,defCol,defType){
+  let h=`<div class="sec"><h3>${title} (${items.length})</h3><ul class="rel-list">`;
+  for(const r of items)h+=`<li data-nav="${r.n.id}"><div class="dot" style="background:${defCol||r.n.c}"></div>${esc(r.n.l)}<span class="rtype">${r.lb||defType||''}</span></li>`;
+  return h+'</ul></div>';
+}
+function navTo(id){const n=NM[id];if(!n)return;selected=n;history.push(id);renderPanel(n);cam.x+=(n.x-cam.x)*0.3;cam.y+=(n.y-cam.y)*0.3}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// === CONTROLS ===
+document.querySelectorAll('#controls button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#controls button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');filter=b.id.replace('b-','');updateStats();
+}));
+updateStats();
+
+// === CANVAS INTERACTION ===
+let dragStart=null,didDrag=false;
+CV.addEventListener('mousedown',e=>{
+  const[mx,my]=s2w(e.clientX,e.clientY);
+  if(e.button>0){pan=true;lx=e.clientX;ly=e.clientY;CV.classList.add('dragging');return}
+  dragStart={x:e.clientX,y:e.clientY};didDrag=false;
+  for(let i=N.length-1;i>=0;i--){const n=N[i];if(!vis(n))continue;
+    if(mx>n.x-n.w/2-3&&mx<n.x+n.w/2+3&&my>n.y-n.h/2-3&&my<n.y+n.h/2+3){drag=n;CV.classList.add('dragging');return}}
+  pan=true;lx=e.clientX;ly=e.clientY;CV.classList.add('dragging');
+});
+CV.addEventListener('contextmenu',e=>e.preventDefault());
+CV.addEventListener('mousemove',e=>{
+  if(pan){cam.x-=(e.clientX-lx)/cam.z;cam.y-=(e.clientY-ly)/cam.z;lx=e.clientX;ly=e.clientY}
+  else if(drag){const[mx,my]=s2w(e.clientX,e.clientY);drag.x=mx;drag.y=my;didDrag=true}
+  else{const[mx,my]=s2w(e.clientX,e.clientY);let f=null;
+    for(let i=N.length-1;i>=0;i--){const n=N[i];if(!vis(n))continue;
+      if(mx>n.x-n.w/2-3&&mx<n.x+n.w/2+3&&my>n.y-n.h/2-3&&my<n.y+n.h/2+3){f=n;break}}
+    hovered=f;CV.style.cursor=f?'pointer':'grab'}
+  if(dragStart){const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.abs(dx)+Math.abs(dy)>5)didDrag=true}
+});
+CV.addEventListener('mouseup',()=>{if(drag&&!didDrag)openPanel(drag);drag=null;pan=false;CV.classList.remove('dragging');dragStart=null});
+CV.addEventListener('mouseleave',()=>{drag=null;pan=false;hovered=null;CV.classList.remove('dragging');dragStart=null});
+CV.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const[wx,wy]=s2w(e.clientX,e.clientY);
+  const f=e.deltaY>0?0.92:1.08;
+  const nz=Math.max(0.12,Math.min(5,cam.z*f));
+  // Zoom towards mouse pointer
+  cam.x=wx-(wx-cam.x)*(cam.z/nz);
+  cam.y=wy-(wy-cam.y)*(cam.z/nz);
+  cam.z=nz;
+},{passive:false});
+
+// === DRAW ===
+function rr(x,y,w,h,r){X.beginPath();X.moveTo(x+r,y);X.lineTo(x+w-r,y);X.arcTo(x+w,y,x+w,y+r,r);X.lineTo(x+w,y+h-r);X.arcTo(x+w,y+h,x+w-r,y+h,r);X.lineTo(x+r,y+h);X.arcTo(x,y+h,x,y+h-r,r);X.lineTo(x,y+r);X.arcTo(x,y,x+r,y,r);X.closePath()}
+let t=0;
+function draw(){
+  t+=0.008;X.save();X.setTransform(DPR,0,0,DPR,0,0);X.clearRect(0,0,W,H);X.translate(W/2,H/2);X.scale(cam.z,cam.z);X.translate(-cam.x,-cam.y);
+  // Edges
+  for(const e of E){const a=NM[e.f],b=NM[e.t];if(!a||!b||!vis(a)||!vis(b))continue;
+    const isSel=selected&&(e.f===selected.id||e.t===selected.id);
+    X.beginPath();X.moveTo(a.x,a.y);
+    if(e.k==='o'){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y;X.quadraticCurveTo(mx-dy*0.1,my+dx*0.1,b.x,b.y)}
+    else X.lineTo(b.x,b.y);
+    if(e.k==='c'){X.strokeStyle=isSel?'rgba(77,166,255,0.5)':'rgba(77,166,255,0.15)';X.lineWidth=isSel?2:1;X.setLineDash([])}
+    else if(e.k==='i'){X.strokeStyle=isSel?'rgba(81,207,102,0.6)':'rgba(81,207,102,0.3)';X.lineWidth=isSel?2:1.5;X.setLineDash([5,3])}
+    else{X.strokeStyle=isSel?'rgba(255,169,77,0.45)':'rgba(255,169,77,0.12)';X.lineWidth=isSel?1.5:0.7;X.setLineDash([2,2])}
+    X.stroke();X.setLineDash([]);
+    if(e.lb){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;X.font='7px system-ui';X.fillStyle=isSel?'rgba(255,169,77,0.85)':'rgba(255,169,77,0.5)';X.textAlign='center';X.fillText(e.lb,mx,my-3);X.textAlign='start'}
+  }
   // Nodes
   X.font='10px system-ui';
   for(const n of N){if(!vis(n))continue;
-    n.w=Math.max(70,X.measureText(n.l).width+18);
+    const icon=ICONS[n.cat]||'';
+    const lbl=icon?icon+' '+n.l:n.l;
+    n.w=Math.max(65,X.measureText(lbl).width+16);
     const bx=n.x-n.w/2,by=n.y-n.h/2,p=0.5+0.5*Math.sin(t*2+n.x*0.01);
-    X.shadowColor=n.c;X.shadowBlur=5*p;
-    rr(bx,by,n.w,n.h,5);X.fillStyle=n.c+'18';X.fill();
-    X.strokeStyle=n.c+(drag===n?'ff':'99');X.lineWidth=drag===n?2.5:1.2;X.stroke();
+    const isSel=selected&&selected.id===n.id,isHov=hovered&&hovered.id===n.id;
+    const isC=selected&&isConn(selected.id,n.id),bright=isSel||isHov||isC;
+    X.shadowColor=n.c;X.shadowBlur=isSel?12:bright?8:3*p;
+    const rad=n.o==='ifcx'?8:3; // IfcX = more rounded, IFC5 = more square
+    rr(bx,by,n.w,n.h,rad);X.fillStyle=n.c+(isSel?'28':bright?'18':'10');X.fill();
+    X.strokeStyle=n.c+(isSel?'ff':bright?'cc':'66');X.lineWidth=isSel?2.5:bright?1.5:1;X.stroke();
+    // IfcX nodes get a subtle inner glow line
+    if(n.o==='ifcx'){rr(bx+2,by+2,n.w-4,n.h-4,rad-1);X.strokeStyle=n.c+'15';X.lineWidth=0.5;X.stroke()}
     X.shadowBlur=0;
-    X.fillStyle='#ddd';X.textAlign='center';X.textBaseline='middle';X.fillText(n.l,n.x,n.y-1);
-    X.font='7px system-ui';X.fillStyle=n.c+'77';X.fillText(n.g==='ifc5'?'IFC5':n.g,n.x,n.y+10);X.font='10px system-ui';
+    X.fillStyle=bright?'#fff':'#bbb';X.textAlign='center';X.textBaseline='middle';X.fillText(lbl,n.x,n.y-1);
+    // Origin label + indicator
+    X.font='bold 7px system-ui';
+    if(n.o==='ifcx'){
+      X.fillStyle=bright?'rgba(105,219,124,0.9)':'rgba(105,219,124,0.5)';
+      X.fillText('IfcX +',n.x,n.y+10);
+    } else {
+      X.fillStyle=bright?'rgba(77,166,255,0.7)':'rgba(77,166,255,0.35)';
+      X.fillText('IFC5',n.x,n.y+10);
+    }
+    if(NODE_PSETS[n.id]){X.fillStyle=n.c+'77';X.fillRect(n.x+n.w/2-10,n.y-n.h/2+2,8,3);X.fillRect(n.x+n.w/2-10,n.y-n.h/2+6,6,3)}
+    X.font='10px system-ui';
   }
   X.restore();requestAnimationFrame(draw);
 }
