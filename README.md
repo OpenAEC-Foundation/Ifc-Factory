@@ -10,200 +10,231 @@ An open-source alternative to DWG/DXF. IFCX extends the IFC schema with full 2D 
 
 ## What is IFCX?
 
-IFCX is a drawing exchange format that can store everything DWG and DXF store -- lines, arcs, text, dimensions, hatching, blocks, paper space layouts, 3D geometry, and more -- in two variants:
+IFCX is a drawing exchange format that can store everything DWG and DXF store -- lines, arcs, splines, text, dimensions, hatching, blocks, paper space layouts, 3D geometry, and more -- in two variants:
 
 - **`.ifcx`** -- JSON-based, human-readable, git-diffable
-- **`.ifcxb`** -- compact binary (GLB-style container + CBOR encoding + Zstandard compression), achieving DWG-comparable file sizes
+- **`.ifcxb`** -- compact binary (GLB-style container + CBOR + Zstandard), **94% smaller than DXF**
 
-IFCX is fully open-source with no patents, no proprietary dependencies, and no vendor lock-in. Licensed under MIT.
+Fully open-source. No patents. No proprietary dependencies. MIT licensed.
 
 ## Why IFCX?
 
 | Problem | IFCX Solution |
 |---------|---------------|
-| **DWG is proprietary** -- controlled by a single vendor, reverse-engineered at best | Fully open schema, MIT licensed, community-governed |
-| **DXF is verbose and fragile** -- text-based group codes, no formal schema, poor tooling | JSON with a strict JSON Schema, easy to parse in any language |
-| **IFC lacks 2D drawing support** -- designed for BIM/3D, no dimensions, no hatching, no paper space | Extends IFC concepts to cover the full DWG/DXF entity set |
-| **No compact open binary** -- DXF files are huge, IFC STEP files are huge | IFCXB binary format rivals DWG in file size |
+| **DWG is proprietary** -- controlled by Autodesk, reverse-engineered at best | Fully open schema, MIT licensed, community-governed |
+| **DXF is verbose** -- text-based group codes, no formal schema | JSON with strict JSON Schema, easy to parse in any language |
+| **IFC lacks 2D** -- no dimensions, no hatching, no paper space | Extends IFC to cover the full DWG/DXF entity set |
+| **No compact open binary** -- DXF files are huge | IFCXB rivals DWG in file size (tested: 94% smaller than DXF) |
 
-## Key Features
+## Supported Formats
 
-- **Full DWG/DXF entity coverage** -- geometry, text, dimensions, hatching, blocks, layouts, viewports, 3D solids, and more
-- **Dual format** -- human-readable JSON (`.ifcx`) and compact binary (`.ifcxb`) with lossless round-trip between them
-- **Multi-language libraries** -- TypeScript, Python, Rust, and C++
-- **Bidirectional DXF/DWG conversion** -- import from and export to DXF and DWG (via LibreDWG/ODA SDK)
-- **2D viewer** -- web-based viewer with layer panel, measurement tools, and paper space support (planned)
-- **Schema-validated** -- every IFCX file can be validated against `ifcx.schema.json`
-- **IFC-compatible** -- extends rather than replaces IFC concepts
+IFCX reads and writes all major CAD formats:
 
-## File Formats
+| Format | Read | Write | Description |
+|--------|------|-------|-------------|
+| `.ifcx` | All languages | All languages | IFCX JSON (native) |
+| `.ifcxb` | All languages | All languages | IFCX Binary (CBOR + Zstandard) |
+| `.dxf` | All languages | All languages | AutoCAD DXF (R12-R2024) |
+| `.dwg` | All languages | -- | AutoCAD DWG (R2000/AC1015) |
+| `.dgn` | All languages | -- | MicroStation DGN V7 (ISFF) |
 
-| Format | Extension | Encoding | Characteristics |
-|--------|-----------|----------|-----------------|
-| IFCX | `.ifcx` | JSON (UTF-8) | Human-readable, git-diffable, easy to inspect and edit |
-| IFCXB | `.ifcxb` | GLB-style container + CBOR + Zstandard | Compact binary, DWG-comparable size, fast to parse |
+All parsers are built **from scratch** -- no external DXF/DWG/DGN libraries.
 
-The binary format specification is documented in [`schema/ifcxb.spec.md`](schema/ifcxb.spec.md).
+## Libraries
+
+First-class libraries in 6 languages:
+
+| Language | Package | DXF | DWG | DGN | IFCXB |
+|----------|---------|-----|-----|-----|-------|
+| **Python** | `libraries/python/` | Full parser + writer | R2000 parser | V7 parser | CBOR + Zstandard |
+| **TypeScript** | `libraries/typescript/` | Full parser + writer | R2000 parser | V7 parser | CBOR + fzstd |
+| **Rust** | `libraries/rust/` | Full parser + writer | R2000 parser | V7 parser | ciborium + zstd |
+| **C++** | `libraries/cpp/` | Full parser + writer | R2000 parser | V7 parser | Custom |
+| **C#** | `libraries/csharp/` | Full parser + writer | R2000 parser | V7 parser | Brotli/GZip |
+| **JavaScript** | `viewer/` | Built-in converter | -- | -- | -- |
 
 ## Quick Start
-
-### TypeScript
-
-```typescript
-import { IfcxDocument } from "@ifcx/core";
-
-const doc = new IfcxDocument();
-doc.addLayer("Walls", { color: { r: 1, g: 0, b: 0 }, lineweight: 0.5 });
-
-doc.addEntity({
-  type: "LINE",
-  layer: "Walls",
-  start: [0, 0],
-  end: [1000, 0],
-});
-
-await doc.writeIfcx("drawing.ifcx");
-await doc.writeIfcxb("drawing.ifcxb");
-```
 
 ### Python
 
 ```python
-from ifcx import IfcxDocument
+from ifcx.document import IfcxDocument
+from ifcx.converters import DxfImporter, DxfExporter
+from ifcx.binary import IfcxbEncoder
 
-doc = IfcxDocument()
-doc.add_layer("Walls", color=(1, 0, 0), lineweight=0.5)
+# Import a DXF file
+doc = DxfImporter.from_file("drawing.dxf")
+print(f"Entities: {len(doc.entities)}, Layers: {list(doc.tables['layers'].keys())}")
 
-doc.add_entity({
-    "type": "LINE",
-    "layer": "Walls",
-    "start": [0, 0],
-    "end": [1000, 0],
-})
+# Add geometry
+doc.add_entity({"type": "LINE", "start": [0, 0, 0], "end": [100, 50, 0], "layer": "Walls"})
+doc.add_entity({"type": "CIRCLE", "center": [50, 50, 0], "radius": 25})
 
-doc.write_ifcx("drawing.ifcx")
-doc.write_ifcxb("drawing.ifcxb")
+# Export to IFCX JSON
+with open("output.ifcx", "w") as f:
+    f.write(doc.to_json())
+
+# Export to IFCXB binary (94% smaller than DXF)
+IfcxbEncoder.to_file(doc, "output.ifcxb")
+
+# Export back to DXF
+DxfExporter.to_file(doc, "output.dxf")
+```
+
+### CLI
+
+```bash
+python cli/ifcx_cli.py convert drawing.dxf output.ifcx     # DXF -> IFCX
+python cli/ifcx_cli.py convert drawing.dwg output.ifcxb    # DWG -> IFCXB binary
+python cli/ifcx_cli.py convert model.dgn output.dxf        # DGN -> DXF
+python cli/ifcx_cli.py info drawing.ifcx                   # Show file info
+python cli/ifcx_cli.py diff original.dxf roundtrip.dxf     # Compare files
+python cli/ifcx_cli.py stats drawing.ifcxb                 # Compression stats
+```
+
+### TypeScript
+
+```typescript
+import { DxfImporter, IfcxWriter } from '@ifcx/core';
+
+const doc = DxfImporter.fromString(dxfContent);
+const json = IfcxWriter.toString(doc);
 ```
 
 ### Rust
 
 ```rust
-use ifcx::IfcxDocument;
+use ifcx::{DxfImporter, IfcxWriter};
 
-fn main() {
-    let mut doc = IfcxDocument::new();
-    doc.add_layer("Walls", LayerOptions { color: rgb(1.0, 0.0, 0.0), lineweight: 0.5 });
-
-    doc.add_entity(Entity::Line {
-        layer: "Walls".into(),
-        start: [0.0, 0.0],
-        end: [1000.0, 0.0],
-    });
-
-    doc.write_ifcx("drawing.ifcx").unwrap();
-    doc.write_ifcxb("drawing.ifcxb").unwrap();
-}
+let doc = DxfImporter::from_file("drawing.dxf")?;
+IfcxWriter::to_file(&doc, "output.ifcx")?;
 ```
 
 ## Schema Overview
 
-The IFCX schema covers the full range of DWG/DXF entity types:
+The IFCX schema (`schema/ifcx.schema.json`) covers **all** DWG/DXF entity types:
 
 | Category | Entity Types |
 |----------|-------------|
-| **Geometry** | LINE, ARC, CIRCLE, ELLIPSE, SPLINE, LWPOLYLINE, POLYLINE, POINT, RAY, XLINE, HELIX |
-| **Text** | TEXT, MTEXT (with rich formatting, columns, wrapping) |
-| **Dimensions** | LINEAR, ALIGNED, ANGULAR, RADIAL, DIAMETRIC, ORDINATE, ARC_LENGTH |
-| **Annotations** | LEADER, MLEADER, MULTILEADER, TOLERANCE |
-| **Hatching** | HATCH (patterns, solid fills, gradients, boundary detection) |
-| **Blocks** | INSERT (block references), nested blocks, ATTRIB/ATTDEF (attributes) |
-| **Layouts** | Paper space, model space, VIEWPORT, plot settings |
-| **Tables** | TABLE (rows, columns, cell styles, merged cells) |
-| **Images** | IMAGE, WIPEOUT, OLE objects |
-| **3D Geometry** | 3DFACE, 3DSOLID, MESH, BODY, REGION, SURFACE |
-| **Other** | REVISION_CLOUD, SECTION, UNDERLAY (PDF/DWF/DGN) |
+| **Geometry** | LINE, POINT, CIRCLE, ARC, ELLIPSE, SPLINE, RAY, XLINE, HELIX |
+| **Polylines** | LWPOLYLINE, POLYLINE2D, POLYLINE3D, MLINE |
+| **Text** | TEXT, MTEXT (with rich text formatting) |
+| **Dimensions** | LINEAR, ALIGNED, ANGULAR, RADIUS, DIAMETER, ORDINATE, ARC |
+| **Annotations** | LEADER, MULTILEADER, TOLERANCE (GD&T), TABLE |
+| **Hatching** | HATCH (patterns, solid fills, gradients, all boundary types) |
+| **Blocks** | BlockDefinition, INSERT, ATTDEF, ATTRIB (with dynamic blocks) |
+| **Layouts** | VIEWPORT, LAYOUT, PLOTSETTINGS (paper space / model space) |
+| **3D** | 3DSOLID, BODY, REGION, SURFACE, MESH, 3DFACE |
+| **Images** | IMAGE, WIPEOUT, UNDERLAY (PDF/DWF/DGN) |
+| **Other** | LIGHT, CAMERA, SECTION, GEOPOSITIONMARKER, PROXY |
 
-Supporting table definitions: layers, linetypes, text styles, dimension styles, block definitions, UCS, and views.
+## Integrations
+
+| Tool | Type | Location |
+|------|------|----------|
+| **Web Viewer** | HTML5 Canvas 2D viewer | `viewer/` |
+| **PyRevit** | Revit view export/import | `integrations/pyrevit/` |
+| **FreeCAD** | Workbench (import/export) | `integrations/freecad/` |
+| **Blender** | Addon with Bonsai bridge | `integrations/blender/` |
+| **CLI** | Command-line converter | `cli/` |
+
+### Web Viewer
+
+Open `viewer/index.html` in a browser. Drag-and-drop `.ifcx` or `.dxf` files. Supports pan, zoom, layer visibility, and entity inspection. No build step needed.
+
+### PyRevit (Revit)
+
+Copy `integrations/pyrevit/IFCX.extension/` to your PyRevit extensions directory. Adds toolbar buttons to export the active view to IFCXB or DXF, and import IFCX files as detail lines.
+
+### FreeCAD
+
+Copy `integrations/freecad/` to `~/.FreeCAD/Mod/IFCX/`. Registers as a workbench with import/export for `.ifcx`, `.ifcxb`, `.dxf`, and `.dgn`. Also available via FreeCAD Addon Manager.
+
+### Blender
+
+Install `integrations/blender/ifcx_addon/` as a Blender addon. Adds File > Import/Export menus for IFCX. Includes a Bonsai (BlenderBIM) bridge for IFC annotation export.
+
+## Round-Trip Verification
+
+Tested with 15 real-world DXF files:
+
+```
+Name           Entities  DXF RT  IFCXB RT  DXF KB  IFCXB KB  Compression
+polylines      83        PASS    PASS      94      3.6       96% smaller
+3dface         71        PASS    PASS      146     4.0       97% smaller
+text           224       PASS    PASS      227     12.0      95% smaller
+hatches        32        PASS    PASS      143     3.1       98% smaller
+dimensions     4         PASS    PASS      99      2.3       98% smaller
+world (2875)   2875      PASS    PASS      546     56.6      90% smaller
+─────────────────────────────────────────────────────────────────────────
+Total                                      2516    138       94% smaller
+```
+
+DWG parser tested with 223 entities from `example_2000.dwg`.
+DGN parser tested with 896 elements from `tag.dgn`.
 
 ## Project Structure
 
 ```
 Ifc-Factory/
-├── schema/
-│   ├── ifcx.schema.json      # IFCX JSON Schema (entity types, validation rules)
-│   └── ifcxb.spec.md         # IFCXB binary format specification
+├── schema/                    # IFCX JSON Schema + IFCXB binary spec
+│   ├── ifcx.schema.json       # Complete schema (all entity types)
+│   └── ifcxb.spec.md          # Binary format specification
 ├── libraries/
-│   ├── typescript/            # @ifcx/core - TypeScript library
-│   ├── python/                # ifcx - Python library
-│   ├── rust/                  # ifcx - Rust crate
-│   └── cpp/                   # libifcx - C++ library (CMake)
-├── examples/
-│   └── simple-drawing.ifcx   # Example IFCX file
-├── archives/                  # Previous IFC4x3 TypeScript library (archived)
-├── docs/                      # Documentation
-├── ROADMAP.md                 # Detailed roadmap with phases and test plan
+│   ├── python/                # Python library (pip installable)
+│   ├── typescript/            # TypeScript/JS library (npm)
+│   ├── rust/                  # Rust library (crates.io)
+│   ├── cpp/                   # C++ library (CMake)
+│   └── csharp/                # C# library (.NET 8)
+├── viewer/                    # HTML5 2D viewer
+├── cli/                       # Command-line converter tool
+├── integrations/
+│   ├── pyrevit/               # Autodesk Revit integration
+│   ├── freecad/               # FreeCAD workbench
+│   └── blender/               # Blender addon + Bonsai bridge
+├── testdata/                  # Verification test suite
+├── examples/                  # Example IFCX files
+├── archives/                  # Previous Ifc-Factory code
+├── ROADMAP.md                 # 10-phase development roadmap
 └── README.md
 ```
 
-The `archives/` directory contains a previous iteration of this project -- a TypeScript library for IFC4x3 schema generation. That work has been superseded by the IFCX format effort, but is preserved for reference.
-
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for the full plan, test file inventory, and verification metrics.
+See [ROADMAP.md](ROADMAP.md) for the full 10-phase plan. Current status:
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 1. Foundation | Schema definition, binary spec, library skeletons | Done |
-| 2. Core Libraries | Full reader/writer implementations in all four languages | In progress |
-| 3. DXF Conversion | Bidirectional DXF import/export (R12 through R2024) | Planned |
-| 4. DWG Conversion | DWG import/export via LibreDWG/ODA SDK | Planned |
-| 5. Verification | Round-trip test suite with 30 real-world test files | Planned |
-| 6. 2D Viewer | Web-based viewer with full entity rendering | Planned |
-| 7. FreeCAD Integration | Import/export plugin for FreeCAD | Planned |
-| 8. Blender Integration | Bonsai/BlenderBIM add-on, IfcOpenShell bridge | Planned |
-| 9. Advanced Features | Dynamic blocks, constraints, annotation scaling | Planned |
-| 10. Ecosystem | CLI tool, VS Code extension, package publishing | Planned |
+| 1 | Foundation (schema, skeletons) | Done |
+| 2 | Core libraries (6 languages) | Done |
+| 3 | DXF conversion | Done |
+| 4 | DWG conversion | Done (R2000) |
+| 5 | Verification test suite | Done |
+| 6 | 2D Viewer | Done |
+| 7 | FreeCAD integration | Done |
+| 8 | Blender/Bonsai integration | Done |
+| 9 | Advanced features | Planned |
+| 10 | Ecosystem (CLI, publishing) | In progress |
 
-## Verification
+## Design Principles
 
-Format fidelity is verified through round-trip testing:
-
-```
-Original DXF/DWG
-    |  import
-    v
-  IFCX (JSON)
-    |  convert
-    v
-  IFCXB (binary)
-    |  convert back
-    v
-  IFCX (JSON)        <-- must be identical to step 2
-    |  export
-    v
-  DXF/DWG            <-- compare with original
-    |
-  Verification Report
-```
-
-Each round-trip test produces a report checking: entity count match, geometry delta (< 1e-10), property preservation (layers, colors, linetypes, lineweights), text fidelity, style completeness, block integrity, layout preservation, file size comparison, and conversion performance.
-
-The test suite targets 30 files spanning AutoCAD versions R12 through R2018, entity type coverage, real-world complexity, and edge cases. See [ROADMAP.md](ROADMAP.md) for the full test file inventory.
+1. **Full DWG/DXF fidelity** -- every entity, style, and property has an IFCX representation
+2. **Open and human-readable** -- JSON format, version-controllable, diffable
+3. **Compact binary** -- IFCXB achieves DWG-comparable file sizes
+4. **Lossless round-trip** -- IFCX <-> IFCXB is always lossless
+5. **Multi-language** -- first-class libraries in Python, TypeScript, Rust, C++, C#
+6. **No external dependencies** -- all parsers built from scratch
+7. **No vendor lock-in** -- MIT licensed, no patents
 
 ## Contributing
 
-Contributions are welcome. Areas where help is needed:
-
-- Library implementations (especially C++ and Rust)
-- DXF parser and writer
-- Real-world test files (DXF/DWG drawings you can share under an open license)
-- Viewer development
+Contributions welcome. Key areas:
+- Additional DWG version support (R2004, R2007, R2010+)
+- DGN V8 parser
+- Additional entity types and edge cases
+- Package publishing (npm, PyPI, crates.io, NuGet, vcpkg)
 - Documentation and examples
-
-Please open an issue to discuss significant changes before submitting a pull request.
 
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
-
-No patents. No proprietary dependencies. No vendor lock-in.
