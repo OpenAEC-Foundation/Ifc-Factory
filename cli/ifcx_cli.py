@@ -621,7 +621,7 @@ def cmd_diff(args: argparse.Namespace) -> int:
         # Type breakdown
         print(bold("  Entity Types:"))
         print(f"    {'Type':>25s}  {'File 1':>8s}  {'File 2':>8s}  {'Delta':>8s}")
-        print(f"    {'─' * 25}  {'─' * 8}  {'─' * 8}  {'─' * 8}")
+        print(f"    {'-' * 25}  {'-' * 8}  {'-' * 8}  {'-' * 8}")
         for t in all_types:
             v1, v2 = types1.get(t, 0), types2.get(t, 0)
             d = v2 - v1
@@ -633,7 +633,7 @@ def cmd_diff(args: argparse.Namespace) -> int:
         # Layer breakdown
         print(bold("  Layers:"))
         print(f"    {'Layer':>25s}  {'File 1':>8s}  {'File 2':>8s}  {'Delta':>8s}")
-        print(f"    {'─' * 25}  {'─' * 8}  {'─' * 8}  {'─' * 8}")
+        print(f"    {'-' * 25}  {'-' * 8}  {'-' * 8}  {'-' * 8}")
         for l in all_layers:
             v1, v2 = layers1.get(l, 0), layers2.get(l, 0)
             d = v2 - v1
@@ -687,7 +687,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         print()
 
         print(f"  {'Handle':>8s}  {'Type':>25s}  {'Layer':<20s}")
-        print(f"  {'─' * 8}  {'─' * 25}  {'─' * 20}")
+        print(f"  {'-' * 8}  {'-' * 25}  {'-' * 20}")
         for e in doc.entities:
             handle = e.get("handle", "")
             etype = e.get("type", "UNKNOWN")
@@ -756,7 +756,7 @@ def cmd_layers(args: argparse.Namespace) -> int:
         print()
 
         print(f"  {'Layer':<25s}  {'Entities':>10s}  {'Defined':>8s}  {'Properties':<30s}")
-        print(f"  {'─' * 25}  {'─' * 10}  {'─' * 8}  {'─' * 30}")
+        print(f"  {'-' * 25}  {'-' * 10}  {'-' * 8}  {'-' * 30}")
         for name in all_layer_names:
             count = used_counts.get(name, 0)
             defined = green("yes") if name in defined_layers else red("no")
@@ -873,7 +873,7 @@ def cmd_stats(args: argparse.Namespace) -> int:
             for etype, count in type_counts.most_common():
                 pct = count / total * 100 if total else 0
                 bar_len = int(pct / 2)
-                bar = "█" * bar_len
+                bar = "#" * bar_len
                 print(f"    {etype:>25s}  {count:>6d}  {pct:>5.1f}%  {cyan(bar)}")
             print()
 

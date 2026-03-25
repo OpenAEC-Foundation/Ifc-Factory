@@ -223,40 +223,41 @@ impl DwgImporter {
         let handle = Some(format!("{:X}", obj.handle));
 
         // Normalize: remove color 0/256 (BYLAYER/BYBLOCK)
-        if let Some(serde_json::Value::Number(n)) = properties.get("color") {
-            if n.as_i64() == Some(0) || n.as_i64() == Some(256) {
-                properties.remove("color");
-            }
-        }
+        let remove_color = properties.get("color")
+            .and_then(|v| v.as_i64())
+            .map(|c| c == 0 || c == 256)
+            .unwrap_or(false);
+        if remove_color { properties.remove("color"); }
 
         // Remove zero thickness
-        if let Some(serde_json::Value::Number(n)) = properties.get("thickness") {
-            if n.as_f64() == Some(0.0) {
-                properties.remove("thickness");
-            }
-        }
+        let remove_thickness = properties.get("thickness")
+            .and_then(|v| v.as_f64())
+            .map(|t| t == 0.0)
+            .unwrap_or(false);
+        if remove_thickness { properties.remove("thickness"); }
 
         // Remove default extrusion [0,0,1]
-        if let Some(serde_json::Value::Array(arr)) = properties.get("extrusion") {
-            if arr.len() == 3
-                && arr[0].as_f64() == Some(0.0)
-                && arr[1].as_f64() == Some(0.0)
-                && arr[2].as_f64() == Some(1.0)
-            {
-                properties.remove("extrusion");
-            }
-        }
+        let remove_ext = properties.get("extrusion")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.len() == 3
+                    && arr[0].as_f64() == Some(0.0)
+                    && arr[1].as_f64() == Some(0.0)
+                    && arr[2].as_f64() == Some(1.0)
+            })
+            .unwrap_or(false);
+        if remove_ext { properties.remove("extrusion"); }
 
         // Remove internal fields
         properties.remove("entity_mode");
         properties.remove("linetype_scale");
         properties.remove("invisible");
-        if let Some(serde_json::Value::Number(n)) = properties.get("lineweight") {
-            let lw = n.as_i64().unwrap_or(0);
-            if lw == 29 || lw < 0 {
-                properties.remove("lineweight");
-            }
-        }
+
+        let remove_lw = properties.get("lineweight")
+            .and_then(|v| v.as_i64())
+            .map(|lw| lw == 29 || lw < 0)
+            .unwrap_or(false);
+        if remove_lw { properties.remove("lineweight"); }
 
         Some(Entity {
             entity_type: obj.type_name.clone(),

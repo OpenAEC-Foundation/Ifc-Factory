@@ -264,28 +264,31 @@ impl DxfImporter {
         }
 
         // Normalize lineweight: convert from DXF units (1/100 mm) to mm
-        if let Some(serde_json::Value::Number(n)) = properties.get("lineweight") {
-            if let Some(lw) = n.as_f64() {
-                if lw >= 0.0 {
-                    properties.insert("lineweight".to_string(), serde_json::json!(lw / 100.0));
-                } else {
-                    properties.remove("lineweight");
-                }
-            }
+        let lw_action = properties.get("lineweight")
+            .and_then(|v| v.as_f64())
+            .map(|lw| if lw >= 0.0 { Some(lw / 100.0) } else { None });
+        match lw_action {
+            Some(Some(new_lw)) => { properties.insert("lineweight".to_string(), serde_json::json!(new_lw)); }
+            Some(None) => { properties.remove("lineweight"); }
+            None => {}
         }
 
         // Remove BYLAYER color (256)
-        if let Some(serde_json::Value::Number(n)) = properties.get("color") {
-            if n.as_i64() == Some(256) {
-                properties.remove("color");
-            }
+        let remove_color = properties.get("color")
+            .and_then(|v| v.as_i64())
+            .map(|c| c == 256)
+            .unwrap_or(false);
+        if remove_color {
+            properties.remove("color");
         }
 
         // Remove BYLAYER linetype
-        if let Some(serde_json::Value::String(s)) = properties.get("linetype") {
-            if s == "BYLAYER" {
-                properties.remove("linetype");
-            }
+        let remove_lt = properties.get("linetype")
+            .and_then(|v| v.as_str())
+            .map(|s| s == "BYLAYER")
+            .unwrap_or(false);
+        if remove_lt {
+            properties.remove("linetype");
         }
 
         // Consolidate point components into arrays for common patterns
@@ -306,15 +309,11 @@ impl DxfImporter {
 
         // Consolidate 4-point entities
         for i in 1..=4 {
-            Self::consolidate_point(
-                &mut properties,
-                &format!("point{}", i),
-                &[
-                    &format!("point{}_x", i),
-                    &format!("point{}_y", i),
-                    &format!("point{}_z", i),
-                ],
-            );
+            let name = format!("point{}", i);
+            let kx = format!("point{}_x", i);
+            let ky = format!("point{}_y", i);
+            let kz = format!("point{}_z", i);
+            Self::consolidate_point(&mut properties, &name, &[&kx, &ky, &kz]);
         }
 
         // Parse JSON-encoded arrays back into proper JSON values
@@ -330,26 +329,23 @@ impl DxfImporter {
         match entity_type.as_str() {
             "ARC" => {
                 // Convert angles from degrees to radians
-                if let Some(serde_json::Value::Number(n)) = properties.get("startAngle") {
-                    if let Some(a) = n.as_f64() {
-                        properties.insert("startAngle".to_string(), serde_json::json!(a.to_radians()));
-                    }
+                let sa = properties.get("startAngle").and_then(|v| v.as_f64());
+                if let Some(a) = sa {
+                    properties.insert("startAngle".to_string(), serde_json::json!(a.to_radians()));
                 }
-                if let Some(serde_json::Value::Number(n)) = properties.get("endAngle") {
-                    if let Some(a) = n.as_f64() {
-                        properties.insert("endAngle".to_string(), serde_json::json!(a.to_radians()));
-                    }
+                let ea = properties.get("endAngle").and_then(|v| v.as_f64());
+                if let Some(a) = ea {
+                    properties.insert("endAngle".to_string(), serde_json::json!(a.to_radians()));
                 }
             }
             "TEXT" => {
-                if let Some(serde_json::Value::Number(n)) = properties.get("rotation") {
-                    if let Some(a) = n.as_f64() {
-                        properties.insert("rotation".to_string(), serde_json::json!(a.to_radians()));
-                    }
+                let rot = properties.get("rotation").and_then(|v| v.as_f64());
+                if let Some(a) = rot {
+                    properties.insert("rotation".to_string(), serde_json::json!(a.to_radians()));
                 }
-                if let Some(serde_json::Value::Number(n)) = properties.get("horizontalAlignment") {
-                    let halign = n.as_i64().unwrap_or(0);
-                    let h_str = match halign {
+                let halign = properties.get("horizontalAlignment").and_then(|v| v.as_i64());
+                if let Some(h) = halign {
+                    let h_str = match h {
                         0 => "left", 1 => "center", 2 => "right",
                         3 => "aligned", 4 => "middle", 5 => "fit",
                         _ => "left",
@@ -358,9 +354,9 @@ impl DxfImporter {
                 }
             }
             "MTEXT" => {
-                if let Some(serde_json::Value::Number(n)) = properties.get("attachment") {
-                    let att = n.as_i64().unwrap_or(1);
-                    let att_str = match att {
+                let att = properties.get("attachment").and_then(|v| v.as_i64());
+                if let Some(a) = att {
+                    let att_str = match a {
                         1 => "top_left", 2 => "top_center", 3 => "top_right",
                         4 => "middle_left", 5 => "middle_center", 6 => "middle_right",
                         7 => "bottom_left", 8 => "bottom_center", 9 => "bottom_right",
@@ -370,10 +366,9 @@ impl DxfImporter {
                 }
             }
             "INSERT" => {
-                if let Some(serde_json::Value::Number(n)) = properties.get("rotation") {
-                    if let Some(a) = n.as_f64() {
-                        properties.insert("rotation".to_string(), serde_json::json!(a.to_radians()));
-                    }
+                let rot = properties.get("rotation").and_then(|v| v.as_f64());
+                if let Some(a) = rot {
+                    properties.insert("rotation".to_string(), serde_json::json!(a.to_radians()));
                 }
             }
             "LEADER" => {
