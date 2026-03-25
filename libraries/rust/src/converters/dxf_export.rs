@@ -386,7 +386,7 @@ impl DxfExporter {
             .unwrap_or(default)
     }
 
-    fn get_str<'a>(ent: &'a Entity, key: &str, default: &'a str) -> String {
+    fn get_str(ent: &Entity, key: &str, default: &str) -> String {
         ent.properties.get(key)
             .and_then(|v| v.as_str())
             .unwrap_or(default)
