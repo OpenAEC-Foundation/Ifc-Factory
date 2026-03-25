@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ifcx.openaec.org/schema/2.0/ifcx.schema.json",
-  "title": "IfcX Drawing Exchange Format v2",
-  "description": "Open drawing exchange format extending IFC5 concepts with full 2D/3D CAD capabilities. JSON-native, no STEP.",
+  "title": "IfcX - IFC5 Extension for 2D Drawing Exchange",
+  "description": "Superset of IFC5 (buildingSMART) that adds full 2D drawing capabilities. Every valid IFC5 file is a valid IfcX file. IfcX extends IFC5 with ifcx::* attribute namespaces for geometry, annotation, sheets, hatching, SVG/CSS styling, and GIS. JSON-native, no STEP.",
   "type": "object",
   "required": ["header", "data"],
   "properties": {
