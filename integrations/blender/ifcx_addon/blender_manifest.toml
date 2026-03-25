@@ -1,0 +1,18 @@
+schema_version = "1.0.0"
+
+id = "ifcx_format"
+version = "0.1.0"
+name = "IFCX Format"
+tagline = "Import/Export IFCX, IFCXB, DXF, and DGN files"
+maintainer = "IFCX Project"
+type = "add-on"
+
+# Supported Blender versions
+blender_version_min = "3.6.0"
+
+# License
+license = ["SPDX:MIT"]
+
+# Permissions required by this extension
+[permissions]
+files = "Import and export IFCX, IFCXB, DXF, and DGN files"

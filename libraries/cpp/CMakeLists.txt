@@ -15,6 +15,16 @@ set(IFCX_SOURCES
     src/reader.cpp
     src/writer.cpp
     src/binary.cpp
+    src/dxf_tokenizer.cpp
+    src/dxf_parser.cpp
+    src/dxf_import.cpp
+    src/dxf_export.cpp
+    src/dxf_writer.cpp
+    src/dwg_bitreader.cpp
+    src/dwg_parser.cpp
+    src/dwg_import.cpp
+    src/dgn_parser.cpp
+    src/dgn_import.cpp
 )
 
 # Library target
