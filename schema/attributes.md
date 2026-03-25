@@ -183,3 +183,21 @@ Reuses IFC5 attribute namespaces for BIM data:
 | `ifcx::geo::position` | `{latitude, longitude, altitude}` | Geographic position |
 | `ifcx::geo::crs` | `{epsg, wkt}` | Coordinate reference system |
 | `ifcx::geo::feature` | `{type: "Point|Line|Polygon", coordinates}` | GeoJSON-compatible geometry |
+
+### Versioning / GitDiff (`ifcx::revision::*`)
+
+Built-in version control. Every change is stored as node overrides.
+The file IS the repository - no external VCS needed.
+
+| Attribute Key | Value Type | Description |
+|---------------|------------|-------------|
+| `ifcx::revision::info` | `{id, parent, timestamp, author, message, tag}` | Revision metadata (like a git commit) |
+| `ifcx::revision::stats` | `{nodesAdded, nodesModified, nodesRemoved}` | Change statistics |
+| `ifcx::revision::created` | `string (revision-id)` | Revision in which this node was created |
+| `ifcx::revision::modified` | `{revision, previous: {attr: old_value}}` | Change record with undo data |
+| `ifcx::revision::deleted` | `{revision, previous: {attr: old_value}}` | Deletion record with undo data |
+| `ifcx::revision::branch` | `string` | Branch name (for parallel development) |
+| `ifcx::revision::merge` | `{source, sourceBranch, conflicts, strategy}` | Merge information |
+
+Operations: checkout (any revision), diff (between revisions), branch, merge with conflict resolution.
+See [versioning.md](../docs/versioning.md) for full documentation.
