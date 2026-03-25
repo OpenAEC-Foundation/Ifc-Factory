@@ -27,7 +27,7 @@ SVG/CSS-compatibele styling.
 │  ifcx::geom::*       2D geometrie (lijn, boog, ...) │
 │  ifcx::annotation::* Maatvoering, tekst, leaders    │
 │  ifcx::sheet::*      Bladindeling, viewports        │
-│  ifcx::hatch::*      Arceringen (NEN47, SVG)        │
+│  ifcx::hatch::*      Arceringen (materiaal, SVG, patroon)        │
 │  ifcx::style::*      Lijnstijlen, vulstijlen        │
 │  ifcx::svg::*        SVG/CSS properties (Bonsai)    │
 │  ifcx::layer::*      Lagen / layer assignments      │
@@ -113,7 +113,7 @@ IFC heeft basale arcering (IfcFillAreaStyleHatching). IfcX breidt dit uit:
 | `ifcx::hatch::solid` | Effen kleurvulling |
 | `ifcx::hatch::gradient` | Kleurverloop |
 | `ifcx::hatch::svg` | SVG pattern referentie |
-| `ifcx::hatch::nen47` | NEN 47 materiaalarceringen (NL standaard) |
+| `ifcx::hatch::material` | Materiaalarcering per nationale standaard |
 | `ifcx::hatch::boundary` | Arceringsgrenzen |
 
 ### ifcx::svg::* — SVG/CSS Styling (Bonsai/INB)

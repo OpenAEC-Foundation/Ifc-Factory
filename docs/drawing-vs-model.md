@@ -124,7 +124,7 @@ Alle entiteiten krijgen `ifcx::purpose: "drawing"`:
   }},
   {"path": "hatch-001", "attributes": {
     "ifcx::purpose": "drawing",
-    "ifcx::hatch::nen47": {"material": "beton", "scale": 50}
+    "ifcx::hatch::material": {"standard": "NEN47", "code": "beton", "scale": 50}
   }}
 ]
 ```
@@ -211,7 +211,7 @@ IfcxProject (root node)
 │   │   ├── line_001               ifcx::geom::line
 │   │   ├── line_002               ifcx::geom::line
 │   │   ├── arc_001                ifcx::geom::trimmedCurve
-│   │   ├── hatch_001              ifcx::hatch::nen47
+│   │   ├── hatch_001              ifcx::hatch::material
 │   │   └── text_001               ifcx::annotation::text
 │   ├── Doorsnede_AA/
 │   │   ├── line_100               ifcx::geom::line

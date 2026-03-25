@@ -124,7 +124,7 @@ In plaats van data op elke node te kopiëren, gebruiken we **connecties**:
       "ifcx::style::curveStyle": {"colour": {"r":0,"g":0.4,"b":0}, "width": 0.18}
     }},
     {"path": "s-hatch-beton", "attributes": {
-      "ifcx::hatch::nen47": {"material": "gewapend_beton_tpg"}
+      "ifcx::hatch::material": {"standard": "NEN47", "code": "gewapend_beton_tpg"}
     }},
 
     // === LAYERS (gedeeld) ===

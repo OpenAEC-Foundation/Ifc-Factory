@@ -74,7 +74,7 @@ Extends presentation with SVG/CSS properties for Bonsai/INB compatibility:
 | `ifcx::hatch::solid` | `{colour: {r,g,b,a}}` | Solid colour fill |
 | `ifcx::hatch::gradient` | `{type, colour1, colour2, angle}` | Gradient fill |
 | `ifcx::hatch::svg` | `{patternId, patternTransform}` | SVG pattern reference (INB/NEN47) |
-| `ifcx::hatch::nen47` | `{material, scale}` | NEN 47 standard hatching (Dutch) |
+| `ifcx::hatch::material` | `{standard, code, scale}` | Material hatching per national/regional standard |
 
 ### Annotation (`ifcx::annotation::*`)
 
