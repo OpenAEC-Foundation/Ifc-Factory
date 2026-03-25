@@ -15,6 +15,9 @@ dependencies = [
     "zstandard>=0.22.0",
 ]
 
+[project.scripts]
+ifcx = "ifcx.__main__:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",

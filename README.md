@@ -235,6 +235,14 @@ Contributions welcome. Key areas:
 - Package publishing (npm, PyPI, crates.io, NuGet, vcpkg)
 - Documentation and examples
 
+## Trademarks
+
+This project is not affiliated with, endorsed by, or sponsored by Autodesk, Inc., Bentley Systems, Incorporated, or buildingSMART International Limited.
+
+AutoCAD, Revit, DWG, and DXF are registered trademarks or trademarks of Autodesk, Inc. MicroStation is a registered trademark of Bentley Systems, Incorporated. IFC and buildingSMART are trademarks of buildingSMART International Limited. All other trademarks are the property of their respective owners.
+
+This software reads and writes files in these formats for interoperability purposes only. See [NOTICE](NOTICE) for the full trademark attribution.
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
