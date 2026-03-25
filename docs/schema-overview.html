@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IfcX v2 Schema - Graph View</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e0e0e0; overflow-x: hidden; }
+
+h1 { text-align: center; padding: 20px; color: #4da6ff; font-size: 24px; }
+h2 { color: #4da6ff; font-size: 16px; margin: 20px 0 10px; padding-left: 20px; }
+
+.subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 30px; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px 40px; }
+
+/* Document structure */
+.doc-structure {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0 40px;
+}
+
+.doc-section {
+  background: #1a1d28;
+  border: 1px solid #2a2d3a;
+  border-radius: 8px;
+  padding: 16px;
+  border-top: 3px solid #4da6ff;
+}
+
+.doc-section h3 {
+  color: #4da6ff;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.doc-section .desc {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.doc-section code {
+  display: block;
+  font-size: 10px;
+  background: #12141c;
+  padding: 8px;
+  border-radius: 4px;
+  color: #7ec;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Graph */
+svg.graph {
+  width: 100%;
+  background: #12141c;
+  border-radius: 8px;
+  border: 1px solid #2a2d3a;
+}
+
+/* Node legend */
+.legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #aaa;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* Attribute tables */
+.attr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.attr-group {
+  background: #1a1d28;
+  border: 1px solid #2a2d3a;
+  border-radius: 8px;
+  padding: 14px;
+  border-left: 3px solid var(--color, #4da6ff);
+}
+
+.attr-group h4 {
+  font-size: 12px;
+  color: var(--color, #4da6ff);
+  margin-bottom: 8px;
+}
+
+.attr-list {
+  list-style: none;
+  font-size: 11px;
+}
+
+.attr-list li {
+  padding: 3px 0;
+  border-bottom: 1px solid #22252f;
+  display: flex;
+  justify-content: space-between;
+}
+
+.attr-list .key { color: #7ec; font-family: monospace; font-size: 10px; }
+.attr-list .val { color: #888; font-size: 10px; }
+
+/* Comparison */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin: 20px 0;
+  border: 1px solid #2a2d3a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.comparison .col-header {
+  background: #1a1d28;
+  padding: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  border-bottom: 2px solid #2a2d3a;
+}
+
+.comparison .cell {
+  padding: 6px 10px;
+  font-size: 11px;
+  border-bottom: 1px solid #1a1d28;
+  background: #12141c;
+}
+
+.comparison .cell.label { color: #aaa; font-weight: 600; }
+.comparison .cell.old { color: #ff6b6b; }
+.comparison .cell.new { color: #51cf66; }
+.comparison .cell.ifc { color: #ffd43b; }
+</style>
+</head>
+<body>
+
+<h1>IfcX v2 Schema - Architecture Overview</h1>
+<p class="subtitle">IFC5-compatible node-based JSON format with 2D CAD extensions</p>
+
+<div class="container">
+
+<!-- Document Structure -->
+<h2>1. Document Structure</h2>
+<div class="doc-structure">
+  <div class="doc-section">
+    <h3>header</h3>
+    <div class="desc">File metadata and project info</div>
+    <code>{
+  "ifcxVersion": "2.0",
+  "id": "uuid",
+  "author": "...",
+  "timestamp": "ISO8601",
+  "units": {
+    "length": "mm",
+    "angle": "rad"
+  },
+  "coordinateSystem": {
+    "epsg": 28992
+  }
+}</code>
+  </div>
+  <div class="doc-section">
+    <h3>imports</h3>
+    <div class="desc">External schema references (IFC5-style)</div>
+    <code>[
+  {"uri": "ifc@v5a.ifcx"},
+  {"uri": "usd@v1.ifcx"},
+  {"uri": "nen47@v1.ifcx"}
+]</code>
+  </div>
+  <div class="doc-section">
+    <h3>data</h3>
+    <div class="desc">Flat array of IfcxNode objects</div>
+    <code>[
+  {"path": "guid-1",
+   "children": {"Wall": "guid-2"},
+   "attributes": {
+     "bsi::ifc::class":
+       {"code": "IfcProject"}
+   }},
+  {"path": "guid-2",
+   "attributes": {
+     "ifcx::geom::line":
+       {"points": [[0,0],[100,0]]}
+   }}
+]</code>
+  </div>
+  <div class="doc-section">
+    <h3>media</h3>
+    <div class="desc">Embedded raster images / binary data</div>
+    <code>{
+  "img-001": {
+    "mimeType": "image/png",
+    "width": 1920,
+    "height": 1080,
+    "data": "base64..."
+  },
+  "img-002": {
+    "uri": "photo.jpg"
+  }
+}</code>
+  </div>
+</div>
+
+<!-- Graph View -->
+<h2>2. Node Graph - How Data Relates</h2>
+
+<svg class="graph" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="8" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6" fill="#4da6ff" opacity="0.6"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="8" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6" fill="#51cf66" opacity="0.6"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="8" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,3 L0,6" fill="#ffa94d" opacity="0.6"/>
+    </marker>
+  </defs>
+
+  <!-- Background grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1d28" stroke-width="0.5"/>
+  </pattern>
+  <rect width="1200" height="700" fill="url(#grid)"/>
+
+  <!-- PROJECT node -->
+  <rect x="500" y="20" width="200" height="50" rx="8" fill="#1a3a5c" stroke="#4da6ff" stroke-width="2"/>
+  <text x="600" y="42" text-anchor="middle" fill="#4da6ff" font-size="12" font-weight="700">IfcProject</text>
+  <text x="600" y="57" text-anchor="middle" fill="#88bbee" font-size="9">bsi::ifc::class</text>
+
+  <!-- SITE -->
+  <rect x="500" y="100" width="200" height="40" rx="6" fill="#1a3a5c" stroke="#4da6ff" stroke-width="1.5"/>
+  <text x="600" y="125" text-anchor="middle" fill="#ccc" font-size="11">IfcSite</text>
+  <line x1="600" y1="70" x2="600" y2="100" stroke="#4da6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="612" y="88" fill="#666" font-size="8">children</text>
+
+  <!-- BUILDING -->
+  <rect x="500" y="170" width="200" height="40" rx="6" fill="#1a3a5c" stroke="#4da6ff" stroke-width="1.5"/>
+  <text x="600" y="195" text-anchor="middle" fill="#ccc" font-size="11">IfcBuilding</text>
+  <line x1="600" y1="140" x2="600" y2="170" stroke="#4da6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- STOREY -->
+  <rect x="500" y="240" width="200" height="40" rx="6" fill="#1a3a5c" stroke="#4da6ff" stroke-width="1.5"/>
+  <text x="600" y="265" text-anchor="middle" fill="#ccc" font-size="11">IfcBuildingStorey</text>
+  <line x1="600" y1="210" x2="600" y2="240" stroke="#4da6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- WALL (geometry node) -->
+  <rect x="100" y="320" width="220" height="70" rx="8" fill="#1c2a1c" stroke="#51cf66" stroke-width="2"/>
+  <text x="210" y="342" text-anchor="middle" fill="#51cf66" font-size="12" font-weight="700">Wall_001</text>
+  <text x="210" y="358" text-anchor="middle" fill="#7ec" font-size="9">ifcx::geom::compositeCurve</text>
+  <text x="210" y="372" text-anchor="middle" fill="#7ec" font-size="9">ifcx::style::curveStyle</text>
+  <text x="210" y="386" text-anchor="middle" fill="#ffa" font-size="9">bsi::ifc::class: IfcWall</text>
+  <line x1="550" y1="280" x2="310" y2="320" stroke="#4da6ff" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4"/>
+
+  <!-- DIMENSION (annotation node) -->
+  <rect x="400" y="340" width="220" height="60" rx="8" fill="#2a1c2a" stroke="#da77f2" stroke-width="2"/>
+  <text x="510" y="362" text-anchor="middle" fill="#da77f2" font-size="12" font-weight="700">Dim_001</text>
+  <text x="510" y="378" text-anchor="middle" fill="#e8a" font-size="9">ifcx::annotation::dimension</text>
+  <text x="510" y="392" text-anchor="middle" fill="#aaa" font-size="9">subtype: "linear", value: 4500</text>
+  <line x1="600" y1="280" x2="540" y2="340" stroke="#4da6ff" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4"/>
+
+  <!-- TEXT (annotation node) -->
+  <rect x="700" y="320" width="200" height="55" rx="8" fill="#2a1c2a" stroke="#da77f2" stroke-width="2"/>
+  <text x="800" y="342" text-anchor="middle" fill="#da77f2" font-size="12" font-weight="700">Text_001</text>
+  <text x="800" y="358" text-anchor="middle" fill="#e8a" font-size="9">ifcx::annotation::text</text>
+  <text x="800" y="372" text-anchor="middle" fill="#aaa" font-size="9">"Room 101 - 45 m2"</text>
+  <line x1="650" y1="280" x2="760" y2="320" stroke="#4da6ff" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4"/>
+
+  <!-- HATCH (fill area) -->
+  <rect x="960" y="320" width="200" height="55" rx="8" fill="#2a2a1c" stroke="#ffa94d" stroke-width="2"/>
+  <text x="1060" y="342" text-anchor="middle" fill="#ffa94d" font-size="12" font-weight="700">Hatch_001</text>
+  <text x="1060" y="358" text-anchor="middle" fill="#fda" font-size="9">ifcx::hatch::nen47</text>
+  <text x="1060" y="372" text-anchor="middle" fill="#aaa" font-size="9">material: "beton", scale: 50</text>
+  <line x1="700" y1="270" x2="1000" y2="320" stroke="#4da6ff" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4"/>
+
+  <!-- LAYER node -->
+  <rect x="50" y="460" width="200" height="50" rx="8" fill="#2a2a1c" stroke="#ffd43b" stroke-width="2"/>
+  <text x="150" y="482" text-anchor="middle" fill="#ffd43b" font-size="12" font-weight="700">Layer: "Walls"</text>
+  <text x="150" y="498" text-anchor="middle" fill="#fda" font-size="9">ifcx::layer::style: {colour, weight}</text>
+  <line x1="210" y1="390" x2="170" y2="460" stroke="#ffa94d" stroke-width="1" marker-end="url(#arrow-orange)" opacity="0.5"/>
+  <text x="175" y="430" fill="#888" font-size="8" transform="rotate(-25, 175, 430)">layer assignment</text>
+
+  <!-- BLOCK TYPE node -->
+  <rect x="300" y="460" width="220" height="60" rx="8" fill="#1c2a3a" stroke="#74c0fc" stroke-width="2"/>
+  <text x="410" y="482" text-anchor="middle" fill="#74c0fc" font-size="12" font-weight="700">DoorType_001</text>
+  <text x="410" y="498" text-anchor="middle" fill="#8cf" font-size="9">ifcx::component::definition</text>
+  <text x="410" y="512" text-anchor="middle" fill="#aaa" font-size="9">(reusable block/component)</text>
+
+  <!-- BLOCK INSTANCE -->
+  <rect x="580" y="460" width="220" height="55" rx="8" fill="#1c2a3a" stroke="#74c0fc" stroke-width="1.5"/>
+  <text x="690" y="482" text-anchor="middle" fill="#ccc" font-size="11">Door_Instance_001</text>
+  <text x="690" y="498" text-anchor="middle" fill="#8cf" font-size="9">inherits: DoorType_001</text>
+  <text x="690" y="510" text-anchor="middle" fill="#8cf" font-size="9">ifcx::xform::matrix: [...]</text>
+  <line x1="520" y1="490" x2="580" y2="490" stroke="#51cf66" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="548" y="483" fill="#51cf66" font-size="8">inherits</text>
+
+  <!-- SHEET / LAYOUT -->
+  <rect x="860" y="460" width="220" height="70" rx="8" fill="#2a1c1c" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="970" y="482" text-anchor="middle" fill="#ff6b6b" font-size="12" font-weight="700">Sheet: "A1-001"</text>
+  <text x="970" y="498" text-anchor="middle" fill="#faa" font-size="9">ifcx::sheet::paper: {841x594mm}</text>
+  <text x="970" y="512" text-anchor="middle" fill="#faa" font-size="9">ifcx::sheet::titleBlock</text>
+  <text x="970" y="524" text-anchor="middle" fill="#faa" font-size="9">ifcx::sheet::viewport: {scale: 1:50}</text>
+
+  <!-- IMAGE node -->
+  <rect x="100" y="570" width="200" height="50" rx="8" fill="#2a2a2a" stroke="#aaa" stroke-width="1.5"/>
+  <text x="200" y="592" text-anchor="middle" fill="#ccc" font-size="11">Photo_001</text>
+  <text x="200" y="608" text-anchor="middle" fill="#aaa" font-size="9">ifcx::image::raster: {mediaId: "img-001"}</text>
+
+  <!-- GIS node -->
+  <rect x="360" y="570" width="200" height="50" rx="8" fill="#1c2a2a" stroke="#20c997" stroke-width="1.5"/>
+  <text x="460" y="592" text-anchor="middle" fill="#20c997" font-size="11">GeoRef_001</text>
+  <text x="460" y="608" text-anchor="middle" fill="#7ec" font-size="9">ifcx::geo::crs: {epsg: 28992}</text>
+
+  <!-- SVG STYLE node -->
+  <rect x="620" y="570" width="220" height="50" rx="8" fill="#2a2a1c" stroke="#ffd43b" stroke-width="1.5"/>
+  <text x="730" y="592" text-anchor="middle" fill="#ffd43b" font-size="11">Style: "cut.IfcWall"</text>
+  <text x="730" y="608" text-anchor="middle" fill="#fda" font-size="9">ifcx::svg::class + ifcx::svg::fill</text>
+
+  <!-- Stylesheet node -->
+  <rect x="900" y="570" width="200" height="50" rx="8" fill="#2a1c2a" stroke="#da77f2" stroke-width="1.5"/>
+  <text x="1000" y="592" text-anchor="middle" fill="#da77f2" font-size="11">Stylesheet</text>
+  <text x="1000" y="608" text-anchor="middle" fill="#e8a" font-size="9">ifcx::svg::stylesheet: "INB_BWK"</text>
+
+  <!-- Labels -->
+  <text x="600" y="660" text-anchor="middle" fill="#555" font-size="10">Every box is an IfcxNode in the data[] array. Nodes reference each other via children, inherits, and {ref: "path"} attributes.</text>
+  <text x="600" y="676" text-anchor="middle" fill="#555" font-size="10">Multiple nodes can share the same path (IFC5 composition). Later entries override earlier ones.</text>
+</svg>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background: #4da6ff;"></div> Spatial hierarchy (IFC)</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #51cf66;"></div> Geometry nodes</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #da77f2;"></div> Annotations</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #ffa94d;"></div> Hatching / Fill</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #ffd43b;"></div> Layers / Styles</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #74c0fc;"></div> Components (blocks)</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #ff6b6b;"></div> Sheets / Layouts</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #20c997;"></div> GIS / Geo</div>
+</div>
+
+<!-- V1 vs V2 Comparison -->
+<h2>3. Schema Evolution: v1 (DXF-style) vs v2 (IFC5-style)</h2>
+
+<div class="comparison">
+  <div class="col-header cell label">Concept</div>
+  <div class="col-header cell old">v1 (DXF-in-JSON)</div>
+  <div class="col-header cell new">v2 (IFC5-native)</div>
+
+  <div class="cell label">Document structure</div>
+  <div class="cell old">header, tables, blocks, entities, objects</div>
+  <div class="cell new">header, imports, schemas, data[], media</div>
+
+  <div class="cell label">Entity identity</div>
+  <div class="cell old">{"type": "LINE", "handle": "A1"}</div>
+  <div class="cell new">{"path": "uuid", "attributes": {"ifcx::geom::line": ...}}</div>
+
+  <div class="cell label">Layers</div>
+  <div class="cell old">tables.layers = {"Walls": {color: 1}}</div>
+  <div class="cell new">Node with ifcx::layer::style attribute</div>
+
+  <div class="cell label">Blocks / components</div>
+  <div class="cell old">blocks = {"Door": {entities: [...]}}</div>
+  <div class="cell new">Node with children + inherits (USD-style)</div>
+
+  <div class="cell label">Dimensions</div>
+  <div class="cell old">{"type": "DIMENSION_LINEAR", ...}</div>
+  <div class="cell new">ifcx::annotation::dimension with associativity</div>
+
+  <div class="cell label">Hatching</div>
+  <div class="cell old">{"type": "HATCH", "patternName": "ANSI31"}</div>
+  <div class="cell new">ifcx::hatch::nen47 or ifcx::hatch::svg</div>
+
+  <div class="cell label">Paper space</div>
+  <div class="cell old">LAYOUT + VIEWPORT objects</div>
+  <div class="cell new">ifcx::sheet::paper + ifcx::sheet::viewport</div>
+
+  <div class="cell label">Transforms</div>
+  <div class="cell old">scaleX, scaleY, rotation (degrees)</div>
+  <div class="cell new">4x4 matrix (USD-style, column-major)</div>
+
+  <div class="cell label">References</div>
+  <div class="cell old">handle strings ("A1", "FF")</div>
+  <div class="cell new">UUID paths + {"ref": "uuid"}</div>
+
+  <div class="cell label">IFC integration</div>
+  <div class="cell old">None (separate format)</div>
+  <div class="cell new">bsi::ifc::class, bsi::ifc::prop::*</div>
+
+  <div class="cell label">SVG/CSS styling</div>
+  <div class="cell old">None</div>
+  <div class="cell new">ifcx::svg::class, ifcx::svg::fill, NEN47</div>
+
+  <div class="cell label">Raster images</div>
+  <div class="cell old">Base64 in entity</div>
+  <div class="cell new">Separate media section, ref by mediaId</div>
+
+  <div class="cell label">GIS/coordinates</div>
+  <div class="cell old">Not supported</div>
+  <div class="cell new">ifcx::geo::crs with EPSG, GeoJSON geom</div>
+
+  <div class="cell label">Extensibility</div>
+  <div class="cell old">extensions object (unstructured)</div>
+  <div class="cell new">Schema imports + custom namespaces</div>
+</div>
+
+<!-- Attribute Namespaces -->
+<h2>4. Attribute Namespace Map</h2>
+
+<div class="attr-grid">
+  <div class="attr-group" style="--color: #51cf66;">
+    <h4>ifcx::geom::* (Geometry)</h4>
+    <ul class="attr-list">
+      <li><span class="key">line</span><span class="val">2 points</span></li>
+      <li><span class="key">polyline</span><span class="val">N points + closed</span></li>
+      <li><span class="key">compositeCurve</span><span class="val">line/arc segments</span></li>
+      <li><span class="key">circle</span><span class="val">center + radius</span></li>
+      <li><span class="key">trimmedCurve</span><span class="val">arc (center, angles)</span></li>
+      <li><span class="key">ellipse</span><span class="val">axes + rotation</span></li>
+      <li><span class="key">bspline</span><span class="val">NURBS curve</span></li>
+      <li><span class="key">mesh</span><span class="val">vertices + faces</span></li>
+      <li><span class="key">solid</span><span class="val">BRep/ACIS data</span></li>
+      <li><span class="key">point</span><span class="val">single point</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #da77f2;">
+    <h4>ifcx::annotation::* (Annotation)</h4>
+    <ul class="attr-list">
+      <li><span class="key">text</span><span class="val">plain text</span></li>
+      <li><span class="key">richText</span><span class="val">formatted spans</span></li>
+      <li><span class="key">dimension</span><span class="val">lin/ang/rad/dia/ord</span></li>
+      <li><span class="key">leader</span><span class="val">path + arrowhead</span></li>
+      <li><span class="key">tolerance</span><span class="val">GD&T frames</span></li>
+      <li><span class="key">table</span><span class="val">rows/cols/cells</span></li>
+      <li><span class="key">tag</span><span class="val">element tag (INB)</span></li>
+      <li><span class="key">symbol</span><span class="val">placed symbol</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #ffd43b;">
+    <h4>ifcx::style::* (Presentation)</h4>
+    <ul class="attr-list">
+      <li><span class="key">curveStyle</span><span class="val">colour + width + dash</span></li>
+      <li><span class="key">fillStyle</span><span class="val">fill colour + pattern</span></li>
+      <li><span class="key">textStyle</span><span class="val">font + size + weight</span></li>
+      <li><span class="key">colour</span><span class="val">RGBA (0-1)</span></li>
+      <li><span class="key">dashPattern</span><span class="val">[vis, gap, ...]</span></li>
+      <li><span class="key">lineWeight</span><span class="val">mm</span></li>
+      <li><span class="key">opacity</span><span class="val">0-1</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #ffa94d;">
+    <h4>ifcx::hatch::* (Hatching)</h4>
+    <ul class="attr-list">
+      <li><span class="key">pattern</span><span class="val">custom line pattern</span></li>
+      <li><span class="key">solid</span><span class="val">solid colour fill</span></li>
+      <li><span class="key">gradient</span><span class="val">gradient fill</span></li>
+      <li><span class="key">svg</span><span class="val">SVG pattern ref</span></li>
+      <li><span class="key">nen47</span><span class="val">NEN 47 standard</span></li>
+      <li><span class="key">boundary</span><span class="val">outer + inner refs</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #ff6b6b;">
+    <h4>ifcx::sheet::* (Layouts)</h4>
+    <ul class="attr-list">
+      <li><span class="key">paper</span><span class="val">size + margins</span></li>
+      <li><span class="key">titleBlock</span><span class="val">block ref</span></li>
+      <li><span class="key">viewport</span><span class="val">view into model</span></li>
+      <li><span class="key">viewTitle</span><span class="val">name + scale</span></li>
+      <li><span class="key">plotSettings</span><span class="val">print config</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #74c0fc;">
+    <h4>ifcx::svg::* (SVG/CSS)</h4>
+    <ul class="attr-list">
+      <li><span class="key">class</span><span class="val">CSS class names</span></li>
+      <li><span class="key">stroke</span><span class="val">line colour</span></li>
+      <li><span class="key">strokeWidth</span><span class="val">line width</span></li>
+      <li><span class="key">fill</span><span class="val">fill colour/pattern</span></li>
+      <li><span class="key">fontFamily</span><span class="val">text font</span></li>
+      <li><span class="key">markerEnd</span><span class="val">arrow marker</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #4da6ff;">
+    <h4>bsi::ifc::* (IFC Integration)</h4>
+    <ul class="attr-list">
+      <li><span class="key">class</span><span class="val">IfcWall, IfcSlab, ...</span></li>
+      <li><span class="key">material</span><span class="val">material ref</span></li>
+      <li><span class="key">guid</span><span class="val">IFC GlobalId</span></li>
+      <li><span class="key">prop::Height</span><span class="val">property value</span></li>
+      <li><span class="key">prop::Name</span><span class="val">element name</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #20c997;">
+    <h4>ifcx::geo::* (GIS)</h4>
+    <ul class="attr-list">
+      <li><span class="key">crs</span><span class="val">EPSG + WKT</span></li>
+      <li><span class="key">position</span><span class="val">lat/lon/alt</span></li>
+      <li><span class="key">feature</span><span class="val">GeoJSON geometry</span></li>
+    </ul>
+  </div>
+
+  <div class="attr-group" style="--color: #aaa;">
+    <h4>ifcx::image::* (Raster)</h4>
+    <ul class="attr-list">
+      <li><span class="key">raster</span><span class="val">mediaId + placement</span></li>
+      <li><span class="key">wipeout</span><span class="val">masking boundary</span></li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ifcx.openaec.org/schema/2.0/ifcx.schema.json",
+  "title": "IfcX Drawing Exchange Format v2",
+  "description": "Open drawing exchange format extending IFC5 concepts with full 2D/3D CAD capabilities. JSON-native, no STEP.",
+  "type": "object",
+  "required": ["header", "data"],
+  "properties": {
+    "header": { "$ref": "#/$defs/IfcxHeader" },
+    "imports": {
+      "type": "array",
+      "description": "Schema imports (IFC5-style URI references)",
+      "items": { "$ref": "#/$defs/IfcxImport" }
+    },
+    "schemas": {
+      "type": "object",
+      "description": "Inline schema definitions for custom attributes",
+      "additionalProperties": true
+    },
+    "data": {
+      "type": "array",
+      "description": "Flat array of IfcxNode objects (IFC5-style composition)",
+      "items": { "$ref": "#/$defs/IfcxNode" }
+    },
+    "media": {
+      "type": "object",
+      "description": "Embedded raster images and binary resources",
+      "additionalProperties": { "$ref": "#/$defs/IfcxMedia" }
+    }
+  },
+
+  "$defs": {
+
+    "IfcxHeader": {
+      "type": "object",
+      "required": ["ifcxVersion"],
+      "properties": {
+        "id": { "type": "string", "description": "Unique dataset identifier (UUID)" },
+        "ifcxVersion": { "type": "string", "const": "2.0" },
+        "dataVersion": { "type": "string", "description": "User-defined version (semver)" },
+        "author": { "type": "string" },
+        "organization": { "type": "string" },
+        "application": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "units": { "$ref": "#/$defs/IfcxUnits" },
+        "coordinateSystem": {
+          "type": "object",
+          "properties": {
+            "epsg": { "type": "integer", "description": "EPSG code (e.g. 28992 for Rijksdriehoek)" },
+            "wkt": { "type": "string", "description": "WKT coordinate system definition" }
+          }
+        }
+      }
+    },
+
+    "IfcxImport": {
+      "type": "object",
+      "properties": {
+        "uri": { "type": "string", "description": "URI to external .ifcx schema file" },
+        "as": { "type": "string", "description": "Namespace alias" }
+      },
+      "required": ["uri"]
+    },
+
+    "IfcxUnits": {
+      "type": "object",
+      "properties": {
+        "length": { "type": "string", "enum": ["mm", "cm", "m", "km", "in", "ft", "yd", "mi"], "default": "mm" },
+        "angle": { "type": "string", "enum": ["rad", "deg", "grad"], "default": "rad" },
+        "area": { "type": "string", "enum": ["mm2", "cm2", "m2", "km2", "ft2"], "default": "m2" }
+      }
+    },
+
+    "IfcxNode": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string", "description": "Unique identifier (UUID or composed path)" },
+        "children": {
+          "type": "object",
+          "description": "Named child references (name -> path, null = remove)",
+          "additionalProperties": { "type": ["string", "null"] }
+        },
+        "inherits": {
+          "type": "object",
+          "description": "Type inheritance (name -> source path)",
+          "additionalProperties": { "type": ["string", "null"] }
+        },
+        "attributes": {
+          "type": "object",
+          "description": "Attribute data keyed by namespace::name",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "IfcxMedia": {
+      "type": "object",
+      "description": "Embedded raster image or binary resource",
+      "properties": {
+        "mimeType": { "type": "string", "description": "MIME type (image/png, image/jpeg, image/tiff, application/pdf)" },
+        "width": { "type": "integer" },
+        "height": { "type": "integer" },
+        "dpi": { "type": "number" },
+        "data": { "type": "string", "description": "Base64-encoded binary data" },
+        "uri": { "type": "string", "description": "External file reference (alternative to embedded data)" }
+      }
+    },
+
+    "IfcxGeometry": {
+      "description": "All geometry types use IFC naming with IfcX extensions",
+      "oneOf": [
+        { "$ref": "#/$defs/IfcLine" },
+        { "$ref": "#/$defs/IfcPolyline" },
+        { "$ref": "#/$defs/IfcCompositeCurve" },
+        { "$ref": "#/$defs/IfcCircle" },
+        { "$ref": "#/$defs/IfcEllipse" },
+        { "$ref": "#/$defs/IfcTrimmedCurve" },
+        { "$ref": "#/$defs/IfcBSplineCurveWithKnots" },
+        { "$ref": "#/$defs/IfcIndexedPolyCurve" },
+        { "$ref": "#/$defs/IfcxMesh" }
+      ]
+    },
+
+    "IfcLine": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IfcLine" },
+        "origin": { "$ref": "#/$defs/Point" },
+        "direction": { "$ref": "#/$defs/Point" }
+      }
+    },
+
+    "IfcPolyline": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IfcPolyline" },
+        "points": { "type": "array", "items": { "$ref": "#/$defs/Point" } }
+      }
+    },
+
+    "IfcCompositeCurve": {
+      "type": "object",
+      "description": "Chain of curve segments (replaces DXF LWPOLYLINE with bulges)",
+      "properties": {
+        "type": { "const": "IfcCompositeCurve" },
+        "closed": { "type": "boolean", "default": false },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["line", "arc", "spline"] },
+              "points": { "type": "array", "items": { "$ref": "#/$defs/Point" } },
+              "center": { "$ref": "#/$defs/Point" },
+              "radius": { "type": "number" },
+              "bulge": { "type": "number" },
+              "sweepAngle": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+
+    "IfcCircle": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IfcCircle" },
+        "center": { "$ref": "#/$defs/Point" },
+        "radius": { "type": "number" }
+      }
+    },
+
+    "IfcEllipse": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IfcEllipse" },
+        "center": { "$ref": "#/$defs/Point" },
+        "semiAxis1": { "type": "number" },
+        "semiAxis2": { "type": "number" },
+        "rotation": { "type": "number", "default": 0 }
+      }
+    },
+
+    "IfcTrimmedCurve": {
+      "type": "object",
+      "description": "Arc or trimmed curve (replaces DXF ARC)",
+      "properties": {
+        "type": { "const": "IfcTrimmedCurve" },
+        "basisCurve": { "type": "string", "description": "Reference to basis curve (IfcCircle, IfcEllipse, etc.)" },
+        "center": { "$ref": "#/$defs/Point" },
+        "radius": { "type": "number" },
+        "startAngle": { "type": "number" },
+        "endAngle": { "type": "number" },
+        "senseAgreement": { "type": "boolean", "default": true }
+      }
+    },
+
+    "IfcBSplineCurveWithKnots": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "IfcBSplineCurveWithKnots" },
+        "degree": { "type": "integer" },
+        "controlPoints": { "type": "array", "items": { "$ref": "#/$defs/Point" } },
+        "knots": { "type": "array", "items": { "type": "number" } },
+        "knotMultiplicities": { "type": "array", "items": { "type": "integer" } },
+        "weights": { "type": "array", "items": { "type": "number" } },
+        "closed": { "type": "boolean", "default": false }
+      }
+    },
+
+    "IfcIndexedPolyCurve": {
+      "type": "object",
+      "description": "Compact polyline/arc curve using indexed point list",
+      "properties": {
+        "type": { "const": "IfcIndexedPolyCurve" },
+        "points": { "type": "array", "items": { "$ref": "#/$defs/Point" } },
+        "segments": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "object", "properties": { "line": { "type": "array", "items": { "type": "integer" } } } },
+              { "type": "object", "properties": { "arc": { "type": "array", "items": { "type": "integer" }, "minItems": 3, "maxItems": 3 } } }
+            ]
+          }
+        },
+        "closed": { "type": "boolean", "default": false }
+      }
+    },
+
+    "IfcxMesh": {
+      "type": "object",
+      "description": "Triangulated mesh (USD-style, for 3D geometry)",
+      "properties": {
+        "type": { "const": "IfcxMesh" },
+        "points": { "type": "array", "items": { "$ref": "#/$defs/Point" } },
+        "faceVertexIndices": { "type": "array", "items": { "type": "integer" } },
+        "faceVertexCounts": { "type": "array", "items": { "type": "integer" } },
+        "normals": { "type": "array", "items": { "$ref": "#/$defs/Point" } }
+      }
+    },
+
+    "Point": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 3,
+      "description": "[x, y] or [x, y, z]"
+    },
+
+    "Transform": {
+      "type": "object",
+      "description": "4x4 transformation matrix (USD-style, column-major)",
+      "properties": {
+        "matrix": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+          "minItems": 4, "maxItems": 4
+        }
+      }
+    },
+
+    "Colour": {
+      "type": "object",
+      "properties": {
+        "r": { "type": "number", "minimum": 0, "maximum": 1 },
+        "g": { "type": "number", "minimum": 0, "maximum": 1 },
+        "b": { "type": "number", "minimum": 0, "maximum": 1 },
+        "a": { "type": "number", "minimum": 0, "maximum": 1, "default": 1 }
+      }
+    },
+
+    "Ref": {
+      "type": "object",
+      "properties": {
+        "ref": { "type": "string", "description": "Reference to another node by path" }
+      },
+      "required": ["ref"]
+    }
+  }
+}
