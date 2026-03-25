@@ -134,6 +134,7 @@
   .stat-item:nth-child(3) { background: #0088ee; }
   .stat-item:nth-child(4) { background: #2299ff; }
   .stat-item:nth-child(5) { background: #44aaff; }
+  .stat-item:nth-child(6) { background: #55bbff; }
 
   .stat-item .stat-value {
     font-size: 22px;
@@ -315,7 +316,7 @@
       <div class="subtitle">Open Drawing Exchange Format &mdash; Project Report</div>
     </div>
     <div class="logo">
-      <div class="version">v1.0</div>
+      <div class="version">v2.0</div>
       OpenAEC Foundation<br>
       Maart 2026
     </div>
@@ -325,17 +326,18 @@
     <strong>IFCX</strong> is een nieuw, volledig open-source bestandsformaat voor CAD-tekeningen.
     Het biedt een modern alternatief voor het gesloten DWG-formaat en het verouderde DXF-formaat,
     met volledige ondersteuning voor 2D en 3D tekendata, inclusief afmetingen, arceringen, blokken,
-    papierruimte en viewports.
+    papierruimte en viewports. De v2 schema-architectuur is compatibel met IFC5 (buildingSMART)
+    en biedt ingebouwd versiebeheer (GitDiff).
   </p>
 
   <!-- Stats bar -->
   <div class="stats-bar">
     <div class="stat-item">
-      <span class="stat-value">198</span>
+      <span class="stat-value">200+</span>
       <span class="stat-label">Bestanden</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value">42.291</span>
+      <span class="stat-value">50.000+</span>
       <span class="stat-label">Regels code</span>
     </div>
     <div class="stat-item">
@@ -343,12 +345,16 @@
       <span class="stat-label">Talen</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value">5</span>
+      <span class="stat-value">6</span>
       <span class="stat-label">Integraties</span>
     </div>
     <div class="stat-item">
       <span class="stat-value">94%</span>
       <span class="stat-label">Compressie</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">2</span>
+      <span class="stat-label">Schema's</span>
     </div>
   </div>
 
@@ -364,8 +370,16 @@
       <div class="usp-text">Het IFCXB binair formaat (CBOR + Zstandard) bereikt bestandsgroottes vergelijkbaar met of beter dan DWG. Getest met 15 echte tekeningen.</div>
     </div>
     <div class="usp-card">
-      <div class="usp-title">Volledig DWG/DXF-compatibel</div>
-      <div class="usp-text">Ondersteunt alle 45+ DWG/DXF entity types: lijnen, bogen, splines, tekst, maatvoering, arcering, blokken, viewports, 3D solids en meer.</div>
+      <div class="usp-title">v2 Schema: IFC5-compatibel</div>
+      <div class="usp-text">De v2 architectuur gebruikt het IFC5 node/compositie-model van buildingSMART. Elk geldig IFC5-bestand is automatisch een geldig IFCX-bestand. Uitbreidbaar via namespaces.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Ingebouwd Versiebeheer (GitDiff)</div>
+      <div class="usp-text">Optioneel revision tracking in het bestand zelf: semantische diffs per node/attribuut, branching, merging, undo. Geen externe VCS nodig.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Tekening + Model Scheiding</div>
+      <div class="usp-text">Expliciet onderscheid via ifcx::purpose: "drawing" (domme geometrie), "model" (BIM-objecten), "annotation" (maatvoering), "sheet" (bladindeling). In &eacute;&eacute;n bestand.</div>
     </div>
     <div class="usp-card">
       <div class="usp-title">Eigen Parsers, Geen Libraries</div>
@@ -377,7 +391,7 @@
     </div>
     <div class="usp-card">
       <div class="usp-title">Multi-taal &amp; Multi-platform</div>
-      <div class="usp-text">Libraries in Python, TypeScript, Rust, C++, C# en JavaScript. Integraties met Revit, FreeCAD, Blender, plus een web viewer en CLI tool.</div>
+      <div class="usp-text">Libraries in Python, TypeScript, Rust, C++, C# en JavaScript. Integraties met Revit, FreeCAD, Blender, plus een web viewer, CLI tool en schema helper.</div>
     </div>
   </div>
 
@@ -421,11 +435,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td><strong>.ifcx</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX JSON (natief formaat)</td></tr>
+      <tr><td><strong>.ifcx (v1)</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX JSON &mdash; entity-based schema</td></tr>
+      <tr><td><strong>.ifcx (v2)</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX JSON &mdash; IFC5 node-based schema</td></tr>
       <tr><td><strong>.ifcxb</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX Binair (CBOR + Zstandard)</td></tr>
       <tr><td><strong>.dxf</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>AutoCAD DXF (R12&ndash;R2024)</td></tr>
       <tr><td><strong>.dwg</strong></td><td class="check">Alle talen</td><td class="dash">&mdash;</td><td>AutoCAD DWG (R2000/AC1015)</td></tr>
       <tr><td><strong>.dgn</strong></td><td class="check">Alle talen</td><td class="dash">&mdash;</td><td>MicroStation DGN V7 (ISFF)</td></tr>
+      <tr><td><strong>.geojson</strong></td><td colspan="2" style="text-align:center; color:#888;">Gepland</td><td>GeoJSON geografische features</td></tr>
+      <tr><td><strong>.gml</strong></td><td colspan="2" style="text-align:center; color:#888;">Gepland</td><td>OGC Geography Markup Language</td></tr>
     </tbody>
   </table>
 
@@ -446,7 +463,7 @@
       <div class="subtitle">Architectuur, Libraries &amp; Integraties</div>
     </div>
     <div class="logo">
-      <div class="version">v1.0</div>
+      <div class="version">v2.0</div>
     </div>
   </div>
 
@@ -458,8 +475,8 @@
       <div class="arch-detail">Invoerformaten</div>
     </div>
     <div class="arch-box highlight">
-      <div class="arch-title">IFCX (JSON)</div>
-      <div class="arch-detail">Leesbaar, diffable</div>
+      <div class="arch-title">IFCX v2 (JSON)</div>
+      <div class="arch-detail">IFC5-compatibel, diffable</div>
     </div>
     <div class="arch-box highlight" style="background: #004499;">
       <div class="arch-title">IFCXB (Binair)</div>
@@ -468,27 +485,27 @@
     <div class="arch-arrow">&darr;&nbsp; From-scratch parsers in 6 talen &nbsp;&darr;</div>
     <div class="arch-box">
       <div class="arch-title">Python</div>
-      <div class="arch-detail">16.243 regels</div>
+      <div class="arch-detail">16.000+ regels</div>
     </div>
     <div class="arch-box">
       <div class="arch-title">TypeScript</div>
-      <div class="arch-detail">5.839 regels</div>
+      <div class="arch-detail">6.000+ regels</div>
     </div>
     <div class="arch-box">
       <div class="arch-title">Rust</div>
-      <div class="arch-detail">6.118 regels</div>
+      <div class="arch-detail">6.000+ regels</div>
     </div>
     <div class="arch-box">
       <div class="arch-title">C++</div>
-      <div class="arch-detail">6.167 regels</div>
+      <div class="arch-detail">6.000+ regels</div>
     </div>
     <div class="arch-box">
       <div class="arch-title">C# (.NET 8)</div>
-      <div class="arch-detail">5.447 regels</div>
+      <div class="arch-detail">5.500+ regels</div>
     </div>
     <div class="arch-box">
       <div class="arch-title">JavaScript</div>
-      <div class="arch-detail">2.477 regels</div>
+      <div class="arch-detail">2.500+ regels</div>
     </div>
   </div>
 
@@ -538,6 +555,14 @@
           <div class="icon" style="background: #333;">C</div>
           <div><strong>CLI Tool</strong><br><span style="font-size:11px;color:#666;">convert, info, validate, diff, stats</span></div>
         </li>
+        <li>
+          <div class="icon" style="background: #7b1fa2;">S</div>
+          <div><strong>Schema Helper</strong><br><span style="font-size:11px;color:#666;">Interactieve schema browser (v1 + v2)</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background: #2e7d32;">Q</div>
+          <div><strong>QGIS (gepland)</strong><br><span style="font-size:11px;color:#666;">GIS-integratie met CRS en vectorlagen</span></div>
+        </li>
       </ul>
     </div>
 
@@ -582,23 +607,26 @@
 
   <table>
     <thead>
-      <tr><th style="width:20%">Criterium</th><th style="width:20%">DWG</th><th style="width:20%">DXF</th><th style="width:20%">IFC</th><th style="width:20%">IFCX</th></tr>
+      <tr><th style="width:20%">Criterium</th><th style="width:16%">DWG</th><th style="width:16%">DXF</th><th style="width:16%">IFC</th><th style="width:16%">IFC5</th><th style="width:16%">IFCX v2</th></tr>
     </thead>
     <tbody>
-      <tr><td><strong>Open standaard</strong></td><td class="dash">Nee</td><td>Gedeeltelijk</td><td class="check">Ja (ISO)</td><td class="check">Ja (MIT)</td></tr>
-      <tr><td><strong>2D tekeningen</strong></td><td class="check">Volledig</td><td class="check">Volledig</td><td class="dash">Beperkt</td><td class="check">Volledig</td></tr>
-      <tr><td><strong>Compact binair</strong></td><td class="check">Ja</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="check">Ja (94%+)</td></tr>
-      <tr><td><strong>Menselijk leesbaar</strong></td><td class="dash">Nee</td><td>Matig</td><td class="dash">Moeilijk</td><td class="check">JSON</td></tr>
-      <tr><td><strong>Multi-taal libs</strong></td><td class="dash">ODA ($)</td><td>Verspreid</td><td>IfcOpenShell</td><td class="check">6 talen</td></tr>
-      <tr><td><strong>Versiebeheer</strong></td><td class="dash">Binair</td><td>Matig</td><td>Moeilijk</td><td class="check">Git-diffable</td></tr>
-      <tr><td><strong>Maatvoering</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Verwijderd</td><td class="check">Alle types</td></tr>
-      <tr><td><strong>Paper space</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Nee</td><td class="check">Ja</td></tr>
+      <tr><td><strong>Open standaard</strong></td><td class="dash">Nee</td><td>Gedeeltelijk</td><td class="check">Ja (ISO)</td><td class="check">Ja</td><td class="check">Ja (MIT)</td></tr>
+      <tr><td><strong>2D tekeningen</strong></td><td class="check">Volledig</td><td class="check">Volledig</td><td class="dash">Beperkt</td><td class="dash">Beperkt</td><td class="check">Volledig</td></tr>
+      <tr><td><strong>IFC5 compatibel</strong></td><td class="dash">Nee</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="check">Ja</td><td class="check">Superset</td></tr>
+      <tr><td><strong>Compact binair</strong></td><td class="check">Ja</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="check">Ja (94%+)</td></tr>
+      <tr><td><strong>Menselijk leesbaar</strong></td><td class="dash">Nee</td><td>Matig</td><td class="dash">Moeilijk</td><td class="check">JSON</td><td class="check">JSON</td></tr>
+      <tr><td><strong>Multi-taal libs</strong></td><td class="dash">ODA ($)</td><td>Verspreid</td><td>IfcOpenShell</td><td>&mdash;</td><td class="check">6 talen</td></tr>
+      <tr><td><strong>Versiebeheer</strong></td><td class="dash">Binair</td><td>Matig</td><td>Moeilijk</td><td class="dash">Nee</td><td class="check">GitDiff</td></tr>
+      <tr><td><strong>Tekening+Model</strong></td><td>Tekening</td><td>Tekening</td><td>Model</td><td>Model</td><td class="check">Beide</td></tr>
+      <tr><td><strong>Maatvoering</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Verwijderd</td><td class="dash">Nee</td><td class="check">Alle types</td></tr>
+      <tr><td><strong>Paper space</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="check">Ja</td></tr>
     </tbody>
   </table>
 
   <div class="highlight-box">
-    IFCX combineert het beste van alle werelden: de volledigheid van DWG, de openheid van IFC,
-    de leesbaarheid van JSON, en een compressie die DWG overtreft &mdash; alles onder een MIT-licentie.
+    IFCX v2 combineert het beste van alle werelden: de volledigheid van DWG, de openheid van IFC,
+    de leesbaarheid van JSON, IFC5-compatibiliteit, ingebouwd versiebeheer, en een compressie die DWG
+    overtreft &mdash; alles onder een MIT-licentie.
   </div>
 
   <div class="page-footer">

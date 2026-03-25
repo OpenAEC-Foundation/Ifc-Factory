@@ -548,7 +548,7 @@ impl V2Converter {
         }
     }
 
-    fn entity_to_node(&self, ent: &Entity, path: &str) -> Option<Value> {
+    fn entity_to_node(&mut self, ent: &Entity, path: &str) -> Option<Value> {
         let etype = ent.entity_type.as_str();
         let mut attrs = Map::new();
         attrs.insert("ifcx::purpose".to_string(), json!("drawing"));
@@ -949,10 +949,9 @@ impl V2Converter {
                 }
                 if let Some(ipath) = prop_str(ent, "imagePath") {
                     let media_id = uid();
-                    img.insert("mediaId".to_string(), json!(media_id));
-                    // Note: media is not mut-borrowed here, handled after
-                    // We store path info directly
-                    img.insert("_mediaPath".to_string(), json!(ipath));
+                    img.insert("mediaId".to_string(), json!(&media_id));
+                    self.media
+                        .insert(media_id, json!({"path": ipath}));
                 }
                 attrs.insert("ifcx::image::raster".to_string(), Value::Object(img));
             }

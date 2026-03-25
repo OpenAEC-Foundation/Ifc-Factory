@@ -20,3 +20,5 @@ pub use converters::dxf_import::DxfImporter;
 pub use converters::dxf_export::DxfExporter;
 pub use converters::dwg_import::DwgImporter;
 pub use converters::dgn_import::DgnImporter;
+pub use converters::v2_converter::V2Converter;
+pub use converters::v2_export::V2Export;
