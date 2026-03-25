@@ -25,6 +25,8 @@ set(IFCX_SOURCES
     src/dwg_import.cpp
     src/dgn_parser.cpp
     src/dgn_import.cpp
+    src/v2_converter.cpp
+    src/v2_export.cpp
 )
 
 # Library target

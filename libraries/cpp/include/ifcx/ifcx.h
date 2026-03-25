@@ -7,5 +7,6 @@
 #include "ifcx/writer.h"
 #include "ifcx/binary.h"
 #include "ifcx/converters.h"
+#include "ifcx/v2_converter.h"
 
 #endif // IFCX_IFCX_H
