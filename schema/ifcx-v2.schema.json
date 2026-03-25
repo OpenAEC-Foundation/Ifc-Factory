@@ -76,6 +76,11 @@
       "required": ["path"],
       "properties": {
         "path": { "type": "string", "description": "Unique identifier (UUID or composed path)" },
+        "purpose": {
+          "type": "string",
+          "enum": ["drawing", "model", "annotation", "sheet", "style", "definition"],
+          "description": "What this node represents. 'drawing' = dumb 2D/3D geometry (not part of BIM model). 'model' = smart BIM object (IfcWall etc). 'annotation' = dimension/text referencing model objects. 'sheet' = paper space layout. 'style' = reusable style definition. 'definition' = reusable component/block definition."
+        },
         "children": {
           "type": "object",
           "description": "Named child references (name -> path, null = remove)",
