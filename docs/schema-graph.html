@@ -7,395 +7,292 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0a0c14; color: #ccc; font-family: system-ui, sans-serif; overflow: hidden; }
-canvas { display: block; }
+canvas { display: block; cursor: grab; }
+canvas.dragging { cursor: grabbing; }
 #info {
-  position: fixed; top: 10px; left: 10px; background: rgba(15,17,25,0.9);
-  border: 1px solid #2a2d3a; border-radius: 8px; padding: 14px; max-width: 300px;
-  font-size: 12px; z-index: 10;
+  position: fixed; top: 10px; left: 10px; background: rgba(15,17,25,0.92);
+  border: 1px solid #2a2d3a; border-radius: 8px; padding: 14px; max-width: 280px;
+  font-size: 12px; z-index: 10; pointer-events: none;
 }
 #info h2 { color: #4da6ff; font-size: 15px; margin-bottom: 6px; }
-#info p { color: #888; font-size: 11px; line-height: 1.5; margin-bottom: 8px; }
-#legend { position: fixed; bottom: 10px; left: 10px; display: flex; gap: 12px; flex-wrap: wrap; z-index: 10; }
-.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #888; }
+#info p { color: #888; font-size: 11px; line-height: 1.5; margin-bottom: 4px; }
+#info .keys { color: #4da6ff; font-size: 10px; }
+#legend {
+  position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 14px; z-index: 10; pointer-events: none;
+}
+.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #777; }
 .leg .dot { width: 10px; height: 10px; border-radius: 2px; }
 #tooltip {
-  position: fixed; display: none; background: rgba(15,17,25,0.95);
+  position: fixed; display: none; background: rgba(10,12,20,0.95);
   border: 1px solid #4da6ff; border-radius: 6px; padding: 10px 14px;
-  font-size: 11px; z-index: 20; pointer-events: none; max-width: 350px;
+  font-size: 11px; z-index: 20; pointer-events: none; max-width: 320px;
 }
 #tooltip h3 { color: #4da6ff; font-size: 13px; margin-bottom: 4px; }
-#tooltip .attr { color: #7ec; font-family: monospace; font-size: 10px; }
+#tooltip .attr { color: #7ec; font-family: monospace; font-size: 10px; line-height: 1.6; }
 #controls {
   position: fixed; top: 10px; right: 10px; z-index: 10;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 5px;
 }
 #controls button {
-  background: #1a1d28; border: 1px solid #2a2d3a; color: #ccc;
-  padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;
+  background: #1a1d28; border: 1px solid #2a2d3a; color: #aaa;
+  padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;
 }
-#controls button:hover { background: #2a2d3a; border-color: #4da6ff; }
+#controls button:hover { background: #2a2d3a; color: #fff; }
 #controls button.active { background: #1a3a5c; border-color: #4da6ff; color: #4da6ff; }
 </style>
 </head>
 <body>
 <div id="info">
   <h2>IfcX v2 Schema Graph</h2>
-  <p>Interactieve node-graph van het IfcX v2 schema.<br>
-  Sleep nodes om ze te verplaatsen. Scroll om te zoomen.<br>
-  Klik op een node voor details.</p>
-  <p style="color:#4da6ff;">Nodes = IfcxNode objecten<br>
-  Blauwe lijnen = children<br>
-  Groene lijnen = inherits<br>
-  Oranje lijnen = connects (style/layer/source)</p>
+  <p>Sleep nodes om te verplaatsen. Scroll = zoom. Rechtermuisknop = pan.</p>
+  <p class="keys">Blauw = children | Groen = inherits | Oranje = connects</p>
 </div>
-
 <div id="controls">
-  <button class="active" onclick="toggleFilter('all')">Alles</button>
-  <button onclick="toggleFilter('drawing')">Tekeningen</button>
-  <button onclick="toggleFilter('model')">Model</button>
-  <button onclick="toggleFilter('sheet')">Sheets</button>
-  <button onclick="toggleFilter('style')">Stijlen</button>
+  <button class="active" id="btn-all">Alles</button>
+  <button id="btn-drawing">Tekeningen</button>
+  <button id="btn-model">Model</button>
+  <button id="btn-sheet">Sheets</button>
+  <button id="btn-style">Stijlen</button>
 </div>
-
 <div id="legend">
-  <div class="leg"><div class="dot" style="background:#4da6ff"></div>Spatial/Project</div>
-  <div class="leg"><div class="dot" style="background:#51cf66"></div>Geometry (drawing)</div>
+  <div class="leg"><div class="dot" style="background:#4da6ff"></div>Spatial</div>
+  <div class="leg"><div class="dot" style="background:#51cf66"></div>Geometry</div>
   <div class="leg"><div class="dot" style="background:#da77f2"></div>Annotation</div>
-  <div class="leg"><div class="dot" style="background:#ffa94d"></div>Hatching</div>
+  <div class="leg"><div class="dot" style="background:#ffa94d"></div>Hatch</div>
   <div class="leg"><div class="dot" style="background:#ffd43b"></div>Style/Layer</div>
-  <div class="leg"><div class="dot" style="background:#74c0fc"></div>Component/Block</div>
-  <div class="leg"><div class="dot" style="background:#ff6b6b"></div>Sheet/Viewport</div>
+  <div class="leg"><div class="dot" style="background:#74c0fc"></div>Component</div>
+  <div class="leg"><div class="dot" style="background:#ff6b6b"></div>Sheet</div>
   <div class="leg"><div class="dot" style="background:#20c997"></div>View</div>
-  <div class="leg"><div class="dot" style="background:#aaa"></div>Image/Media</div>
 </div>
-
 <div id="tooltip"></div>
 <canvas id="c"></canvas>
-
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const tooltip = document.getElementById('tooltip');
-
+const C = document.getElementById('c');
+const X = C.getContext('2d');
+const TT = document.getElementById('tooltip');
 let W, H;
-function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
-resize();
-addEventListener('resize', resize);
+function resize() { W = C.width = innerWidth; H = C.height = innerHeight; }
+resize(); addEventListener('resize', resize);
 
-// Node data
-const nodes = [
-  // Project hierarchy
-  {id:'project', label:'IfcProject', color:'#4da6ff', purpose:'model', x:600, y:60,
-   attrs:['bsi::ifc::class: IfcProject', 'ifcx::view::name: "Woonhuis"']},
-  {id:'drawings', label:'Drawings/', color:'#20c997', purpose:'drawing', x:300, y:160,
-   attrs:['Container voor alle tekeningen']},
-  {id:'model', label:'Model/', color:'#4da6ff', purpose:'model', x:600, y:160,
-   attrs:['Container voor BIM objecten']},
-  {id:'sheets', label:'Sheets/', color:'#ff6b6b', purpose:'sheet', x:900, y:160,
-   attrs:['Container voor bladindelingen']},
-
-  // Views
-  {id:'view-bg', label:'Plattegrond BG', color:'#20c997', purpose:'drawing', x:150, y:280,
-   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: plan', 'ifcx::view::cutHeight: 1200']},
-  {id:'view-1v', label:'Plattegrond 1V', color:'#20c997', purpose:'drawing', x:300, y:280,
-   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: plan']},
-  {id:'view-sect', label:'Doorsnede A-A', color:'#20c997', purpose:'drawing', x:450, y:280,
-   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: section']},
-
-  // Geometry elements
-  {id:'e001', label:'wall_north', color:'#51cf66', purpose:'drawing', x:80, y:420,
-   attrs:['ifcx::geom::line', 'points: [[0,0],[5000,0]]']},
-  {id:'e002', label:'wall_east', color:'#51cf66', purpose:'drawing', x:200, y:420,
-   attrs:['ifcx::geom::line', 'points: [[5000,0],[5000,4000]]']},
-  {id:'e003', label:'door_symbol', color:'#51cf66', purpose:'drawing', x:320, y:420,
-   attrs:['ifcx::geom::trimmedCurve', 'radius: 900, sweep: 90°']},
-  {id:'e004', label:'hatch_floor', color:'#ffa94d', purpose:'drawing', x:440, y:420,
-   attrs:['ifcx::hatch::nen47', 'material: beton, scale: 50']},
-
-  // Annotations
-  {id:'d001', label:'dim_width', color:'#da77f2', purpose:'annotation', x:120, y:540,
-   attrs:['ifcx::annotation::dimension', 'subtype: linear, value: 5000']},
-  {id:'t001', label:'room_label', color:'#da77f2', purpose:'annotation', x:280, y:540,
-   attrs:['ifcx::annotation::text', 'value: "Woonkamer 45m²"']},
-
-  // Model objects
-  {id:'site', label:'IfcSite', color:'#4da6ff', purpose:'model', x:600, y:280,
-   attrs:['bsi::ifc::class: IfcSite']},
-  {id:'building', label:'IfcBuilding', color:'#4da6ff', purpose:'model', x:600, y:370,
-   attrs:['bsi::ifc::class: IfcBuilding']},
-  {id:'storey', label:'Storey BG', color:'#4da6ff', purpose:'model', x:600, y:460,
-   attrs:['bsi::ifc::class: IfcBuildingStorey', 'bsi::ifc::prop::Elevation: 0']},
-  {id:'wall-m', label:'IfcWall_001', color:'#4da6ff', purpose:'model', x:550, y:560,
-   attrs:['bsi::ifc::class: IfcWall', 'bsi::ifc::prop::Height: 2800', 'bsi::ifc::material: Beton C30']},
-  {id:'door-m', label:'IfcDoor_001', color:'#4da6ff', purpose:'model', x:680, y:560,
-   attrs:['bsi::ifc::class: IfcDoor', 'bsi::ifc::prop::Width: 900']},
-
-  // Styles (shared)
-  {id:'s-cut', label:'Style: Cut', color:'#ffd43b', purpose:'style', x:80, y:650,
-   attrs:['ifcx::style::curveStyle', 'colour: black, width: 0.35mm']},
-  {id:'s-proj', label:'Style: Projection', color:'#ffd43b', purpose:'style', x:220, y:650,
-   attrs:['ifcx::style::curveStyle', 'colour: grey, width: 0.18mm']},
-  {id:'s-dim', label:'Style: Dimension', color:'#ffd43b', purpose:'style', x:360, y:650,
-   attrs:['ifcx::style::curveStyle', 'colour: green, width: 0.18mm']},
-
-  // Layers
-  {id:'l-walls', label:'Layer: Walls', color:'#ffd43b', purpose:'style', x:500, y:650,
-   attrs:['ifcx::layer::style', 'visible: true, plot: true']},
-
-  // Sheet
-  {id:'sheet1', label:'A1-001', color:'#ff6b6b', purpose:'sheet', x:850, y:280,
-   attrs:['ifcx::sheet::paper', 'width: 841mm, height: 594mm']},
-  {id:'vp1', label:'Viewport 1', color:'#ff6b6b', purpose:'sheet', x:800, y:400,
-   attrs:['ifcx::sheet::viewport', 'view: Plattegrond BG, scale: 1:50']},
-  {id:'vp2', label:'Viewport 2', color:'#ff6b6b', purpose:'sheet', x:950, y:400,
-   attrs:['ifcx::sheet::viewport', 'view: Doorsnede A-A, scale: 1:50']},
-
-  // Definitions
-  {id:'def-door', label:'DoorType 90cm', color:'#74c0fc', purpose:'definition', x:900, y:540,
-   attrs:['ifcx::component::definition', 'Herbruikbaar deursymbool']},
-  {id:'def-tb', label:'TitleBlock A1', color:'#74c0fc', purpose:'definition', x:1050, y:400,
-   attrs:['ifcx::component::definition', 'Titelblok template']},
-
-  // Image
-  {id:'img1', label:'Foto gevel', color:'#aaa', purpose:'drawing', x:1000, y:560,
-   attrs:['ifcx::image::raster', 'mediaId: img-001, 1920x1080']},
+// === DATA ===
+const N = [
+  {id:'project', l:'IfcProject', c:'#4da6ff', p:'model', x:500, y:50, a:['bsi::ifc::class: IfcProject']},
+  {id:'drawings', l:'Drawings/', c:'#20c997', p:'drawing', x:200, y:150, a:['Tekeningen container']},
+  {id:'model', l:'Model/', c:'#4da6ff', p:'model', x:500, y:150, a:['BIM objecten']},
+  {id:'sheets', l:'Sheets/', c:'#ff6b6b', p:'sheet', x:800, y:150, a:['Bladindelingen']},
+  {id:'v1', l:'Plattegrond BG', c:'#20c997', p:'drawing', x:100, y:270, a:['ifcx::view::scale: 50','ifcx::view::projection: plan']},
+  {id:'v2', l:'Plattegrond 1V', c:'#20c997', p:'drawing', x:250, y:270, a:['ifcx::view::scale: 50']},
+  {id:'v3', l:'Doorsnede A-A', c:'#20c997', p:'drawing', x:400, y:270, a:['ifcx::view::scale: 50','ifcx::view::projection: section']},
+  {id:'e1', l:'wall_north', c:'#51cf66', p:'drawing', x:50, y:400, a:['ifcx::geom::line','[[0,0],[5000,0]]']},
+  {id:'e2', l:'wall_east', c:'#51cf66', p:'drawing', x:170, y:400, a:['ifcx::geom::line','[[5000,0],[5000,4000]]']},
+  {id:'e3', l:'door_symbol', c:'#51cf66', p:'drawing', x:290, y:400, a:['ifcx::geom::trimmedCurve','radius: 900']},
+  {id:'e4', l:'hatch_floor', c:'#ffa94d', p:'drawing', x:410, y:400, a:['ifcx::hatch::nen47','material: beton']},
+  {id:'d1', l:'dim_width', c:'#da77f2', p:'annotation', x:100, y:520, a:['ifcx::annotation::dimension','linear, 5000mm']},
+  {id:'t1', l:'room_label', c:'#da77f2', p:'annotation', x:260, y:520, a:['ifcx::annotation::text','"Woonkamer 45m\u00b2"']},
+  {id:'site', l:'IfcSite', c:'#4da6ff', p:'model', x:500, y:270, a:['bsi::ifc::class: IfcSite']},
+  {id:'bldg', l:'IfcBuilding', c:'#4da6ff', p:'model', x:500, y:370, a:['bsi::ifc::class: IfcBuilding']},
+  {id:'stor', l:'Storey BG', c:'#4da6ff', p:'model', x:500, y:460, a:['bsi::ifc::class: IfcBuildingStorey']},
+  {id:'wm', l:'IfcWall_001', c:'#4da6ff', p:'model', x:460, y:555, a:['bsi::ifc::class: IfcWall','Height: 2800, Beton C30']},
+  {id:'dm', l:'IfcDoor_001', c:'#4da6ff', p:'model', x:580, y:555, a:['bsi::ifc::class: IfcDoor','Width: 900']},
+  {id:'sc', l:'Style: Cut', c:'#ffd43b', p:'style', x:50, y:630, a:['ifcx::style::curveStyle','black, 0.35mm']},
+  {id:'sd', l:'Style: Dim', c:'#ffd43b', p:'style', x:200, y:630, a:['ifcx::style::curveStyle','green, 0.18mm']},
+  {id:'lw', l:'Layer: Walls', c:'#ffd43b', p:'style', x:350, y:630, a:['ifcx::layer::style','visible, plot']},
+  {id:'sh1', l:'A1-001', c:'#ff6b6b', p:'sheet', x:750, y:270, a:['ifcx::sheet::paper','841x594mm']},
+  {id:'vp1', l:'Viewport 1', c:'#ff6b6b', p:'sheet', x:700, y:390, a:['ifcx::sheet::viewport','view: Plattegrond BG']},
+  {id:'vp2', l:'Viewport 2', c:'#ff6b6b', p:'sheet', x:850, y:390, a:['ifcx::sheet::viewport','view: Doorsnede A-A']},
+  {id:'def', l:'DoorType 90cm', c:'#74c0fc', p:'definition', x:800, y:520, a:['ifcx::component::definition']},
+  {id:'tb', l:'TitleBlock A1', c:'#74c0fc', p:'definition', x:950, y:390, a:['ifcx::component::definition']},
 ];
 
-// Edges
-const edges = [
-  // Children (blue)
-  {from:'project', to:'drawings', type:'child'},
-  {from:'project', to:'model', type:'child'},
-  {from:'project', to:'sheets', type:'child'},
-  {from:'drawings', to:'view-bg', type:'child'},
-  {from:'drawings', to:'view-1v', type:'child'},
-  {from:'drawings', to:'view-sect', type:'child'},
-  {from:'view-bg', to:'e001', type:'child'},
-  {from:'view-bg', to:'e002', type:'child'},
-  {from:'view-bg', to:'e003', type:'child'},
-  {from:'view-bg', to:'e004', type:'child'},
-  {from:'view-bg', to:'d001', type:'child'},
-  {from:'view-bg', to:'t001', type:'child'},
-  {from:'view-1v', to:'e001', type:'child'}, // shared!
-  {from:'view-1v', to:'e002', type:'child'}, // shared!
-  {from:'model', to:'site', type:'child'},
-  {from:'site', to:'building', type:'child'},
-  {from:'building', to:'storey', type:'child'},
-  {from:'storey', to:'wall-m', type:'child'},
-  {from:'storey', to:'door-m', type:'child'},
-  {from:'sheets', to:'sheet1', type:'child'},
-  {from:'sheet1', to:'vp1', type:'child'},
-  {from:'sheet1', to:'vp2', type:'child'},
-
-  // Inherits (green)
-  {from:'e003', to:'def-door', type:'inherit'},
-  {from:'sheet1', to:'def-tb', type:'inherit'},
-
-  // Connects (orange)
-  {from:'e001', to:'s-cut', type:'connect', label:'style'},
-  {from:'e002', to:'s-cut', type:'connect', label:'style'},
-  {from:'e001', to:'l-walls', type:'connect', label:'layer'},
-  {from:'e002', to:'l-walls', type:'connect', label:'layer'},
-  {from:'d001', to:'s-dim', type:'connect', label:'style'},
-  {from:'e001', to:'wall-m', type:'connect', label:'source'},
-  {from:'e003', to:'door-m', type:'connect', label:'source'},
-  {from:'d001', to:'e001', type:'connect', label:'measures'},
-  {from:'d001', to:'e002', type:'connect', label:'measures'},
-  {from:'vp1', to:'view-bg', type:'connect', label:'view'},
-  {from:'vp2', to:'view-sect', type:'connect', label:'view'},
+const E = [
+  {f:'project',g:'drawings',t:'c'},{f:'project',g:'model',t:'c'},{f:'project',g:'sheets',t:'c'},
+  {f:'drawings',g:'v1',t:'c'},{f:'drawings',g:'v2',t:'c'},{f:'drawings',g:'v3',t:'c'},
+  {f:'v1',g:'e1',t:'c'},{f:'v1',g:'e2',t:'c'},{f:'v1',g:'e3',t:'c'},{f:'v1',g:'e4',t:'c'},
+  {f:'v1',g:'d1',t:'c'},{f:'v1',g:'t1',t:'c'},
+  {f:'v2',g:'e1',t:'c'},{f:'v2',g:'e2',t:'c'},
+  {f:'model',g:'site',t:'c'},{f:'site',g:'bldg',t:'c'},{f:'bldg',g:'stor',t:'c'},
+  {f:'stor',g:'wm',t:'c'},{f:'stor',g:'dm',t:'c'},
+  {f:'sheets',g:'sh1',t:'c'},{f:'sh1',g:'vp1',t:'c'},{f:'sh1',g:'vp2',t:'c'},
+  {f:'e3',g:'def',t:'i'},{f:'sh1',g:'tb',t:'i'},
+  {f:'e1',g:'sc',t:'o',lb:'style'},{f:'e2',g:'sc',t:'o',lb:'style'},
+  {f:'e1',g:'lw',t:'o',lb:'layer'},{f:'e2',g:'lw',t:'o',lb:'layer'},
+  {f:'d1',g:'sd',t:'o',lb:'style'},
+  {f:'e1',g:'wm',t:'o',lb:'source'},{f:'e3',g:'dm',t:'o',lb:'source'},
+  {f:'d1',g:'e1',t:'o',lb:'measures'},{f:'d1',g:'e2',t:'o',lb:'measures'},
+  {f:'vp1',g:'v1',t:'o',lb:'view'},{f:'vp2',g:'v3',t:'o',lb:'view'},
 ];
 
-// Physics
-let drag = null, panX = 0, panY = 0, zoom = 1, mouseX = 0, mouseY = 0;
-let activeFilter = 'all';
+// Build lookup
+const NM = {};
+N.forEach(n => { NM[n.id] = n; n.vx = 0; n.vy = 0; n.w = 80; n.h = 34; });
 
-ctx.font = '11px system-ui';
-nodes.forEach(n => { n.vx = 0; n.vy = 0; n.w = Math.max(80, ctx.measureText(n.label).width + 24); n.h = 36; });
+let filter = 'all';
+let cam = {x: 0, y: 0, z: 1};
+let dragging = null, panning = false, lastMx = 0, lastMy = 0;
 
-function toggleFilter(f) {
-  activeFilter = f;
-  document.querySelectorAll('#controls button').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+function vis(n) {
+  if (filter === 'all') return true;
+  if (filter === 'style') return n.p === 'style' || n.p === 'definition';
+  return n.p === filter || n.p === 'drawing' && filter === 'drawing' || n.p === 'annotation' && filter === 'drawing';
 }
 
-function isVisible(n) {
-  if (activeFilter === 'all') return true;
-  if (activeFilter === 'style' && (n.purpose === 'style' || n.purpose === 'definition')) return true;
-  return n.purpose === activeFilter;
+function s2w(sx, sy) {
+  return [(sx - W/2) / cam.z + cam.x, (sy - H/2) / cam.z + cam.y];
 }
 
-function screenToWorld(sx, sy) {
-  return [(sx - W/2) / zoom - panX, (sy - H/2) / zoom - panY];
-}
+// Controls
+document.querySelectorAll('#controls button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#controls button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filter = btn.id.replace('btn-', '');
+  });
+});
 
-function worldToScreen(wx, wy) {
-  return [(wx + panX) * zoom + W/2, (wy + panY) * zoom + W > 0 ? (wy + panY) * zoom + H/2 : 0];
-}
-
-canvas.addEventListener('mousedown', e => {
-  const [mx, my] = screenToWorld(e.clientX, e.clientY);
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const n = nodes[i];
-    if (!isVisible(n)) continue;
-    if (mx > n.x - n.w/2 && mx < n.x + n.w/2 && my > n.y - n.h/2 && my < n.y + n.h/2) {
-      drag = n; n.fixed = true;
-      tooltip.style.display = 'block';
-      tooltip.innerHTML = `<h3>${n.label}</h3><div class="attr">${n.attrs.join('<br>')}</div>`;
+C.addEventListener('mousedown', e => {
+  const [mx, my] = s2w(e.clientX, e.clientY);
+  if (e.button === 2 || e.button === 1) { panning = true; lastMx = e.clientX; lastMy = e.clientY; C.classList.add('dragging'); return; }
+  for (let i = N.length - 1; i >= 0; i--) {
+    const n = N[i];
+    if (!vis(n)) continue;
+    if (mx > n.x - n.w/2 - 4 && mx < n.x + n.w/2 + 4 && my > n.y - n.h/2 - 4 && my < n.y + n.h/2 + 4) {
+      dragging = n;
+      C.classList.add('dragging');
+      TT.style.display = 'block';
+      TT.innerHTML = '<h3>' + n.l + '</h3><div class="attr">' + n.a.join('<br>') + '</div>';
+      TT.style.left = (e.clientX + 15) + 'px';
+      TT.style.top = (e.clientY - 10) + 'px';
       return;
     }
   }
-  drag = 'pan';
+  panning = true; lastMx = e.clientX; lastMy = e.clientY; C.classList.add('dragging');
 });
 
-canvas.addEventListener('mousemove', e => {
-  mouseX = e.clientX; mouseY = e.clientY;
-  if (drag === 'pan') { panX += e.movementX / zoom; panY += e.movementY / zoom; }
-  else if (drag && drag !== 'pan') {
-    const [mx, my] = screenToWorld(e.clientX, e.clientY);
-    drag.x = mx; drag.y = my;
-    tooltip.style.left = (e.clientX + 15) + 'px';
-    tooltip.style.top = (e.clientY - 10) + 'px';
+C.addEventListener('contextmenu', e => e.preventDefault());
+
+C.addEventListener('mousemove', e => {
+  if (panning) {
+    cam.x -= (e.clientX - lastMx) / cam.z;
+    cam.y -= (e.clientY - lastMy) / cam.z;
+    lastMx = e.clientX; lastMy = e.clientY;
+  } else if (dragging) {
+    const [mx, my] = s2w(e.clientX, e.clientY);
+    dragging.x = mx; dragging.y = my;
+    TT.style.left = (e.clientX + 15) + 'px';
+    TT.style.top = (e.clientY - 10) + 'px';
   }
 });
 
-canvas.addEventListener('mouseup', () => {
-  if (drag && drag !== 'pan') drag.fixed = false;
-  drag = null;
+C.addEventListener('mouseup', () => {
+  dragging = null; panning = false; C.classList.remove('dragging');
 });
 
-canvas.addEventListener('wheel', e => {
+C.addEventListener('mouseleave', () => {
+  dragging = null; panning = false; C.classList.remove('dragging');
+  TT.style.display = 'none';
+});
+
+C.addEventListener('wheel', e => {
   e.preventDefault();
-  zoom *= e.deltaY > 0 ? 0.92 : 1.08;
-  zoom = Math.max(0.2, Math.min(4, zoom));
+  const f = e.deltaY > 0 ? 0.9 : 1.1;
+  cam.z = Math.max(0.3, Math.min(5, cam.z * f));
 }, {passive: false});
 
-// Simple force simulation
-function simulate() {
-  const k = 0.0005, repel = 8000, damp = 0.85;
-  for (const n of nodes) {
-    if (n.fixed || !isVisible(n)) continue;
-    let fx = 0, fy = 0;
-    // Repulsion
-    for (const m of nodes) {
-      if (m === n || !isVisible(m)) continue;
-      let dx = n.x - m.x, dy = n.y - m.y;
-      let d2 = dx*dx + dy*dy + 1;
-      fx += repel * dx / d2;
-      fy += repel * dy / d2;
-    }
-    // Spring to edges
-    for (const e of edges) {
-      let other = null;
-      if (e.from === n.id) other = nodes.find(m => m.id === e.to);
-      if (e.to === n.id) other = nodes.find(m => m.id === e.from);
-      if (other && isVisible(other)) {
-        let dx = other.x - n.x, dy = other.y - n.y;
-        let d = Math.sqrt(dx*dx + dy*dy);
-        let target = e.type === 'child' ? 120 : 200;
-        fx += k * (d - target) * dx;
-        fy += k * (d - target) * dy;
-      }
-    }
-    // Gravity toward center
-    fx += (550 - n.x) * 0.0001;
-    fy += (350 - n.y) * 0.0001;
-    n.vx = (n.vx + fx) * damp;
-    n.vy = (n.vy + fy) * damp;
-    n.x += n.vx;
-    n.y += n.vy;
-  }
+// Fit to view
+cam.x = 450; cam.y = 340; cam.z = 1.1;
+
+function roundRect(x, y, w, h, r) {
+  X.beginPath();
+  X.moveTo(x + r, y);
+  X.lineTo(x + w - r, y);
+  X.arcTo(x + w, y, x + w, y + r, r);
+  X.lineTo(x + w, y + h - r);
+  X.arcTo(x + w, y + h, x + w - r, y + h, r);
+  X.lineTo(x + r, y + h);
+  X.arcTo(x, y + h, x, y + h - r, r);
+  X.lineTo(x, y + r);
+  X.arcTo(x, y, x + r, y, r);
+  X.closePath();
 }
 
+let time = 0;
 function draw() {
-  ctx.clearRect(0, 0, W, H);
-  ctx.save();
-  ctx.translate(W/2, H/2);
-  ctx.scale(zoom, zoom);
-  ctx.translate(panX, panY);
+  time += 0.01;
+  X.clearRect(0, 0, W, H);
+  X.save();
+  X.translate(W/2, H/2);
+  X.scale(cam.z, cam.z);
+  X.translate(-cam.x, -cam.y);
 
   // Edges
-  for (const e of edges) {
-    const a = nodes.find(n => n.id === e.from);
-    const b = nodes.find(n => n.id === e.to);
-    if (!a || !b || !isVisible(a) || !isVisible(b)) continue;
+  for (const e of E) {
+    const a = NM[e.f], b = NM[e.g];
+    if (!a || !b || !vis(a) || !vis(b)) continue;
 
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
+    X.beginPath();
+    X.moveTo(a.x, a.y);
 
-    if (e.type === 'child') {
-      ctx.strokeStyle = 'rgba(77,166,255,0.25)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([]);
-    } else if (e.type === 'inherit') {
-      ctx.strokeStyle = 'rgba(81,207,102,0.4)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 4]);
-    } else {
-      ctx.strokeStyle = 'rgba(255,169,77,0.2)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Edge label
-    if (e.label) {
+    // Curved edges for connects
+    if (e.t === 'o') {
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      ctx.fillStyle = 'rgba(255,169,77,0.5)';
-      ctx.font = '8px system-ui';
-      ctx.fillText(e.label, mx + 3, my - 3);
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const cx = mx - dy * 0.15, cy = my + dx * 0.15;
+      X.quadraticCurveTo(cx, cy, b.x, b.y);
+    } else {
+      X.lineTo(b.x, b.y);
+    }
+
+    if (e.t === 'c') { X.strokeStyle = 'rgba(77,166,255,0.3)'; X.lineWidth = 1.5; X.setLineDash([]); }
+    else if (e.t === 'i') { X.strokeStyle = 'rgba(81,207,102,0.5)'; X.lineWidth = 2; X.setLineDash([6, 4]); }
+    else { X.strokeStyle = 'rgba(255,169,77,0.25)'; X.lineWidth = 1; X.setLineDash([3, 3]); }
+    X.stroke();
+    X.setLineDash([]);
+
+    if (e.lb) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      X.font = '8px system-ui';
+      X.fillStyle = 'rgba(255,169,77,0.6)';
+      X.fillText(e.lb, mx + 4, my - 4);
     }
   }
 
   // Nodes
-  for (const n of nodes) {
-    if (!isVisible(n)) continue;
+  X.font = '11px system-ui';
+  for (const n of N) {
+    if (!vis(n)) continue;
+    n.w = Math.max(80, X.measureText(n.l).width + 24);
 
-    // Measure label
-    ctx.font = '11px system-ui';
-    n.w = ctx.measureText(n.label).width + 24;
+    const bx = n.x - n.w/2, by = n.y - n.h/2;
 
-    // Glow
-    ctx.shadowColor = n.color;
-    ctx.shadowBlur = 8;
+    // Animated glow
+    const pulse = 0.6 + 0.4 * Math.sin(time * 2 + n.x * 0.01);
+    X.shadowColor = n.c;
+    X.shadowBlur = 6 * pulse;
 
-    // Box (rounded rect polyfill)
-    const r = 6;
-    const bx = n.x - n.w/2, by = n.y - n.h/2, bw = n.w, bh = n.h;
-    ctx.beginPath();
-    ctx.moveTo(bx + r, by);
-    ctx.lineTo(bx + bw - r, by);
-    ctx.arcTo(bx + bw, by, bx + bw, by + r, r);
-    ctx.lineTo(bx + bw, by + bh - r);
-    ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
-    ctx.lineTo(bx + r, by + bh);
-    ctx.arcTo(bx, by + bh, bx, by + bh - r, r);
-    ctx.lineTo(bx, by + r);
-    ctx.arcTo(bx, by, bx + r, by, r);
-    ctx.closePath();
-    ctx.fillStyle = n.color + '18';
-    ctx.fill();
-    ctx.strokeStyle = n.color;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    roundRect(bx, by, n.w, n.h, 6);
+    X.fillStyle = n.c + '20';
+    X.fill();
+    X.strokeStyle = n.c + (dragging === n ? 'ff' : 'aa');
+    X.lineWidth = dragging === n ? 2.5 : 1.5;
+    X.stroke();
 
-    ctx.shadowBlur = 0;
+    X.shadowBlur = 0;
 
     // Label
-    ctx.fillStyle = '#e0e0e0';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(n.label, n.x, n.y);
+    X.fillStyle = '#e8e8e8';
+    X.textAlign = 'center';
+    X.textBaseline = 'middle';
+    X.fillText(n.l, n.x, n.y - 2);
 
-    // Purpose badge
-    ctx.font = '7px system-ui';
-    ctx.fillStyle = n.color + '88';
-    ctx.fillText(n.purpose, n.x, n.y + 13);
+    // Purpose
+    X.font = '8px system-ui';
+    X.fillStyle = n.c + '88';
+    X.fillText(n.p, n.x, n.y + 11);
+    X.font = '11px system-ui';
   }
 
-  ctx.restore();
-  simulate();
+  X.restore();
   requestAnimationFrame(draw);
 }
 
