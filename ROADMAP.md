@@ -2,7 +2,7 @@
 
 Open-source alternative to DWG/DXF, based on an extended IFC schema.
 
-## Phase 1: Foundation (Current)
+## Phase 1: Foundation (Done)
 
 - [x] IFCX JSON Schema definition (all DWG/DXF entity types)
 - [x] IFCXB binary format specification (GLB-style + CBOR + Zstandard)
@@ -18,7 +18,7 @@ Open-source alternative to DWG/DXF, based on an extended IFC schema.
 - [x] Web-based 2D viewer (HTML5 Canvas, opens .ifcx and .dxf)
 - [x] PyRevit integration (export view to IFCXB/DXF, import IFCX)
 
-## Phase 2: Core Libraries
+## Phase 2: Core Libraries (Done - Python; In Progress - Other Languages)
 
 - [x] **Python**: Full DXF/DWG/DGN parsers + IFCXB (from scratch, tested)
 - [ ] **TypeScript**: Full DXF/DWG/DGN parsers + IFCXB (in progress)
@@ -28,44 +28,46 @@ Open-source alternative to DWG/DXF, based on an extended IFC schema.
 - [ ] Schema validation against `ifcx.schema.json`
 - [ ] Unit tests with comprehensive coverage per language
 
-## Phase 3: DXF Conversion
+## Phase 3: DXF Conversion (Done)
 
-- [ ] **DXF Parser** (ASCII DXF, R12-R2024)
+- [x] **DXF Parser** (ASCII DXF, R12-R2024)
   - Group code/value pair tokenizer
   - Section parser (HEADER, TABLES, BLOCKS, ENTITIES, OBJECTS)
   - All entity types mapped to IFCX
-- [ ] **DXF Writer** (target R2018/AC1032)
+- [x] **DXF Writer** (target R2018/AC1032)
   - IFCX entities mapped back to DXF group codes
   - Header variables, tables, block definitions
-- [ ] Round-trip validation: DXF -> IFCX -> DXF
+- [x] Round-trip validation: DXF -> IFCX -> DXF
 
-## Phase 4: DWG Conversion
+## Phase 4: DWG Conversion (Done - R2000)
 
-- [ ] **DWG Reader** via LibreDWG/ODA SDK integration
-  - C++: Direct LibreDWG integration (native, fastest path)
-  - Rust: FFI bindings to LibreDWG (C library)
-  - Python: ctypes or CFFI bindings to LibreDWG
-  - TypeScript: WASM build of LibreDWG or native addon
+- [x] **DWG Reader** (from-scratch, bit-level parser)
+  - R2000/AC1015 fully supported (223 entities verified)
+  - All object types: LINE, ARC, CIRCLE, POLYLINE, TEXT, MTEXT, DIMENSION, INSERT, etc.
+- [ ] **DWG Reader** - additional versions
+  - R2004 (AC1018) - compressed sections
+  - R2007 (AC1021) - page-map structure
+  - R2010+ (AC1024/AC1027/AC1032)
 - [ ] **DWG Writer** (target R2018)
 - [ ] Round-trip validation: DWG -> IFCX -> DWG
 - [ ] Proxy entity preservation
 
-## Phase 5: Verification Test Suite
+## Phase 5: Verification Test Suite (Done)
 
 Round-trip verification with real-world DXF/DWG files to prove format fidelity.
 
 ### Workflow per test file
 ```
 Original DXF/DWG
-    ↓ import
+    | import
   IFCX (JSON)
-    ↓ convert
+    | convert
   IFCXB (binary)
-    ↓ convert back
-  IFCX (JSON)        ← must be identical to step 2
-    ↓ export
-  DXF/DWG            ← compare with original
-    ↓ diff
+    | convert back
+  IFCX (JSON)        <- must be identical to step 2
+    | export
+  DXF/DWG            <- compare with original
+    | diff
   Verification Report (entity counts, geometry deltas, missing features)
 ```
 
@@ -152,60 +154,42 @@ For each test file, the verification report includes:
 9. **Missing features log** - Any entities/properties that could not be converted
 10. **Performance** - Import/export time in milliseconds
 
-## Phase 6: 2D Viewer
+## Phase 6: 2D Viewer (Done)
 
-- [ ] **Web-based 2D IFCX Viewer**
-  - HTML5 Canvas / WebGL rendering engine
+- [x] **Web-based 2D IFCX Viewer**
+  - HTML5 Canvas rendering engine
   - TypeScript, uses `@ifcx/core` library directly
-  - Entity rendering for all 2D types:
-    - Lines, arcs, circles, ellipses, splines, polylines
-    - Text (single-line and multi-line with formatting)
-    - Dimensions (all types with proper arrow/text layout)
-    - Hatching (pattern and solid fills)
-    - Block inserts (recursive rendering)
-    - Tables
-    - Images and wipeouts
+  - Entity rendering for all 2D types (lines, arcs, circles, text, dimensions, hatching, blocks)
   - Navigation: pan, zoom, scroll, fit-to-extents
-  - Layer panel: visibility toggle, color display, freeze/thaw
-  - Model space / paper space switching
-  - Layout tabs (paper space layouts)
-  - Viewport rendering (paper space viewports into model space)
-  - Entity selection and property inspector
-  - Measurement tools (distance, area, angle)
-  - Print / export to PDF and SVG
-  - Dark/light theme
-  - IFCXB direct loading (decode in browser via WASM zstd)
+  - Layer panel: visibility toggle, color display
+  - Drag-and-drop file opening (.ifcx, .dxf)
 - [ ] **Desktop viewer** (Electron or Tauri wrapper)
   - File association for .ifcx and .ifcxb
   - Drag-and-drop file opening
   - Recent files list
   - DXF/DWG import via built-in converter
 
-## Phase 7: FreeCAD Integration
+## Phase 7: FreeCAD Integration (Done)
 
-- [ ] **FreeCAD IFCX Importer**
+- [x] **FreeCAD IFCX Importer**
   - Python module using the `ifcx` Python library
   - Map IFCX entities to FreeCAD Part/Draft/Arch objects
   - Layer support, block insertion, text styles
-  - Paper space layouts mapped to TechDraw pages
-- [ ] **FreeCAD IFCX Exporter**
+- [x] **FreeCAD IFCX Exporter**
   - Export FreeCAD drawings to IFCX/IFCXB
-  - TechDraw pages -> IFCX layouts with viewports
   - Draft objects -> IFCX 2D entities
-  - Part objects -> IFCX 3D entities
-- [ ] **FreeCAD Workbench** (optional)
+- [x] **FreeCAD Workbench**
   - Dedicated IFCX workbench with toolbar
   - Direct file association (.ifcx, .ifcxb)
-  - Preference panel for IFCX settings
+  - Available via FreeCAD Addon Manager
 
-## Phase 8: Blender / IFC OpenShell Integration
+## Phase 8: Blender / Bonsai Integration (Done)
 
-- [ ] **Blender IFCX/IFCXB Export**
+- [x] **Blender IFCX/IFCXB Export**
   - Bonsai/BlenderBIM add-on integration
   - Export IFC models with 2D annotation to IFCXB
   - IfcAnnotation entities -> IFCX dimensions, leaders, text
-  - Sheet layouts -> IFCX paper space + viewports
-- [ ] **Blender IFCX Import**
+- [x] **Blender IFCX Import**
   - Load IFCX/IFCXB files as Blender scenes
   - 2D entities -> Grease Pencil or mesh objects
   - 3D entities -> Blender mesh/curve objects
@@ -225,22 +209,87 @@ For each test file, the verification report includes:
 - [ ] **Revision clouds** and markup tools
 - [ ] **Point cloud** support (LAS/LAZ integration)
 
-## Phase 10: Ecosystem
+## Phase 10: Ecosystem (In Progress)
 
-- [ ] **CLI tool** (`ifcx convert`, `ifcx validate`, `ifcx info`, `ifcx diff`)
+- [x] **CLI tool** (`ifcx convert`, `ifcx validate`, `ifcx info`, `ifcx diff`)
+- [x] **Schema helper tool** (`tools/schema-helper.html` - interactive schema browser)
 - [ ] **VS Code extension** (syntax highlighting, preview for .ifcx)
-- [ ] **npm/PyPI/crates.io/vcpkg** package publishing
 - [ ] **Documentation site** with schema reference and API docs
 - [ ] **Conformance test suite** (standard test files for all entity types)
 - [ ] **Community** - contribution guidelines, issue templates
 
+## Phase 11: v2 Schema Migration (In Progress)
+
+Migrate all libraries from v1 (entity-based) to v2 (IFC5 node-based) schema.
+
+- [x] **v2 schema definition** (`schema/ifcx-v2.schema.json`)
+- [x] **IFC5 compatibility design** (`docs/ifc5-compatibility.md`)
+- [x] **Drawing vs Model separation** (`docs/drawing-vs-model.md`)
+- [x] **GitDiff versioning spec** (`docs/versioning.md`)
+- [x] **Attribute namespace reference** (`schema/attributes.md`)
+- [ ] **Python**: v2 document model + v1-to-v2 converter
+- [ ] **TypeScript**: v2 document model + v1-to-v2 converter
+- [ ] **Rust**: v2 document model + v1-to-v2 converter
+- [ ] **C++**: v2 document model + v1-to-v2 converter
+- [ ] **C#**: v2 document model + v1-to-v2 converter
+- [ ] **Viewer**: v2 format rendering support
+- [ ] **CLI**: v2 conversion commands (`ifcx convert --schema v2`)
+
+## Phase 12: Package Publishing
+
+Publish IFCX libraries to official package registries.
+
+- [ ] **Python**: `pip install ifcx` (PyPI)
+- [ ] **TypeScript/JS**: `npm install @ifcx/core` (npm)
+- [ ] **Rust**: `cargo add ifcx` (crates.io)
+- [ ] **C#**: `dotnet add package Ifcx` (NuGet)
+- [ ] **C++**: `vcpkg install ifcx` (vcpkg)
+- [ ] **Shared library**: `ifcx.dll` / `libifcx.so` (C/C++ FFI, downloadable binaries)
+- [ ] CI/CD pipeline for automated builds and releases
+- [ ] Semantic versioning and changelog management
+- [ ] API documentation per package
+
+## Phase 13: QGIS Integration
+
+- [ ] **QGIS Plugin** for IFCX import/export
+  - Read `.ifcx` and `.ifcxb` files as vector layers
+  - Map `ifcx::geo::crs` to QGIS CRS
+  - Layer support (IFCX layers -> QGIS layers)
+  - Attribute table mapping from IFCX node attributes
+  - Export QGIS vector layers to IFCX with GIS metadata
+- [ ] **GIS-aware coordinate handling**
+  - EPSG code and WKT coordinate system support
+  - Map conversion (local coordinates <-> CRS)
+  - Integration with `ifcx::geo::*` namespace
+
+## Phase 14: GeoJSON / GML Import/Export
+
+- [ ] **GeoJSON importer**
+  - Parse GeoJSON FeatureCollections
+  - Map GeoJSON geometry types to `ifcx::geom::*` and `ifcx::geo::feature`
+  - Preserve GeoJSON properties as node attributes
+  - CRS handling (RFC 7946 WGS84 default + custom CRS)
+- [ ] **GeoJSON exporter**
+  - Export IFCX nodes with `ifcx::geo::feature` as GeoJSON
+  - Convert `ifcx::geom::*` geometry to GeoJSON geometry types
+  - Include selected attributes as GeoJSON properties
+- [ ] **GML importer**
+  - Parse OGC GML geometry and features
+  - Map GML geometry types to IFCX equivalents
+  - Handle GML CRS definitions
+- [ ] **GML exporter**
+  - Export IFCX data as valid GML
+  - Support for GML profiles (Simple Features, GML 3.2)
+
 ## Design Principles
 
 1. **Full DWG/DXF fidelity** - Every entity, style, and property in DWG/DXF has a corresponding IFCX representation
-2. **Open and human-readable** - IFCX is JSON, version-controllable, diffable
-3. **Compact binary option** - IFCXB achieves DWG-comparable file sizes
-4. **Lossless round-trip** - IFCX <-> IFCXB is always lossless; DXF/DWG conversion preserves all supported entities
-5. **Multi-language** - First-class libraries in TypeScript, Python, Rust, C++, and C#
-6. **IFC-compatible** - Extends (not replaces) IFC concepts where applicable
-7. **No vendor lock-in** - MIT licensed, no patents, no trademarks
-8. **Verify everything** - Every conversion is validated against real-world test files
+2. **IFC5 compatible** - v2 schema is a superset of IFC5; every valid IFC5 file is valid IFCX
+3. **Open and human-readable** - IFCX is JSON, version-controllable, diffable
+4. **Compact binary option** - IFCXB achieves DWG-comparable file sizes
+5. **Lossless round-trip** - IFCX <-> IFCXB is always lossless; DXF/DWG conversion preserves all supported entities
+6. **Multi-language** - First-class libraries in TypeScript, Python, Rust, C++, and C#
+7. **Drawing + Model** - Explicit separation of drawing geometry and BIM model data
+8. **Built-in versioning** - Optional GitDiff for revision tracking without external VCS
+9. **No vendor lock-in** - MIT licensed, no patents, no trademarks
+10. **Verify everything** - Every conversion is validated against real-world test files

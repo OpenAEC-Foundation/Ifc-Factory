@@ -24,4 +24,9 @@ export { DwgImporter } from './converters/dwg-import.js';
 export { DgnParser, type DgnFile, type DgnElement } from './converters/dgn-parser.js';
 export { DgnImporter } from './converters/dgn-import.js';
 
+// V2 converters
+export { V2Converter } from './converters/v2-converter.js';
+export type { V2Document, V2Node, V2Header, V2Import } from './converters/v2-converter.js';
+export { V2Export } from './converters/v2-export.js';
+
 export type * from './types.js';
