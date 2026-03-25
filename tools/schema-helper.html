@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IfcX Schema Helper</title>
+<style>
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f3460;
+  --bg-card: #1e2a4a;
+  --bg-input: #0d1b3e;
+  --text-primary: #e8e8e8;
+  --text-secondary: #a0a8c0;
+  --text-muted: #6b7394;
+  --accent: #00b4d8;
+  --accent-hover: #48cae4;
+  --accent-dim: #0077b6;
+  --border: #2a3a5e;
+  --success: #06d6a0;
+  --warning: #ffd166;
+  --danger: #ef476f;
+  --tag-geom: #00b4d8;
+  --tag-style: #ef476f;
+  --tag-annotation: #ffd166;
+  --tag-sheet: #06d6a0;
+  --tag-hatch: #9b5de5;
+  --tag-svg: #f77f00;
+  --tag-layer: #00f5d4;
+  --tag-component: #fee440;
+  --tag-image: #f15bb5;
+  --tag-geo: #72efdd;
+  --tag-revision: #7400b8;
+  --tag-xform: #4cc9f0;
+  --tag-bsi: #3a86ff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.sidebar-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h1 {
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.sidebar-header p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.nav-list { list-style: none; padding: 8px 0; flex: 1; }
+.nav-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(0,180,216,0.08); color: var(--text-primary); }
+.nav-item.active {
+  background: rgba(0,180,216,0.12);
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-icon { font-size: 16px; width: 22px; text-align: center; }
+/* Main content */
+.main { flex: 1; overflow-y: auto; padding: 24px 32px; }
+.page { display: none; }
+.page.active { display: block; }
+h2 { font-size: 22px; color: var(--text-primary); margin-bottom: 6px; }
+h3 { font-size: 16px; color: var(--accent); margin: 20px 0 10px; }
+.subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+/* Search */
+.search-box {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--text-muted); }
+/* Namespace groups */
+.ns-group { margin-bottom: 16px; }
+.ns-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+.ns-header.collapsed { border-radius: 6px; }
+.ns-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ns-header .ns-title { font-size: 14px; font-weight: 600; flex: 1; }
+.ns-header .ns-count { font-size: 12px; color: var(--text-muted); }
+.ns-header .ns-chevron { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+.ns-header:not(.collapsed) .ns-chevron { transform: rotate(90deg); }
+.ns-body {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+.ns-body.hidden { display: none; }
+/* Attribute row */
+.attr-row {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.attr-row:last-child { border-bottom: none; }
+.attr-row:hover { background: rgba(0,180,216,0.04); }
+.attr-summary {
+  display: grid;
+  grid-template-columns: 280px 200px 1fr;
+  gap: 12px;
+  padding: 10px 14px;
+  align-items: center;
+}
+.attr-key { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; color: var(--accent); word-break: break-all; }
+.attr-type { font-family: monospace; font-size: 12px; color: var(--warning); }
+.attr-desc { font-size: 12px; color: var(--text-secondary); }
+.attr-detail {
+  display: none;
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border-top: 1px solid var(--border);
+}
+.attr-detail.open { display: block; }
+.attr-detail pre {
+  background: #0a0f1f;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.attr-detail .detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+.attr-detail .detail-section { margin-bottom: 12px; }
+.dxf-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  background: rgba(239,71,111,0.15);
+  color: var(--danger);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: monospace;
+}
+/* Builder */
+.builder-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.builder-form { display: flex; flex-direction: column; gap: 14px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.form-input, .form-select {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--accent); }
+.form-select option { background: var(--bg-secondary); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--bg-tertiary); border-color: var(--accent); }
+.btn-accent { background: var(--accent-dim); border-color: var(--accent); color: white; }
+.btn-accent:hover { background: var(--accent); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: rgba(239,71,111,0.15); }
+.pair-list { display: flex; flex-direction: column; gap: 6px; }
+.pair-row { display: flex; gap: 6px; align-items: center; }
+.pair-row input { flex: 1; }
+.preview-panel {
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+.preview-header h3 { margin: 0; font-size: 13px; }
+.preview-body {
+  padding: 14px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+.preview-body pre {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--success);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+/* Attribute selector in builder */
+.attr-selector { display: flex; gap: 6px; margin-bottom: 8px; }
+.attr-selector select { flex: 1; }
+.added-attrs { display: flex; flex-direction: column; gap: 10px; }
+.added-attr-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+}
+.added-attr-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.added-attr-card .card-title {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--accent);
+}
+.added-attr-card textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  background: #0a0f1f;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+  outline: none;
+}
+.added-attr-card textarea:focus { border-color: var(--accent); }
+/* IFC5 Reference */
+.ref-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.ref-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+.ref-card h4 { font-size: 14px; color: var(--accent); margin-bottom: 10px; }
+.ref-card ul { list-style: none; padding: 0; }
+.ref-card li { font-size: 12px; color: var(--text-secondary); padding: 3px 0; display: flex; gap: 8px; }
+.ref-card li code {
+  font-family: monospace;
+  color: var(--warning);
+  background: rgba(255,209,102,0.08);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+.ref-card li .ref-desc { color: var(--text-muted); }
+/* Mapping table */
+.mapping-controls { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+table.mapping {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.mapping th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+table.mapping th:hover { color: var(--accent); }
+table.mapping th .sort-arrow { margin-left: 4px; font-size: 10px; }
+table.mapping td {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+table.mapping tr:hover td { background: rgba(0,180,216,0.04); }
+table.mapping td:first-child { font-family: monospace; color: var(--danger); font-weight: 600; }
+table.mapping td:nth-child(2) { font-family: monospace; color: var(--accent); }
+table.mapping td:nth-child(3) { font-size: 12px; }
+/* Examples */
+.example-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.example-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.example-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.example-card h4 { font-size: 14px; color: var(--text-primary); margin-bottom: 6px; }
+.example-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
+.example-card .example-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.example-card .example-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0,180,216,0.12);
+  color: var(--accent);
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { width: 56px; min-width: 56px; }
+  .sidebar-header h1 { display: none; }
+  .sidebar-header p { display: none; }
+  .nav-item span:not(.nav-icon) { display: none; }
+  .nav-item { padding: 12px 0; justify-content: center; }
+  .main { padding: 16px; }
+  .builder-layout { grid-template-columns: 1fr; }
+  .attr-summary { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1>IfcX Helper</h1>
+    <p>Schema Explorer v2.0</p>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-item active" data-page="attributes"><span class="nav-icon">&#9776;</span><span>Attributes</span></li>
+    <li class="nav-item" data-page="builder"><span class="nav-icon">&#9881;</span><span>Node Builder</span></li>
+    <li class="nav-item" data-page="ifc5"><span class="nav-icon">&#9733;</span><span>IFC5 Reference</span></li>
+    <li class="nav-item" data-page="mapping"><span class="nav-icon">&#8644;</span><span>Entity Mapping</span></li>
+    <li class="nav-item" data-page="examples"><span class="nav-icon">&#9998;</span><span>Examples</span></li>
+  </ul>
+</nav>
+
+<div class="main">
+
+<!-- ===== ATTRIBUTES PAGE ===== -->
+<div id="page-attributes" class="page active">
+  <h2>Attribute Browser</h2>
+  <p class="subtitle">All ifcx::* and bsi::ifc::* attribute namespaces -- click any attribute to expand details</p>
+  <input type="text" class="search-box" id="attr-search" placeholder="Search attributes... (e.g. line, style, hatch, viewport)">
+  <div id="attr-groups"></div>
+</div>
+
+<!-- ===== BUILDER PAGE ===== -->
+<div id="page-builder" class="page">
+  <h2>Node Builder</h2>
+  <p class="subtitle">Interactively build an IfcxNode -- JSON preview updates live</p>
+  <div class="builder-layout">
+    <div class="builder-form">
+      <div class="form-group">
+        <label>Path (UUID)</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" class="form-input" id="node-path" placeholder="e.g. a1b2c3d4-...">
+          <button class="btn btn-sm" onclick="generateUUID()">Generate</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Purpose</label>
+        <select class="form-select" id="node-purpose" onchange="updatePreview()">
+          <option value="">(none)</option>
+          <option value="drawing">drawing</option>
+          <option value="model">model</option>
+          <option value="annotation">annotation</option>
+          <option value="sheet">sheet</option>
+          <option value="style">style</option>
+          <option value="definition">definition</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Children <button class="btn btn-sm" onclick="addChild()">+ Add</button></label>
+        <div class="pair-list" id="children-list"></div>
+      </div>
+      <div class="form-group">
+        <label>Inherits <button class="btn btn-sm" onclick="addInherit()">+ Add</button></label>
+        <div class="pair-list" id="inherits-list"></div>
+      </div>
+      <div class="form-group">
+        <label>Attributes</label>
+        <div class="attr-selector">
+          <select class="form-select" id="attr-dropdown"></select>
+          <button class="btn btn-accent btn-sm" onclick="addAttribute()">+ Add</button>
+        </div>
+        <div class="added-attrs" id="added-attrs"></div>
+      </div>
+    </div>
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h3>JSON Preview</h3>
+        <button class="btn btn-sm" onclick="copyJSON()">Copy</button>
+      </div>
+      <div class="preview-body"><pre id="json-preview">{}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== IFC5 REFERENCE PAGE ===== -->
+<div id="page-ifc5" class="page">
+  <h2>IFC5 Quick Reference</h2>
+  <p class="subtitle">Key IFC5 concepts and how IfcX extends the standard</p>
+  <div class="ref-cards" id="ifc5-cards"></div>
+</div>
+
+<!-- ===== MAPPING PAGE ===== -->
+<div id="page-mapping" class="page">
+  <h2>DXF to IfcX Entity Mapping</h2>
+  <p class="subtitle">How DXF entity types map to IfcX attribute namespaces</p>
+  <div class="mapping-controls">
+    <input type="text" class="search-box" id="mapping-search" placeholder="Filter by DXF entity or IfcX attribute..." style="margin-bottom:0;max-width:400px">
+  </div>
+  <table class="mapping" id="mapping-table">
+    <thead><tr>
+      <th data-col="0">DXF Entity <span class="sort-arrow"></span></th>
+      <th data-col="1">IfcX Attribute <span class="sort-arrow"></span></th>
+      <th data-col="2">Example Value <span class="sort-arrow"></span></th>
+    </tr></thead>
+    <tbody id="mapping-body"></tbody>
+  </table>
+</div>
+
+<!-- ===== EXAMPLES PAGE ===== -->
+<div id="page-examples" class="page">
+  <h2>Example Nodes</h2>
+  <p class="subtitle">Common IfcxNode patterns -- click to load into the Node Builder</p>
+  <div class="example-cards" id="example-cards"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ==================== DATA ====================
+
+const ATTR_DATA = {
+  geom: {
+    label: "Geometry", color: "var(--tag-geom)",
+    attrs: [
+      { key: "ifcx::geom::line", type: '{points: [[x,y,z],[x,y,z]]}', desc: "Line segment", dxf: "LINE",
+        example: '{"points": [[0,0,0], [1000,500,0]]}' },
+      { key: "ifcx::geom::polyline", type: '{points: [...], closed: bool}', desc: "Polyline (points only)", dxf: "LWPOLYLINE (no bulge)",
+        example: '{"points": [[0,0,0],[1000,0,0],[1000,500,0],[0,500,0]], "closed": true}' },
+      { key: "ifcx::geom::compositeCurve", type: '{segments: [...], closed: bool}', desc: "Mixed line/arc segments", dxf: "LWPOLYLINE (with bulge)",
+        example: '{"segments": [\n  {"type":"line","points":[[0,0,0],[1000,0,0]]},\n  {"type":"arc","center":[1000,250,0],"radius":250,"sweepAngle":3.14159}\n], "closed": false}' },
+      { key: "ifcx::geom::circle", type: '{center: [x,y,z], radius: r}', desc: "Full circle", dxf: "CIRCLE",
+        example: '{"center": [500, 500, 0], "radius": 250}' },
+      { key: "ifcx::geom::trimmedCurve", type: '{center, radius, startAngle, endAngle}', desc: "Arc / trimmed curve", dxf: "ARC",
+        example: '{"center": [500,500,0], "radius": 250, "startAngle": 0, "endAngle": 1.5708}' },
+      { key: "ifcx::geom::ellipse", type: '{center, semiAxis1, semiAxis2, rotation}', desc: "Full or partial ellipse", dxf: "ELLIPSE",
+        example: '{"center": [500,500,0], "semiAxis1": 300, "semiAxis2": 150, "rotation": 0}' },
+      { key: "ifcx::geom::bspline", type: '{degree, controlPoints, knots, weights}', desc: "NURBS / B-spline curve", dxf: "SPLINE",
+        example: '{"degree": 3, "controlPoints": [[0,0,0],[200,500,0],[600,500,0],[800,0,0]], "knots": [0,0,0,0,1,1,1,1], "weights": [1,1,1,1]}' },
+      { key: "ifcx::geom::indexedPolyCurve", type: '{points, segments: [{line/arc}]}', desc: "Indexed polyline+arc", dxf: "IfcIndexedPolyCurve",
+        example: '{"points": [[0,0],[500,0],[500,500],[0,500]], "segments": [{"line":[0,1]},{"arc":[1,2,3]}], "closed": false}' },
+      { key: "ifcx::geom::mesh", type: '{points, faceVertexIndices, normals}', desc: "3D mesh (USD-style)", dxf: "MESH, 3DFACE",
+        example: '{"points": [[0,0,0],[1,0,0],[0.5,1,0]], "faceVertexIndices": [0,1,2], "normals": [[0,0,1]]}' },
+      { key: "ifcx::geom::solid", type: '{data: "..."}', desc: "Solid geometry (ACIS/BRep)", dxf: "3DSOLID, REGION",
+        example: '{"data": "<ACIS or BRep data>"}' },
+      { key: "ifcx::geom::point", type: '{position: [x,y,z]}', desc: "Point entity", dxf: "POINT",
+        example: '{"position": [100, 200, 0]}' },
+      { key: "ifcx::geom::ray", type: '{origin, direction}', desc: "Semi-infinite line", dxf: "RAY",
+        example: '{"origin": [0,0,0], "direction": [1,0,0]}' },
+      { key: "ifcx::geom::constructionLine", type: '{origin, direction}', desc: "Infinite construction line", dxf: "XLINE",
+        example: '{"origin": [0,0,0], "direction": [0,1,0]}' }
+    ]
+  },
+  xform: {
+    label: "Transform", color: "var(--tag-xform)",
+    attrs: [
+      { key: "ifcx::xform::matrix", type: '[[4x4 matrix]]', desc: "Full 4x4 transform (USD-style)", dxf: null,
+        example: '[[1,0,0,0],[0,1,0,0],[0,0,1,0],[100,200,0,1]]' },
+      { key: "ifcx::xform::translate", type: '[x, y, z]', desc: "Translation only", dxf: null,
+        example: '[500, 1000, 0]' },
+      { key: "ifcx::xform::rotate", type: 'number (radians)', desc: "Rotation around Z axis", dxf: null,
+        example: '1.5708' },
+      { key: "ifcx::xform::scale", type: '[sx, sy, sz]', desc: "Scale factors", dxf: null,
+        example: '[2.0, 2.0, 1.0]' },
+      { key: "ifcx::xform::mirror", type: '{axis: "x"|"y", origin: [x,y]}', desc: "Mirror transform", dxf: null,
+        example: '{"axis": "y", "origin": [0, 0]}' }
+    ]
+  },
+  style: {
+    label: "Presentation", color: "var(--tag-style)",
+    attrs: [
+      { key: "ifcx::style::curveStyle", type: '{colour, width, pattern}', desc: "Line appearance", dxf: "Color + linetype + lineweight",
+        example: '{"colour": {"r":0,"g":0,"b":0,"a":1}, "width": 0.35, "pattern": "continuous"}' },
+      { key: "ifcx::style::fillStyle", type: '{colour, pattern, opacity}', desc: "Fill appearance", dxf: "Solid fill / hatch fill",
+        example: '{"colour": {"r":0.8,"g":0.8,"b":0.8,"a":1}, "pattern": "solid", "opacity": 1.0}' },
+      { key: "ifcx::style::textStyle", type: '{font, size, weight, colour}', desc: "Text appearance", dxf: "STYLE table",
+        example: '{"font": "Arial", "size": 2.5, "weight": "normal", "colour": {"r":0,"g":0,"b":0,"a":1}}' },
+      { key: "ifcx::style::colour", type: '{r, g, b, a}', desc: "RGBA colour (0-1)", dxf: "IfcColourRgb",
+        example: '{"r": 0.2, "g": 0.4, "b": 0.8, "a": 1.0}' },
+      { key: "ifcx::style::dashPattern", type: '[visible, gap, ...]', desc: "Dash pattern (mm)", dxf: "IfcCurveStyleFontPattern",
+        example: '[4.0, 2.0, 1.0, 2.0]' },
+      { key: "ifcx::style::lineWeight", type: 'number (mm)', desc: "Line width", dxf: "DXF lineweight",
+        example: '0.25' },
+      { key: "ifcx::style::opacity", type: 'number (0-1)', desc: "Transparency", dxf: "DXF transparency",
+        example: '0.75' },
+      { key: "ifcx::style::visible", type: 'boolean', desc: "Visibility", dxf: "DXF visibility flag",
+        example: 'true' }
+    ]
+  },
+  svg: {
+    label: "SVG/CSS", color: "var(--tag-svg)",
+    attrs: [
+      { key: "ifcx::svg::class", type: 'string', desc: 'CSS class names (e.g. "cut IfcWall material-beton")', dxf: null,
+        example: '"cut IfcWall material-beton"' },
+      { key: "ifcx::svg::style", type: 'string', desc: "Inline CSS style", dxf: null,
+        example: '"stroke: #333; fill: none; stroke-dasharray: 4 2;"' },
+      { key: "ifcx::svg::stroke", type: 'string', desc: "SVG stroke color", dxf: null, example: '"#333333"' },
+      { key: "ifcx::svg::strokeWidth", type: 'number', desc: "SVG stroke width", dxf: null, example: '0.5' },
+      { key: "ifcx::svg::strokeDasharray", type: 'string', desc: "SVG dash pattern", dxf: null, example: '"4 2 1 2"' },
+      { key: "ifcx::svg::fill", type: 'string', desc: "SVG fill color or pattern reference", dxf: null, example: '"url(#hatch-concrete)"' },
+      { key: "ifcx::svg::fillRule", type: '"evenodd" | "nonzero"', desc: "SVG fill rule", dxf: null, example: '"evenodd"' },
+      { key: "ifcx::svg::marker", type: 'string', desc: "SVG marker reference", dxf: null, example: '"url(#arrow)"' },
+      { key: "ifcx::svg::markerStart", type: 'string', desc: "SVG start marker (arrows)", dxf: null, example: '"url(#dot)"' },
+      { key: "ifcx::svg::markerEnd", type: 'string', desc: "SVG end marker", dxf: null, example: '"url(#arrow-closed)"' },
+      { key: "ifcx::svg::fontFamily", type: 'string', desc: "Font family", dxf: null, example: '"Arial, Helvetica, sans-serif"' },
+      { key: "ifcx::svg::fontSize", type: 'string', desc: 'Font size with unit (e.g. "2.5mm")', dxf: null, example: '"2.5mm"' }
+    ]
+  },
+  hatch: {
+    label: "Hatching", color: "var(--tag-hatch)",
+    attrs: [
+      { key: "ifcx::hatch::pattern", type: '{name, angle, scale, lines: [...]}', desc: "Hatch pattern definition", dxf: null,
+        example: '{"name": "ANSI31", "angle": 45, "scale": 1.0, "lines": [{"angle":45,"origin":[0,0],"delta":[0,3.175],"dashes":[]}]}' },
+      { key: "ifcx::hatch::boundary", type: '{outer: "path-ref", inner: ["path-ref"]}', desc: "Hatch boundary references", dxf: null,
+        example: '{"outer": "boundary-uuid-1", "inner": ["hole-uuid-1"]}' },
+      { key: "ifcx::hatch::solid", type: '{colour: {r,g,b,a}}', desc: "Solid colour fill", dxf: null,
+        example: '{"colour": {"r":0.85,"g":0.85,"b":0.85,"a":1}}' },
+      { key: "ifcx::hatch::gradient", type: '{type, colour1, colour2, angle}', desc: "Gradient fill", dxf: null,
+        example: '{"type": "linear", "colour1": {"r":1,"g":1,"b":1,"a":1}, "colour2": {"r":0.5,"g":0.5,"b":0.5,"a":1}, "angle": 90}' },
+      { key: "ifcx::hatch::svg", type: '{patternId, patternTransform}', desc: "SVG pattern reference (INB/NEN47)", dxf: null,
+        example: '{"patternId": "hatch-concrete", "patternTransform": "scale(0.5)"}' },
+      { key: "ifcx::hatch::material", type: '{standard, code, scale}', desc: "Material hatching per national/regional standard", dxf: null,
+        example: '{"standard": "NEN47", "code": "beton", "scale": 1.0}' }
+    ]
+  },
+  annotation: {
+    label: "Annotation", color: "var(--tag-annotation)",
+    attrs: [
+      { key: "ifcx::annotation::text", type: '{value, placement, alignment}', desc: "Text annotation", dxf: "TEXT / MTEXT",
+        example: '{"value": "Floor Plan - Level 1", "placement": [100,50,0], "alignment": "left"}' },
+      { key: "ifcx::annotation::richText", type: '{spans: [{text, font, bold, ...}]}', desc: "Formatted text", dxf: "MTEXT with codes",
+        example: '{"spans": [\n  {"text":"Bold title","bold":true,"font":"Arial","size":3.5},\n  {"text":"\\nNormal text","bold":false,"font":"Arial","size":2.5}\n]}' },
+      { key: "ifcx::annotation::dimension", type: '{subtype, measurePoints, value, ...}', desc: "Measurement dimension", dxf: "DIMENSION",
+        example: '{\n  "subtype": "linear",\n  "measurePoints": [[0,0], [4500,0]],\n  "dimensionLine": [2250, 500],\n  "value": 4500.0,\n  "text": "4500",\n  "style": {\n    "arrowType": "closed",\n    "arrowSize": 2.5,\n    "textHeight": 2.5\n  }\n}' },
+      { key: "ifcx::annotation::leader", type: '{path, arrowhead, content}', desc: "Leader/callout", dxf: "LEADER / MULTILEADER",
+        example: '{"path": [[100,100,0],[200,200,0],[350,200,0]], "arrowhead": "closed", "content": {"text":"See detail A"}}' },
+      { key: "ifcx::annotation::tolerance", type: '{frames: [{symbol, value, datums}]}', desc: "GD&T tolerance", dxf: "TOLERANCE",
+        example: '{"frames": [{"symbol":"position","value":0.05,"datums":["A","B"]}]}' },
+      { key: "ifcx::annotation::table", type: '{rows, columns, cells: [...]}', desc: "Data table", dxf: "TABLE",
+        example: '{"rows": 3, "columns": 2, "cells": [["Part","Qty"],["Bolt M10","24"],["Washer M10","48"]]}' },
+      { key: "ifcx::annotation::tag", type: '{symbol, label, position}', desc: "Element tag (INB-style)", dxf: null,
+        example: '{"symbol": "circle", "label": "W-01", "position": [500,250,0]}' },
+      { key: "ifcx::annotation::symbol", type: '{name, position, rotation, scale}', desc: "Symbol marker", dxf: null,
+        example: '{"name": "north-arrow", "position": [800,100,0], "rotation": 0, "scale": 1.0}' }
+    ]
+  },
+  layer: {
+    label: "Layer/Classification", color: "var(--tag-layer)",
+    attrs: [
+      { key: "ifcx::layer::assignment", type: '{name, description}', desc: "Layer assignment (replaces DXF layer)", dxf: null,
+        example: '{"name": "A-WALL", "description": "Architectural Walls"}' },
+      { key: "ifcx::layer::style", type: '{colour, lineWeight, dashPattern, visible, ...}', desc: "Layer default style", dxf: null,
+        example: '{"colour":{"r":1,"g":0,"b":0,"a":1},"lineWeight":0.35,"dashPattern":"continuous","visible":true,"frozen":false,"locked":false,"plot":true}' },
+      { key: "ifcx::layer::viewportOverride", type: '{viewport: "ref", frozen: bool, ...}', desc: "Per-viewport overrides", dxf: null,
+        example: '{"viewport": "vp-uuid-1", "frozen": true, "colour": {"r":0.5,"g":0.5,"b":0.5,"a":1}}' }
+    ]
+  },
+  bsi: {
+    label: "IFC Classification", color: "var(--tag-bsi)",
+    attrs: [
+      { key: "bsi::ifc::class", type: '{code: "IfcWall", uri: "..."}', desc: "IFC entity classification", dxf: null,
+        example: '{"code": "IfcWall", "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall"}' },
+      { key: "bsi::ifc::material", type: '{code: "Concrete", uri: "..."}', desc: "Material assignment", dxf: null,
+        example: '{"code": "Concrete", "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/material/Concrete"}' },
+      { key: "bsi::ifc::prop::*", type: 'value', desc: "IFC properties (Height, Width, etc.)", dxf: null,
+        example: '(e.g. bsi::ifc::prop::Height = 2800)' },
+      { key: "bsi::ifc::guid", type: 'string', desc: "IFC GlobalId for round-tripping", dxf: null,
+        example: '"0EF2wXBpT4hQXCuvNMHgI2"' }
+    ]
+  },
+  sheet: {
+    label: "Sheet/Layout", color: "var(--tag-sheet)",
+    attrs: [
+      { key: "ifcx::sheet::paper", type: '{width, height, margins, orientation}', desc: "Paper/sheet definition", dxf: "LAYOUT",
+        example: '{"width": 420, "height": 297, "margins": {"top":10,"right":10,"bottom":10,"left":25}, "orientation": "landscape"}' },
+      { key: "ifcx::sheet::titleBlock", type: '{ref: "block-path", position}', desc: "Title block reference", dxf: null,
+        example: '{"ref": "titleblock-def-uuid", "position": [0, 0, 0]}' },
+      { key: "ifcx::sheet::viewport", type: '{center, width, height, viewTarget, viewScale, ...}', desc: "View window into model", dxf: "VIEWPORT",
+        example: '{\n  "center": [200, 150],\n  "width": 200,\n  "height": 150,\n  "viewTarget": [5000, 3000, 0],\n  "viewDirection": [0, 0, 1],\n  "viewScale": 0.01,\n  "twistAngle": 0,\n  "locked": true\n}' },
+      { key: "ifcx::sheet::viewTitle", type: '{name, number, scale, position}', desc: "View title annotation", dxf: null,
+        example: '{"name": "Ground Floor Plan", "number": "1", "scale": "1:100", "position": [200, 40]}' },
+      { key: "ifcx::sheet::plotSettings", type: '{scale, area, styleTable}', desc: "Print configuration", dxf: "PLOTSETTINGS",
+        example: '{"scale": "1:1", "area": "layout", "styleTable": "monochrome.ctb"}' }
+    ]
+  },
+  component: {
+    label: "Block/Component", color: "var(--tag-component)",
+    attrs: [
+      { key: "ifcx::component::definition", type: '{basePoint, description}', desc: "Block definition metadata", dxf: "BLOCK header",
+        example: '{"basePoint": [0,0,0], "description": "Standard door type A"}' },
+      { key: "ifcx::component::reference", type: '{definition: "ref", transform}', desc: "Block instance", dxf: "INSERT",
+        example: '{"definition": "door-def-uuid", "transform": {"translate":[1000,500,0],"rotate":1.5708,"scale":[1,1,1]}}' },
+      { key: "ifcx::component::attribute", type: '{tag, value, prompt, position}', desc: "Block attribute", dxf: "ATTRIB / ATTDEF",
+        example: '{"tag": "ROOM_NAME", "value": "Office 101", "prompt": "Enter room name", "position": [50,25,0]}' }
+    ]
+  },
+  image: {
+    label: "Raster Image", color: "var(--tag-image)",
+    attrs: [
+      { key: "ifcx::image::raster", type: '{mediaId, insertionPoint, pixelSize, ...}', desc: "Embedded/linked raster image", dxf: null,
+        example: '{"mediaId": "img-001", "insertionPoint": [0,0,0], "pixelSize": 0.5, "rotation": 0, "clipBoundary": null}' },
+      { key: "ifcx::image::wipeout", type: '{boundary: [...]}', desc: "Masking area", dxf: null,
+        example: '{"boundary": [[0,0],[100,0],[100,80],[0,80]]}' }
+    ]
+  },
+  geo: {
+    label: "GIS/Geo", color: "var(--tag-geo)",
+    attrs: [
+      { key: "ifcx::geo::position", type: '{latitude, longitude, altitude}', desc: "Geographic position", dxf: null,
+        example: '{"latitude": 52.0907, "longitude": 5.1214, "altitude": 0}' },
+      { key: "ifcx::geo::crs", type: '{epsg, wkt}', desc: "Coordinate reference system", dxf: null,
+        example: '{"epsg": 28992, "wkt": "PROJCS[\\"Amersfoort / RD New\\"...]"}' },
+      { key: "ifcx::geo::feature", type: '{type: "Point|Line|Polygon", coordinates}', desc: "GeoJSON-compatible geometry", dxf: null,
+        example: '{"type": "Polygon", "coordinates": [[[5.12,52.09],[5.13,52.09],[5.13,52.10],[5.12,52.10],[5.12,52.09]]]}' }
+    ]
+  },
+  revision: {
+    label: "Versioning", color: "var(--tag-revision)",
+    attrs: [
+      { key: "ifcx::revision::info", type: '{id, parent, timestamp, author, message, tag}', desc: "Revision metadata (like a git commit)", dxf: null,
+        example: '{"id": "rev-003", "parent": "rev-002", "timestamp": "2025-01-15T14:30:00Z", "author": "john@acme.com", "message": "Updated wall dimensions", "tag": "v1.2"}' },
+      { key: "ifcx::revision::stats", type: '{nodesAdded, nodesModified, nodesRemoved}', desc: "Change statistics", dxf: null,
+        example: '{"nodesAdded": 3, "nodesModified": 7, "nodesRemoved": 1}' },
+      { key: "ifcx::revision::created", type: 'string (revision-id)', desc: "Revision in which this node was created", dxf: null,
+        example: '"rev-001"' },
+      { key: "ifcx::revision::modified", type: '{revision, previous: {attr: old_value}}', desc: "Change record with undo data", dxf: null,
+        example: '{"revision": "rev-003", "previous": {"ifcx::geom::line": {"points":[[0,0,0],[500,0,0]]}}}' },
+      { key: "ifcx::revision::deleted", type: '{revision, previous: {...}}', desc: "Deletion record with undo data", dxf: null,
+        example: '{"revision": "rev-004", "previous": {"ifcx::geom::circle": {"center":[100,100,0],"radius":50}}}' },
+      { key: "ifcx::revision::branch", type: 'string', desc: "Branch name (for parallel development)", dxf: null,
+        example: '"feature/hvac-update"' },
+      { key: "ifcx::revision::merge", type: '{source, sourceBranch, conflicts, strategy}', desc: "Merge information", dxf: null,
+        example: '{"source": "rev-005", "sourceBranch": "feature/hvac-update", "conflicts": [], "strategy": "ours"}' }
+    ]
+  }
+};
+
+const MAPPING_DATA = [
+  ["LINE", "ifcx::geom::line", '{"points": [[0,0,0],[100,50,0]]}'],
+  ["LWPOLYLINE", "ifcx::geom::polyline / compositeCurve", '{"points": [...], "closed": true}'],
+  ["CIRCLE", "ifcx::geom::circle", '{"center": [0,0,0], "radius": 50}'],
+  ["ARC", "ifcx::geom::trimmedCurve", '{"center": [0,0,0], "radius": 50, "startAngle": 0, "endAngle": 1.57}'],
+  ["ELLIPSE", "ifcx::geom::ellipse", '{"center": [0,0,0], "semiAxis1": 100, "semiAxis2": 50}'],
+  ["SPLINE", "ifcx::geom::bspline", '{"degree": 3, "controlPoints": [...]}'],
+  ["POINT", "ifcx::geom::point", '{"position": [10,20,0]}'],
+  ["RAY", "ifcx::geom::ray", '{"origin": [0,0,0], "direction": [1,0,0]}'],
+  ["XLINE", "ifcx::geom::constructionLine", '{"origin": [0,0,0], "direction": [0,1,0]}'],
+  ["TEXT", "ifcx::annotation::text", '{"value": "Hello", "placement": [0,0,0]}'],
+  ["MTEXT", "ifcx::annotation::richText", '{"spans": [{"text": "Hello", "bold": true}]}'],
+  ["DIMENSION", "ifcx::annotation::dimension", '{"subtype": "linear", "value": 4500}'],
+  ["LEADER", "ifcx::annotation::leader", '{"path": [...], "content": {"text": "Note"}}'],
+  ["MULTILEADER", "ifcx::annotation::leader", '{"path": [...], "arrowhead": "closed"}'],
+  ["TOLERANCE", "ifcx::annotation::tolerance", '{"frames": [{"symbol": "position", "value": 0.05}]}'],
+  ["TABLE", "ifcx::annotation::table", '{"rows": 2, "columns": 2, "cells": [...]}'],
+  ["HATCH", "ifcx::hatch::pattern + boundary", '{"name": "ANSI31", "angle": 45, "scale": 1.0}'],
+  ["INSERT", "ifcx::component::reference", '{"definition": "block-uuid", "transform": {...}}'],
+  ["BLOCK", "ifcx::component::definition", '{"basePoint": [0,0,0]}'],
+  ["ATTRIB", "ifcx::component::attribute", '{"tag": "NAME", "value": "Door A"}'],
+  ["VIEWPORT", "ifcx::sheet::viewport", '{"center": [200,150], "viewScale": 0.01}'],
+  ["LAYOUT", "ifcx::sheet::paper", '{"width": 420, "height": 297}'],
+  ["IMAGE", "ifcx::image::raster", '{"mediaId": "img-001", "pixelSize": 0.5}'],
+  ["WIPEOUT", "ifcx::image::wipeout", '{"boundary": [[0,0],[100,0],[100,80],[0,80]]}'],
+  ["MESH", "ifcx::geom::mesh", '{"points": [...], "faceVertexIndices": [...]}'],
+  ["3DSOLID", "ifcx::geom::solid", '{"data": "<ACIS data>"}'],
+  ["3DFACE", "ifcx::geom::mesh", '{"points": [[0,0,0],[1,0,0],[0.5,1,0]]}'],
+  ["PLOTSETTINGS", "ifcx::sheet::plotSettings", '{"scale": "1:1", "styleTable": "mono.ctb"}']
+];
+
+const IFC5_REFERENCE = [
+  {
+    title: "IFC5 Namespaces",
+    items: [
+      { code: "bsi::ifc::*", desc: "Official IFC entity classification and properties" },
+      { code: "usd::*", desc: "USD (Universal Scene Description) scene graph primitives" },
+      { code: "ifcx::*", desc: "IfcX extension namespaces for 2D drawings" },
+      { code: "publisher::domain::name", desc: "General namespace pattern" }
+    ]
+  },
+  {
+    title: "Key IFC Entity Types",
+    items: [
+      { code: "IfcWall", desc: "Vertical construction element" },
+      { code: "IfcDoor", desc: "Door element with opening" },
+      { code: "IfcWindow", desc: "Window element with opening" },
+      { code: "IfcSlab", desc: "Horizontal construction element (floor, roof)" },
+      { code: "IfcColumn", desc: "Vertical structural member" },
+      { code: "IfcBeam", desc: "Horizontal structural member" },
+      { code: "IfcSpace", desc: "Spatial zone (room)" },
+      { code: "IfcStair", desc: "Stair assembly" },
+      { code: "IfcRoof", desc: "Roof structure" },
+      { code: "IfcCurtainWall", desc: "Curtain wall assembly" },
+      { code: "IfcFurnishingElement", desc: "Furniture and fittings" },
+      { code: "IfcBuildingElementProxy", desc: "Generic/unclassified element" }
+    ]
+  },
+  {
+    title: "IFC5 Node Model",
+    items: [
+      { code: "path", desc: "Unique identifier (UUID) for each node" },
+      { code: "children", desc: "Named references to child nodes (composition)" },
+      { code: "inherits", desc: "Type inheritance from definition nodes" },
+      { code: "attributes", desc: "Key-value data keyed by namespace" },
+      { code: "purpose", desc: "Node role: drawing, model, annotation, sheet, style, definition" }
+    ]
+  },
+  {
+    title: "How IfcX Extends IFC5",
+    items: [
+      { code: "ifcx::geom::*", desc: "Full 2D geometry (lines, arcs, splines, etc.)" },
+      { code: "ifcx::annotation::*", desc: "Dimensions, text, leaders, tables" },
+      { code: "ifcx::sheet::*", desc: "Paper layouts, viewports, title blocks" },
+      { code: "ifcx::style::*", desc: "Curve styles, fill, text styling" },
+      { code: "ifcx::hatch::*", desc: "Pattern and solid hatching" },
+      { code: "ifcx::svg::*", desc: "SVG/CSS styling for web viewers" },
+      { code: "ifcx::revision::*", desc: "Built-in version control (git-like)" },
+      { code: "ifcx::component::*", desc: "Block/component definitions and instances" }
+    ]
+  },
+  {
+    title: "IfcX File Structure",
+    items: [
+      { code: "header", desc: "File metadata, version, units, CRS" },
+      { code: "imports", desc: "External schema references (IFC5-style)" },
+      { code: "schemas", desc: "Inline schema definitions for custom attributes" },
+      { code: "data[]", desc: "Flat array of IfcxNode objects" },
+      { code: "media{}", desc: "Embedded raster images (base64)" }
+    ]
+  },
+  {
+    title: "IfcX vs Traditional Formats",
+    items: [
+      { code: "JSON-native", desc: "No STEP, no XML -- pure JSON" },
+      { code: "Flat node list", desc: "No deep nesting -- references via paths" },
+      { code: "Namespace attrs", desc: "Extensible via publisher::domain::name" },
+      { code: "USD-compatible", desc: "4x4 transforms, mesh format from USD" },
+      { code: "Git-like versioning", desc: "Built-in revision tracking, branching, merge" }
+    ]
+  }
+];
+
+const EXAMPLES = [
+  {
+    title: "Simple Line Drawing",
+    desc: "A basic node with a line segment and curve style.",
+    tags: ["geom", "style"],
+    node: {
+      path: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      purpose: "drawing",
+      attributes: {
+        "ifcx::geom::line": { points: [[0,0,0],[5000,2500,0]] },
+        "ifcx::style::curveStyle": { colour: {r:0,g:0,b:0,a:1}, width: 0.35, pattern: "continuous" },
+        "ifcx::layer::assignment": { name: "A-WALL", description: "Architectural Walls" }
+      }
+    }
+  },
+  {
+    title: "Dimensioned Floor Plan",
+    desc: "A rectangular floor plan with polyline walls and a linear dimension.",
+    tags: ["geom", "annotation", "layer"],
+    node: {
+      path: "floorplan-001",
+      purpose: "drawing",
+      children: {
+        "walls": "walls-uuid-001",
+        "dim-width": "dim-uuid-001"
+      },
+      attributes: {
+        "ifcx::geom::polyline": {
+          points: [[0,0,0],[6000,0,0],[6000,4000,0],[0,4000,0]],
+          closed: true
+        },
+        "ifcx::style::curveStyle": { colour: {r:0,g:0,b:0,a:1}, width: 0.5 },
+        "ifcx::layer::assignment": { name: "A-WALL" }
+      }
+    }
+  },
+  {
+    title: "Block with Instances",
+    desc: "A component definition (door block) and an instance placed with transform.",
+    tags: ["component", "xform"],
+    node: {
+      path: "door-instance-001",
+      purpose: "drawing",
+      inherits: { "type": "door-def-uuid" },
+      attributes: {
+        "ifcx::component::reference": {
+          definition: "door-def-uuid",
+          transform: { translate: [1000,0,0], rotate: 1.5708, scale: [1,1,1] }
+        },
+        "ifcx::xform::translate": [1000, 0, 0],
+        "ifcx::xform::rotate": 1.5708
+      }
+    }
+  },
+  {
+    title: "Sheet with Viewports",
+    desc: "An A3 sheet layout with a viewport into model space and a title block.",
+    tags: ["sheet", "component"],
+    node: {
+      path: "sheet-A101",
+      purpose: "sheet",
+      children: {
+        "viewport-1": "vp-uuid-001",
+        "title-block": "tb-uuid-001"
+      },
+      attributes: {
+        "ifcx::sheet::paper": {
+          width: 420, height: 297,
+          margins: {top:10,right:10,bottom:10,left:25},
+          orientation: "landscape"
+        },
+        "ifcx::sheet::viewport": {
+          center: [200, 150], width: 250, height: 180,
+          viewTarget: [3000, 2000, 0],
+          viewDirection: [0, 0, 1],
+          viewScale: 0.01,
+          locked: true
+        },
+        "ifcx::sheet::viewTitle": {
+          name: "Ground Floor Plan", number: "1",
+          scale: "1:100", position: [200, 40]
+        }
+      }
+    }
+  },
+  {
+    title: "Drawing with Revision History",
+    desc: "A node with revision tracking showing change history and branching.",
+    tags: ["revision", "geom"],
+    node: {
+      path: "wall-segment-042",
+      purpose: "drawing",
+      attributes: {
+        "ifcx::geom::line": { points: [[0,0,0],[4500,0,0]] },
+        "ifcx::revision::created": "rev-001",
+        "ifcx::revision::modified": {
+          revision: "rev-003",
+          previous: { "ifcx::geom::line": { points: [[0,0,0],[3000,0,0]] } }
+        },
+        "ifcx::revision::info": {
+          id: "rev-003",
+          parent: "rev-002",
+          timestamp: "2025-06-15T10:30:00Z",
+          author: "architect@studio.com",
+          message: "Extended east wall to match updated site boundary",
+          tag: "v1.3"
+        }
+      }
+    }
+  },
+  {
+    title: "BIM Wall with IFC Classification",
+    desc: "A smart BIM wall element with IFC class, material, and properties.",
+    tags: ["bsi", "geom", "style"],
+    node: {
+      path: "wall-BIM-001",
+      purpose: "model",
+      attributes: {
+        "bsi::ifc::class": { code: "IfcWall", uri: "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall" },
+        "bsi::ifc::material": { code: "Concrete", uri: "..." },
+        "bsi::ifc::guid": "0EF2wXBpT4hQXCuvNMHgI2",
+        "ifcx::geom::polyline": {
+          points: [[0,0,0],[6000,0,0],[6000,200,0],[0,200,0]],
+          closed: true
+        },
+        "ifcx::style::fillStyle": { colour: {r:0.85,g:0.85,b:0.85,a:1}, pattern: "solid" },
+        "ifcx::svg::class": "cut IfcWall material-concrete"
+      }
+    }
+  }
+];
+
+// ==================== NAVIGATION ====================
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+  });
+});
+
+// ==================== ATTRIBUTES PAGE ====================
+
+function getTagColor(ns) {
+  const map = { geom:'var(--tag-geom)',xform:'var(--tag-xform)',style:'var(--tag-style)',svg:'var(--tag-svg)',
+    hatch:'var(--tag-hatch)',annotation:'var(--tag-annotation)',layer:'var(--tag-layer)',bsi:'var(--tag-bsi)',
+    sheet:'var(--tag-sheet)',component:'var(--tag-component)',image:'var(--tag-image)',geo:'var(--tag-geo)',revision:'var(--tag-revision)' };
+  return map[ns] || 'var(--accent)';
+}
+
+function renderAttributes(filter) {
+  const container = document.getElementById('attr-groups');
+  container.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  for (const [ns, group] of Object.entries(ATTR_DATA)) {
+    const filteredAttrs = group.attrs.filter(a =>
+      !q || a.key.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q) ||
+      a.type.toLowerCase().includes(q) || (a.dxf && a.dxf.toLowerCase().includes(q)) ||
+      group.label.toLowerCase().includes(q)
+    );
+    if (filteredAttrs.length === 0) continue;
+    const div = document.createElement('div');
+    div.className = 'ns-group';
+    div.innerHTML = `
+      <div class="ns-header" onclick="this.classList.toggle('collapsed');this.nextElementSibling.classList.toggle('hidden')">
+        <span class="ns-tag" style="background:${group.color}22;color:${group.color}">${ns}</span>
+        <span class="ns-title">${group.label}</span>
+        <span class="ns-count">${filteredAttrs.length} attr${filteredAttrs.length!==1?'s':''}</span>
+        <span class="ns-chevron">&#9654;</span>
+      </div>
+      <div class="ns-body">
+        ${filteredAttrs.map(a => `
+          <div class="attr-row" onclick="this.querySelector('.attr-detail').classList.toggle('open')">
+            <div class="attr-summary">
+              <span class="attr-key">${escHtml(a.key)}</span>
+              <span class="attr-type">${escHtml(a.type)}</span>
+              <span class="attr-desc">${escHtml(a.desc)}${a.dxf ? ' <span class=dxf-badge>'+escHtml(a.dxf)+'</span>':''}</span>
+            </div>
+            <div class="attr-detail">
+              <div class="detail-section">
+                <div class="detail-label">Full Key</div>
+                <code style="color:var(--accent);font-size:13px">${escHtml(a.key)}</code>
+              </div>
+              <div class="detail-section">
+                <div class="detail-label">Value Type</div>
+                <code style="color:var(--warning);font-size:13px">${escHtml(a.type)}</code>
+              </div>
+              ${a.dxf ? `<div class="detail-section"><div class="detail-label">DXF Equivalent</div><span class="dxf-badge">${escHtml(a.dxf)}</span></div>` : ''}
+              <div class="detail-section">
+                <div class="detail-label">Example JSON</div>
+                <pre>${escHtml(a.example)}</pre>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+document.getElementById('attr-search').addEventListener('input', e => renderAttributes(e.target.value));
+renderAttributes('');
+
+// ==================== BUILDER PAGE ====================
+
+let builderChildren = [];
+let builderInherits = [];
+let builderAttrs = [];
+
+function generateUUID() {
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random()*16|0;
+    return (c==='x'?r:(r&0x3|0x8)).toString(16);
+  });
+  document.getElementById('node-path').value = uuid;
+  updatePreview();
+}
+
+function populateAttrDropdown() {
+  const sel = document.getElementById('attr-dropdown');
+  sel.innerHTML = '';
+  for (const [ns, group] of Object.entries(ATTR_DATA)) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = group.label + ' (' + ns + ')';
+    group.attrs.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.key;
+      opt.textContent = a.key;
+      optgroup.appendChild(opt);
+    });
+    sel.appendChild(optgroup);
+  }
+}
+populateAttrDropdown();
+
+function addChild() {
+  builderChildren.push({ name: '', path: '' });
+  renderChildren();
+}
+function removeChild(i) { builderChildren.splice(i,1); renderChildren(); updatePreview(); }
+function renderChildren() {
+  const el = document.getElementById('children-list');
+  el.innerHTML = builderChildren.map((c,i) => `
+    <div class="pair-row">
+      <input class="form-input" placeholder="name" value="${escHtml(c.name)}" oninput="builderChildren[${i}].name=this.value;updatePreview()">
+      <input class="form-input" placeholder="path (UUID)" value="${escHtml(c.path)}" oninput="builderChildren[${i}].path=this.value;updatePreview()">
+      <button class="btn btn-sm btn-danger" onclick="removeChild(${i})">x</button>
+    </div>
+  `).join('');
+}
+
+function addInherit() {
+  builderInherits.push({ name: '', path: '' });
+  renderInherits();
+}
+function removeInherit(i) { builderInherits.splice(i,1); renderInherits(); updatePreview(); }
+function renderInherits() {
+  const el = document.getElementById('inherits-list');
+  el.innerHTML = builderInherits.map((c,i) => `
+    <div class="pair-row">
+      <input class="form-input" placeholder="name" value="${escHtml(c.name)}" oninput="builderInherits[${i}].name=this.value;updatePreview()">
+      <input class="form-input" placeholder="source path" value="${escHtml(c.path)}" oninput="builderInherits[${i}].path=this.value;updatePreview()">
+      <button class="btn btn-sm btn-danger" onclick="removeInherit(${i})">x</button>
+    </div>
+  `).join('');
+}
+
+function addAttribute() {
+  const sel = document.getElementById('attr-dropdown');
+  const key = sel.value;
+  if (!key || builderAttrs.find(a => a.key === key)) return;
+  let defaultVal = '';
+  for (const group of Object.values(ATTR_DATA)) {
+    const found = group.attrs.find(a => a.key === key);
+    if (found) { defaultVal = found.example; break; }
+  }
+  builderAttrs.push({ key, value: defaultVal });
+  renderBuilderAttrs();
+  updatePreview();
+}
+function removeAttr(i) { builderAttrs.splice(i,1); renderBuilderAttrs(); updatePreview(); }
+function renderBuilderAttrs() {
+  const el = document.getElementById('added-attrs');
+  el.innerHTML = builderAttrs.map((a,i) => `
+    <div class="added-attr-card">
+      <div class="card-header">
+        <span class="card-title">${escHtml(a.key)}</span>
+        <button class="btn btn-sm btn-danger" onclick="removeAttr(${i})">Remove</button>
+      </div>
+      <textarea oninput="builderAttrs[${i}].value=this.value;updatePreview()" spellcheck="false">${escHtml(a.value)}</textarea>
+    </div>
+  `).join('');
+}
+
+function updatePreview() {
+  const node = {};
+  const path = document.getElementById('node-path').value;
+  if (path) node.path = path;
+  const purpose = document.getElementById('node-purpose').value;
+  if (purpose) node.purpose = purpose;
+  const children = {};
+  builderChildren.forEach(c => { if (c.name) children[c.name] = c.path || null; });
+  if (Object.keys(children).length) node.children = children;
+  const inherits = {};
+  builderInherits.forEach(c => { if (c.name) inherits[c.name] = c.path || null; });
+  if (Object.keys(inherits).length) node.inherits = inherits;
+  if (builderAttrs.length) {
+    node.attributes = {};
+    builderAttrs.forEach(a => {
+      try { node.attributes[a.key] = JSON.parse(a.value); }
+      catch { node.attributes[a.key] = a.value; }
+    });
+  }
+  document.getElementById('json-preview').textContent = JSON.stringify(node, null, 2);
+}
+
+function copyJSON() {
+  const text = document.getElementById('json-preview').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.preview-header .btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function loadExample(ex) {
+  document.getElementById('node-path').value = ex.node.path || '';
+  document.getElementById('node-purpose').value = ex.node.purpose || '';
+  builderChildren = [];
+  if (ex.node.children) {
+    for (const [name, path] of Object.entries(ex.node.children)) {
+      builderChildren.push({ name, path: path || '' });
+    }
+  }
+  renderChildren();
+  builderInherits = [];
+  if (ex.node.inherits) {
+    for (const [name, path] of Object.entries(ex.node.inherits)) {
+      builderInherits.push({ name, path: path || '' });
+    }
+  }
+  renderInherits();
+  builderAttrs = [];
+  if (ex.node.attributes) {
+    for (const [key, val] of Object.entries(ex.node.attributes)) {
+      builderAttrs.push({ key, value: JSON.stringify(val, null, 2) });
+    }
+  }
+  renderBuilderAttrs();
+  updatePreview();
+  // Switch to builder page
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-page=builder]').classList.add('active');
+  document.getElementById('page-builder').classList.add('active');
+}
+
+document.getElementById('node-path').addEventListener('input', updatePreview);
+generateUUID();
+updatePreview();
+
+// ==================== IFC5 REFERENCE PAGE ====================
+
+function renderIFC5() {
+  const el = document.getElementById('ifc5-cards');
+  el.innerHTML = IFC5_REFERENCE.map(card => `
+    <div class="ref-card">
+      <h4>${escHtml(card.title)}</h4>
+      <ul>${card.items.map(it => `
+        <li><code>${escHtml(it.code)}</code><span class="ref-desc">${escHtml(it.desc)}</span></li>
+      `).join('')}</ul>
+    </div>
+  `).join('');
+}
+renderIFC5();
+
+// ==================== MAPPING PAGE ====================
+
+let mappingSortCol = -1;
+let mappingSortAsc = true;
+
+function renderMapping(filter) {
+  const q = (filter || '').toLowerCase();
+  let rows = MAPPING_DATA.filter(r =>
+    !q || r[0].toLowerCase().includes(q) || r[1].toLowerCase().includes(q) || r[2].toLowerCase().includes(q)
+  );
+  if (mappingSortCol >= 0) {
+    rows.sort((a,b) => {
+      const va = a[mappingSortCol].toLowerCase(), vb = b[mappingSortCol].toLowerCase();
+      return mappingSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+  }
+  document.getElementById('mapping-body').innerHTML = rows.map(r => `
+    <tr><td>${escHtml(r[0])}</td><td>${escHtml(r[1])}</td><td><code>${escHtml(r[2])}</code></td></tr>
+  `).join('');
+}
+
+document.getElementById('mapping-search').addEventListener('input', e => renderMapping(e.target.value));
+document.querySelectorAll('#mapping-table th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = parseInt(th.dataset.col);
+    if (mappingSortCol === col) mappingSortAsc = !mappingSortAsc;
+    else { mappingSortCol = col; mappingSortAsc = true; }
+    document.querySelectorAll('#mapping-table th .sort-arrow').forEach(s => s.textContent = '');
+    th.querySelector('.sort-arrow').textContent = mappingSortAsc ? ' \u25B2' : ' \u25BC';
+    renderMapping(document.getElementById('mapping-search').value);
+  });
+});
+renderMapping('');
+
+// ==================== EXAMPLES PAGE ====================
+
+function renderExamples() {
+  document.getElementById('example-cards').innerHTML = EXAMPLES.map((ex, i) => `
+    <div class="example-card" onclick="loadExample(EXAMPLES[${i}])">
+      <h4>${escHtml(ex.title)}</h4>
+      <p>${escHtml(ex.desc)}</p>
+      <div class="example-tags">
+        ${ex.tags.map(t => `<span class="example-tag">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+renderExamples();
+
+</script>
+</body>
+</html>

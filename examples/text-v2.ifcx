@@ -1,0 +1,7049 @@
+{
+  "header": {
+    "ifcxVersion": "2.0",
+    "id": "49788162-43a0-429c-b8ae-9a560861ed3a",
+    "timestamp": "2026-03-25T07:17:45.001341+00:00",
+    "units": {
+      "length": "mm",
+      "angle": "rad"
+    }
+  },
+  "imports": [
+    {
+      "uri": "https://ifcx.dev/@standards.buildingsmart.org/ifc/core/ifc@v5a.ifcx"
+    },
+    {
+      "uri": "https://ifcx.dev/@openusd.org/usd@v1.ifcx"
+    },
+    {
+      "uri": "https://ifcx.openaec.org/schemas/geom@v1.ifcx"
+    },
+    {
+      "uri": "https://ifcx.openaec.org/schemas/annotation@v1.ifcx"
+    },
+    {
+      "uri": "https://ifcx.openaec.org/schemas/sheet@v1.ifcx"
+    }
+  ],
+  "data": [
+    {
+      "path": "project",
+      "children": {
+        "drawings": "drawings",
+        "definitions": "definitions",
+        "styles": "styles"
+      },
+      "attributes": {
+        "ifcx::purpose": "drawing"
+      }
+    },
+    {
+      "path": "layer-cb99a9eca43c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::layer::style": {
+          "colour": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "frozen": false,
+          "locked": false
+        },
+        "ifcx::layer::assignment": {
+          "name": "0"
+        }
+      }
+    },
+    {
+      "path": "layer-735c1b2d445b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::layer::style": {
+          "colour": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "frozen": false,
+          "locked": false,
+          "plot": false
+        },
+        "ifcx::layer::assignment": {
+          "name": "Defpoints"
+        }
+      }
+    },
+    {
+      "path": "textstyle-847408c4685a",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "",
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-fc75fee0f9e8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 2.5,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-701a32ce9fce",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 3.5,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-466c28f43b80",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 5.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-f1b566c02545",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 7.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-066bd5782e3b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 10.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-0c70fa6b9b3b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "txt",
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-4fc8a40c9818",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 25.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-f141ecc961d0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 50.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "textstyle-ad8dfdcc4686",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::textStyle": {
+          "font": "simplex.shx",
+          "size": 100.0,
+          "widthFactor": 1.0
+        }
+      }
+    },
+    {
+      "path": "dimstyle-6a0cd5058e0f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {}
+      }
+    },
+    {
+      "path": "dimstyle-3c51a2e68598",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-a733c3ccba46",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 3.0,
+          "extensionOffset": 1.5,
+          "dimensionLineIncrement": 10.0,
+          "extensionExtend": 3.0,
+          "textGap": 1.5,
+          "textAbove": 1
+        }
+      }
+    },
+    {
+      "path": "dimstyle-d8c75cd5195b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 3.0,
+          "overallScale": 1.399999999999999,
+          "extensionOffset": 1.5,
+          "dimensionLineIncrement": 10.0,
+          "extensionExtend": 3.0,
+          "textGap": 1.5,
+          "textAbove": 1
+        }
+      }
+    },
+    {
+      "path": "dimstyle-a90498969d9c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 3.0,
+          "overallScale": 50.0,
+          "extensionOffset": 1.5,
+          "dimensionLineIncrement": 10.0,
+          "extensionExtend": 3.0,
+          "textGap": 1.5,
+          "textAbove": 1
+        }
+      }
+    },
+    {
+      "path": "dimstyle-cb4f5b6946fa",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 3.0,
+          "overallScale": 20.0,
+          "extensionOffset": 1.5,
+          "dimensionLineIncrement": 10.0,
+          "extensionExtend": 3.0,
+          "textGap": 1.5,
+          "textAbove": 1
+        }
+      }
+    },
+    {
+      "path": "dimstyle-70a020714914",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 3.0,
+          "overallScale": 10.0,
+          "extensionOffset": 1.5,
+          "dimensionLineIncrement": 10.0,
+          "extensionExtend": 3.0,
+          "textGap": 1.5,
+          "textAbove": 1
+        }
+      }
+    },
+    {
+      "path": "dimstyle-8bf08fb9abac",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "overallScale": 1.399999999999999,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-72ebcbd84c96",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "overallScale": 2.0,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-83fa824f715d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "overallScale": 2.799999999999998,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-cda6e5a46e82",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "overallScale": 4.0,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-587f908bd9c7",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "overallScale": 0.0,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "dimstyle-1d1e67d001ed",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::dimensionStyle": {
+          "textHeight": 2.5,
+          "arrowSize": 2.5,
+          "extensionOffset": 0.625,
+          "dimensionLineIncrement": 3.75,
+          "extensionExtend": 1.25,
+          "textGap": 0.625,
+          "textAbove": 1,
+          "decimalPlaces": 2
+        }
+      }
+    },
+    {
+      "path": "linetype-8c037bed2c4b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "ISO dash __ __ __ __ __ __ __ __ __ __ __ __ __",
+          "dashPattern": [
+            12.0,
+            -3.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-8630d3a5adc4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "ISO dash space __    __    __    __    __    __",
+          "dashPattern": [
+            12.0,
+            -18.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-3df8ad6f854b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "ISO long-dash dot ____ . ____ . ____ . ____ . _",
+          "dashPattern": [
+            24.0,
+            -3.0,
+            0.0,
+            -3.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-20803b4919c0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "ISO long-dash short-dash ____ __ ____ __ ____ _",
+          "dashPattern": [
+            24.0,
+            -3.0,
+            6.0,
+            -3.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-19078a214cac",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "ISO dash dot __ . __ . __ . __ . __ . __ . __ .",
+          "dashPattern": [
+            12.0,
+            -3.0,
+            0.0,
+            -3.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-403a14ec559c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Center ____ _ ____ _ ____ _ ____ _ ____ _ ____",
+          "dashPattern": [
+            1.25,
+            -0.25,
+            0.25,
+            -0.25
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-dcf8b3b03120",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Dash dot __ . __ . __ . __ . __ . __ . __ . __",
+          "dashPattern": [
+            0.5,
+            -0.25,
+            0.0,
+            -0.25
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-f9eb7e5451e2",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Dashed __ __ __ __ __ __ __ __ __ __ __ __ __ _",
+          "dashPattern": [
+            0.5,
+            -0.25
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-b9078e1897b0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Dot . . . . . . . . . . . . . . . . . . . . . .",
+          "dashPattern": [
+            0.0,
+            -0.25
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-bb3717715fcb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Fenceline circle ----0-----0----0-----0----0---",
+          "dashPattern": [
+            0.25,
+            -0.1,
+            -0.1,
+            1.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-22ab85af6a35",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Hidden __ __ __ __ __ __ __ __ __ __ __ __ __ _",
+          "dashPattern": [
+            0.25,
+            -0.125
+          ]
+        }
+      }
+    },
+    {
+      "path": "linetype-08d9cc56f947",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::style::curveStyle": {
+          "description": "Zig zag /\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/",
+          "dashPattern": [
+            0.0001,
+            -0.2,
+            -0.4,
+            -0.2
+          ]
+        }
+      }
+    },
+    {
+      "path": "e-2ba7a3f5bb11",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": false
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        },
+        "ifcx::style::curveStyle": {
+          "pattern": "ByBlock"
+        }
+      }
+    },
+    {
+      "path": "def-8e42a3d1882a",
+      "children": {
+        "2A3": "e-2ba7a3f5bb11"
+      },
+      "attributes": {
+        "ifcx::purpose": "definition",
+        "ifcx::component::definition": {
+          "name": "_ArchTick",
+          "basePoint": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "e-e9b496d68022",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "6D7",
+            "height": 100.0,
+            "defaultValue": "VALUE-up-down",
+            "prompt": "PROMPT-up-down",
+            "tag": "TAG-UP-DOWN",
+            "flags": 0,
+            "insertionPoint": [
+              -3.85405151989471,
+              745.1529237559944,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-dd7e216a61f8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "6D7",
+            "height": 100.0,
+            "defaultValue": "VALUE-rotated",
+            "rotation": 27.80854687511411,
+            "prompt": "PROMPT-rotated",
+            "tag": "TAG-ROTATED",
+            "flags": 0,
+            "insertionPoint": [
+              139.097379222062,
+              20.09183437225602,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-832a06373daa",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "6D7",
+            "height": 100.0,
+            "defaultValue": "VALUE-backwards",
+            "prompt": "PROMPT-backwards",
+            "tag": "TAG-BACKWARDS",
+            "flags": 0,
+            "insertionPoint": [
+              1269.472584706861,
+              856.293675022608,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7162a2896e21",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "6D7",
+            "height": 100.0,
+            "defaultValue": "VALUE-normal",
+            "prompt": "PROMPT-normal",
+            "tag": "TAG-NORMAL",
+            "flags": 0,
+            "insertionPoint": [
+              -1.475025712014016,
+              1078.575177555836,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "def-8b3bf48187d9",
+      "children": {
+        "74E": "e-e9b496d68022",
+        "74F": "e-dd7e216a61f8",
+        "750": "e-832a06373daa",
+        "751": "e-7162a2896e21"
+      },
+      "attributes": {
+        "ifcx::purpose": "definition",
+        "ifcx::component::definition": {
+          "name": "att_block",
+          "basePoint": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "path": "e-0cf0843d977b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1802.865402314086,
+              2617.682527475733,
+              0.0
+            ],
+            [
+              1803.272339502802,
+              2717.86771115919,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3c3f45c78408",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "X",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 86.47421666845366,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-23a6c1c25017",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1653.190211758417,
+              2718.019383275966,
+              0.0
+            ],
+            [
+              1653.190211758417,
+              2618.002991055706,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0a49b77eed55",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "x",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 0.0210836213409493,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-585fe2fad249",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp",
+          "placement": [
+            1957.361438604223,
+            2717.874238630954,
+            0.0
+          ],
+          "height": 100.0,
+          "width": 0.0,
+          "attachment": "top_left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-faebe6e810aa",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1951.63615210783,
+              2717.729453607566,
+              0.0
+            ],
+            [
+              1951.63615210783,
+              2617.71306138731,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-e12fbd5a648c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp^JXxp^JXxp",
+          "placement": [
+            1657.857229838041,
+            2517.670227396427,
+            0.0
+          ],
+          "height": 100.0,
+          "width": 0.0,
+          "attachment": "top_left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-1634bb9e8dfa",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.89470049368,
+              2517.715283910026,
+              0.0
+            ],
+            [
+              1657.140669542595,
+              2051.500194377849,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5948cdf44834",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.140669542595,
+              2051.500194377849,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2051.500194377849,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-eff87ba9f7c5",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1891.190563171374,
+              2051.500194377849,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2517.75442669744,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-96f3dc978f00",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1891.190563171374,
+              2517.75442669744,
+              0.0
+            ],
+            [
+              1657.89470049368,
+              2517.715283910026,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7aa44e51867f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.857229838041,
+              2417.636725667168,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2417.636725667168,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-dd2aac4bc1bf",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1656.295752470493,
+              2250.848232767395,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2250.848232767395,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7a5a317e3507",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1891.190563171374,
+              2317.619863613412,
+              0.0
+            ],
+            [
+              1657.140669542595,
+              2317.619863613412,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a4f4930afb58",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.140669542595,
+              2351.121418272958,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2351.121418272958,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-e9bd874a8136",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.840817726582,
+              2484.399729620753,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2484.399729620753,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-9137671b3838",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.355606491389,
+              2184.395069159028,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2184.395069159028,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-424d5d51b8ec",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.301750394173,
+              2151.096004777393,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2151.096004777393,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3296d3e6a7e3",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1657.193684257101,
+              2084.279034336955,
+              0.0
+            ],
+            [
+              1891.190563171374,
+              2084.279034336955,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-d2b34ca9272d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "p",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 0.0367325728966534,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4a7cfa9c52c2",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2305.150072475592,
+              2717.039275707832,
+              0.0
+            ],
+            [
+              2305.150072475592,
+              2617.022883487573,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-d65eef67baa9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2305.150072475592,
+              2617.022883487573,
+              0.0
+            ],
+            [
+              2365.191951517335,
+              2617.022883487573,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6697e6614113",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2365.191951517335,
+              2617.15366612324,
+              0.0
+            ],
+            [
+              2365.191951517335,
+              2684.845630494863,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3c46c4669064",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2365.191951517335,
+              2684.714847859196,
+              0.0
+            ],
+            [
+              2305.150072475592,
+              2684.714847859196,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a273d3dc1798",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp^Jabc",
+          "placement": [
+            0.9160260379247235,
+            -0.4011188076417417,
+            0.0
+          ],
+          "height": 2.181033879291135,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-706c46c1d787",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2235.516038779858,
+              2573.826227947068,
+              0.0
+            ],
+            [
+              2123.737926882964,
+              2318.202630071866,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-b364ea4dbe9c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2112.647097745043,
+              2337.691338536231,
+              0.0
+            ],
+            [
+              2360.44606407499,
+              2227.146823010428,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c514ae7e646e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "bxp^Jaxp^Jaxc",
+          "placement": [
+            1477.953675521465,
+            2534.117706311416,
+            0.0
+          ],
+          "height": 100.0,
+          "width": 0.0,
+          "attachment": "top_left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-98953629a9bb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1478.012195330531,
+              2534.114612543703,
+              0.0
+            ],
+            [
+              1103.868043120194,
+              2255.954170286041,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5100731f65f6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1103.868043120194,
+              2255.954170286041,
+              0.0
+            ],
+            [
+              1243.813920225128,
+              2068.352186850435,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7c11b6e97666",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1243.813920225128,
+              2068.352186850435,
+              0.0
+            ],
+            [
+              1617.538588124937,
+              2347.140425051236,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-bf8a04b10010",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1617.538588124937,
+              2347.140425051236,
+              0.0
+            ],
+            [
+              1478.012195330531,
+              2534.114612543703,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f8405db7acd4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1397.772125154332,
+              2474.304493315119,
+              0.0
+            ],
+            [
+              1537.289548063068,
+              2287.276866614276,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-53766549cad1",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1263.149656784452,
+              2375.827944912222,
+              0.0
+            ],
+            [
+              1403.600736685691,
+              2187.54872075624,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-dbca9af9478f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1457.121335177443,
+              2227.473603009311,
+              0.0
+            ],
+            [
+              1317.17545807251,
+              2415.075586444917,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6febd3122509",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1344.028527752924,
+              2435.107231742928,
+              0.0
+            ],
+            [
+              1483.974404857857,
+              2247.505248307323,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-be7453b687e9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1451.275995463029,
+              2514.237372352996,
+              0.0
+            ],
+            [
+              1590.803231695316,
+              2327.196590573919,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-15ffd27d5a28",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1210.51804517825,
+              2335.243961571009,
+              0.0
+            ],
+            [
+              1350.335404643824,
+              2147.814260195788,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2e60fc7e6e30",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1183.795078693046,
+              2315.376559843501,
+              0.0
+            ],
+            [
+              1323.644640432444,
+              2127.903690276656,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ba158d2c0116",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1130.173522205489,
+              2275.511187689462,
+              0.0
+            ],
+            [
+              1270.087700126091,
+              2087.951698037716,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a619a304c5bd",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a word wrap example a b c d e",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1217.828758992508,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ee4ce2f5d3ba",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-45975f2b3684",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              3623.534053281395,
+              2581.275684746421,
+              0.0
+            ],
+            [
+              3623.534053281395,
+              2426.217731892853,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-195d8de9c47c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              3810.245953819696,
+              2430.524899372345,
+              0.0
+            ],
+            [
+              3810.245953819696,
+              2268.288340656131,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8e69c2493513",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              2926.815103930356,
+              2239.437225841006,
+              0.0
+            ],
+            [
+              2926.815103930356,
+              2117.400878067175,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ad3b26b44b1d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc\\Pabcdef",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6112d70ca94b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-180eb5476591",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc\\Pabcdef",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-83c49720aaf8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ff1be575a365",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc\\Pabcdef",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-cf6a032c3ed9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-02f1ac233187",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f28e8481061b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-9708c014cfea",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp^JXxp^JXxp",
+          "placement": [
+            1259.427599269086,
+            1964.841469146787,
+            0.0
+          ],
+          "height": 100.0,
+          "width": 0.0,
+          "attachment": "top_left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-e952d5e3c1fe",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1259.465069924726,
+              1964.886525660386,
+              0.0
+            ],
+            [
+              1258.71103897364,
+              1364.123455108875,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ade057062df7",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1258.71103897364,
+              1364.123455108875,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1364.123455108875,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0dc40badf072",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1492.760932602419,
+              1364.123455108875,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1964.9256684478,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a360ef1109d8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1492.760932602419,
+              1964.9256684478,
+              0.0
+            ],
+            [
+              1259.465069924726,
+              1964.886525660386,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-13847e4ef218",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1259.427599269086,
+              1864.807967417528,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1864.807967417528,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f3fafb22bae4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1257.866121901539,
+              1680.708548061867,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1680.708548061867,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2f83a87399c0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1492.760932602419,
+              1714.143119425495,
+              0.0
+            ],
+            [
+              1258.71103897364,
+              1714.143119425495,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8a2e4f127c1e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1259.411187157628,
+              1931.570971371113,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1931.570971371113,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-37bbedff44fe",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1258.925975922435,
+              1614.210901798287,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1614.210901798287,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-06d9dc60ef13",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1258.872119825218,
+              1464.860281767949,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1464.860281767949,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8802e83112c9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::line": {
+          "points": [
+            [
+              1258.764053688146,
+              1431.166016055231,
+              0.0
+            ],
+            [
+              1492.760932602419,
+              1431.166016055231,
+              0.0
+            ]
+          ]
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6caffc37854e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Top",
+          "placement": [
+            2119.039179846062,
+            1686.084739531371,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-83dd4be02324",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f9033305cef4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4550ad1044d8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a0497852e2f3",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Left",
+          "placement": [
+            2258.790133445919,
+            1816.074683850911,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f99d70c4686d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Center",
+          "placement": [
+            2555.897813380733,
+            1818.061301616002,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-46f6f0441769",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Right",
+          "placement": [
+            2884.680183217371,
+            1816.074683850911,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a3c26807c56c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Middle",
+          "placement": [
+            2021.420132227015,
+            1520.02891970844,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-034db6f855d3",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Bottom",
+          "placement": [
+            1976.182036988919,
+            1339.968384560472,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7ddb170a3f2c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7a7a5a8f5c10",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-aae28beca24c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5beaac541f50",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4028ff29773f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-37d7717eb049",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7cb635f5e2ec",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c5c00ebfe6c3",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a5713f8fe485",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "a\\Pab\\PXpc",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 249.8489551780949,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0e3e7796f799",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-b27a451eace5",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "vertical\\PText",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1170.066941715115,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-65591752fdea",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "(line stretch 2)",
+          "placement": [
+            4488.817654111234,
+            2847.17610147805,
+            0.0
+          ],
+          "height": 20.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6d4c930c32d3",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "vertical\\PText",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1170.066941715115,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-93dd0214b1f2",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7e6fd9f99b51",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-d78509f72e20",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-535cafea27cf",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ae2adb0b5eed",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2d1fb0367270",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-b62bcb9eb5aa",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5821b5655d14",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2fbb399d2766",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4c9de171e556",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a1c2549c6cbe",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "left align",
+          "placement": [
+            3314.992442091547,
+            1689.210892754812,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ff4cd516d7c5",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "center align",
+          "placement": [
+            3283.276029059502,
+            1639.997236064009,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2cce5da9f8f8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "right align",
+          "placement": [
+            3300.34694341822,
+            1589.998261399696,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a87341818a0a",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp middle",
+          "placement": [
+            3297.480113550878,
+            1481.29405126365,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "middle"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-d2102973f8ea",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "fit aligned blah blah blah",
+          "placement": [
+            3281.14388321865,
+            1411.901421372236,
+            0.0
+          ],
+          "height": 41.45887507515481,
+          "alignment": "fit"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-979bca651e7a",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "aligned align blah",
+          "placement": [
+            3284.836180972535,
+            1540.098204370256,
+            0.0
+          ],
+          "height": 12.90961996794668,
+          "alignment": "aligned"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-9e290bec6e1a",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Top",
+          "placement": [
+            3211.161018592502,
+            1091.499482730302,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-904bbd88f993",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Left",
+          "placement": [
+            3390.334149606296,
+            1221.489427049843,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-773eb5b7b887",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Center",
+          "placement": [
+            3648.019652127173,
+            1223.476044814933,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-abe4cad25746",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Right",
+          "placement": [
+            3976.802021963811,
+            1221.489427049843,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-859ec02add17",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Middle",
+          "placement": [
+            3113.541970973455,
+            925.4436629073712,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7f038565208d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Bottom",
+          "placement": [
+            3068.30387573536,
+            745.3831277594031,
+            0.0
+          ],
+          "height": 50.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2cec0ba7626c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-835fd0ee541e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8bdaf25f08f9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f7830fd58d13",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5f51d1f5e3cd",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2038f51e38e8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a58ef4059eca",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3673.856502720369,
+            1102.192497110538,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-afb2db186516",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3967.334083858744,
+            1102.192497110538,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-afb4c01c91a1",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3377.741341962508,
+            946.0751311817377,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-e867c2fb09af",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3674.063120083396,
+            942.1986936556514,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5871acadf238",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3960.951725777603,
+            949.5637681584758,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-523c3f37a25c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3377.741341962508,
+            762.0068167710797,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-075af0513eae",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3677.782325706725,
+            764.4097356076066,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f00cb6e8412c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3966.181005509432,
+            767.3480838762002,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-95f5ea2e3af7",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4543d9dacc5f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-dab433bad3b6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-608a2fdd68f1",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-41e96bfd25af",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-329bd08f5820",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-73b36d767959",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-89ceafe99113",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a94c77b3e0dd",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f5ca7738407f",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::annotation::text": {
+          "value": "Standard Style",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 566.3821378430966,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a2c8ba2ed247",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "width factor",
+          "placement": [
+            1243.915239996197,
+            990.0833227518242,
+            0.0
+          ],
+          "height": 100.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c1a663dd5fe8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-498003cdcaa1",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-59699e114a2b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "upside down",
+          "placement": [
+            1507.297841265833,
+            1073.70742606991,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-fde8069194bc",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "backwards",
+          "placement": [
+            1935.567949204471,
+            917.5885492330627,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-871de0b48275",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "upside down and backwards",
+          "placement": [
+            2496.878068249389,
+            823.800557403734,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0d25d93602c4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-89ead8028147",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-eab5e6f0f14b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-1a06ba8ac8f9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp     pxX",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1012.405116539754,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-42d3c61b4f9b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-1a6cee78ce85",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-9fb65fb6e510",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "abc     def            b",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 360.1617244432873,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4eb778964b4c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-af61e3f2c5e9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "abc      def                       b",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 360.1617244432873,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-753c937acc90",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "(many spaces between lines)",
+          "placement": [
+            487.8659541514862,
+            1841.684218077993,
+            0.0
+          ],
+          "height": 20.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2eceacd15dcf",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ab2694ecf782",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "abc\\Pabcd",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 83.47565242968267,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6cfc8e0802c0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6864d8ed0644",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-23a03dc91c96",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            3377.980924457821,
+            1102.192497110538,
+            0.0
+          ],
+          "height": 25.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-75981f93e8c2",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "left align",
+          "placement": [
+            3879.774386159,
+            1709.76767154828,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 5.488076699144657
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-606dcb6ac7c0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "center align",
+          "placement": [
+            3822.430743234486,
+            1697.951518339874,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 5.488076699144657
+          },
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-e5f9868107e0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "right align",
+          "placement": [
+            3798.687670065174,
+            1650.754272011289,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 5.488076699144657
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-617bb18f1a85",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp middle",
+          "placement": [
+            3719.072048534106,
+            1576.685541611655,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 5.488076699144657
+          },
+          "alignment": "middle"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a37ee62f02b8",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "fit aligned blah blah blah",
+          "placement": [
+            3662.923323790244,
+            1533.827229839492,
+            0.0
+          ],
+          "height": 41.45887507515481,
+          "style": {
+            "rotation": 5.489321061670942
+          },
+          "alignment": "fit"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-4e4bb8d9e37a",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "aligned align blah",
+          "placement": [
+            3752.201292435068,
+            1626.887639697097,
+            0.0
+          ],
+          "height": 12.95792096683523,
+          "style": {
+            "rotation": 5.48421708060543
+          },
+          "alignment": "aligned"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5f4be9200eeb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-fa35ca5d75a6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-556975c6dbfe",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-255f3aee65b5",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-6bc8f20db496",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8a1137ae603c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-1c735c51fbcc",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "(very thin column. Starting with space)",
+          "placement": [
+            1.107931123235174,
+            456.4096060164536,
+            0.0
+          ],
+          "height": 20.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2ae83de3be77",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Top",
+          "placement": [
+            4489.70539342113,
+            924.5516917553842,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3103fc3c8ddb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Left",
+          "placement": [
+            4622.697091158641,
+            1101.508197242965,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c7704c9d6b20",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Center",
+          "placement": [
+            4868.390068033046,
+            1179.230304613872,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0608a77efdce",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Right",
+          "placement": [
+            5183.201506932771,
+            1274.075184831129,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-720032cd19b9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Middle",
+          "placement": [
+            4445.269618020411,
+            737.123103702091,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-981f521aa8ca",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Bottom",
+          "placement": [
+            4455.016702662669,
+            551.7227910822915,
+            0.0
+          ],
+          "height": 50.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f60866a889bc",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            4928.770537258387,
+            1070.918529037686,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-352d79a8a0df",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            5209.255603725065,
+            1157.273714869313,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2a79b3890da9",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            4691.70187896169,
+            834.5813300431018,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-190d5be78ad5",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            4976.045861186844,
+            918.068590921392,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-cd616822afa1",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            5248.066493732797,
+            1009.524000104764,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-005fbd98ea72",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            4745.863608913906,
+            658.6618843340954,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c2a467b6aca6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            5031.914456273096,
+            749.2448776066853,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-343e5b2b97cd",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            5306.680865856429,
+            836.913871938645,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "right"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8d820d80a86b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-b5cb6d01b71b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-f69724f3b335",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2b7eea8ea1b4",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3e25dcb37304",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-0eb0f3af2ff6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-449415a4a878",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5742dac832bb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-643dc0ebb429",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-38f2980e09b0",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xpba text",
+          "placement": [
+            4645.993635142281,
+            983.8577373929052,
+            0.0
+          ],
+          "height": 25.0,
+          "style": {
+            "rotation": 0.2986685699417897
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-48ab7906eb01",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "\\Pabc  \\Pabcabcabc\\Pa\\P\\Pb",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 360.1617244432873,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-130f4f50ef92",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7e9ac59337e7",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-d7c139753f29",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ed873e43e773",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-09d26c36431d",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "(mtext with explicit newlines)",
+          "placement": [
+            -147.9274678532601,
+            1383.793667408752,
+            0.0
+          ],
+          "height": 20.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-7e3fb5fd1131",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "width factor",
+          "placement": [
+            1271.847558544109,
+            125.6416643466247,
+            0.0
+          ],
+          "height": 100.0,
+          "style": {
+            "rotation": 0.4893011724523237
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-2eaa047cdcec",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-981dfe916683",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "upside down",
+          "placement": [
+            1465.021152423128,
+            323.2456823603734,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "style": {
+            "rotation": 0.4893011724523237
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-448124cab66e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "backwards",
+          "placement": [
+            1916.416005394991,
+            386.7364357744011,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "style": {
+            "rotation": 0.4893011724523237
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-fd560e4d9c78",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "upside down and backwards",
+          "placement": [
+            2455.944070224022,
+            567.7742893173536,
+            0.0
+          ],
+          "height": 58.39749658275742,
+          "style": {
+            "rotation": 0.4893011724523237
+          },
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-22ec16e48339",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-8c9b00970c26",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-204435917ecf",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ad92f09197a6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "Xxp     pxX",
+          "placement": [
+            0.8826615294706567,
+            0.4700091747961113,
+            0.0
+          ],
+          "height": 1012.405116539754,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3d37a4d5eb70",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-19ff9079a450",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-791bdef58784",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "spc                       def",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 375.0425161308194,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5be66623f8a6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "(first line contains spaces > width)",
+          "placement": [
+            227.5183216000696,
+            2430.977029871989,
+            0.0
+          ],
+          "height": 20.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-86fac987215c",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-b38080018ea2",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::connects::style": {
+          "ref": "textstyle-ad8dfdcc4686"
+        },
+        "ifcx::annotation::text": {
+          "value": "text-to-fit",
+          "placement": [
+            4270.621336326672,
+            295.6119270883919,
+            0.0
+          ],
+          "height": 100.0,
+          "alignment": "left"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-686d805178a6",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ebec0a433608",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::annotation::text": {
+          "value": "ATTDEF RAW",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1002.188754193198,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-36e66de9ab46",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::annotation::text": {
+          "value": "ATTDEF IN BLOCK",
+          "placement": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "height": 1325.238611038596,
+          "width": 0.0,
+          "attachment": "top_center"
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-c5f773cf66eb",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-83d437e12e17",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::geom::polyline": {
+          "points": [
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ],
+            [
+              "x",
+              "y",
+              0.0
+            ]
+          ],
+          "closed": true
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-5d73ebf30896",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "1F",
+            "height": 100.0,
+            "defaultValue": "VALUE-normal",
+            "prompt": "PROMT-normal",
+            "tag": "TAG-NORMAL",
+            "flags": 0,
+            "insertionPoint": [
+              5656.075602773489,
+              2227.022070579522,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-ad688f6a207e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "1F",
+            "height": 100.0,
+            "defaultValue": "VALUE-backwards",
+            "prompt": "PROMT-backwards",
+            "tag": "TAG-BACKWARDS",
+            "flags": 0,
+            "insertionPoint": [
+              6927.023213192363,
+              2004.740568046294,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-a4d2afcd5966",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "1F",
+            "height": 100.0,
+            "defaultValue": "VALUE-rotated",
+            "rotation": 27.80854687511411,
+            "prompt": "PROMPT-rotated",
+            "tag": "TAG-ROTATED",
+            "flags": 0,
+            "insertionPoint": [
+              5796.648007707565,
+              1168.538727395942,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-74171e99c3cc",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::unknown::entity": {
+          "originalType": "ATTDEF",
+          "data": {
+            "ownerHandle": "1F",
+            "height": 100.0,
+            "defaultValue": "VALUE-up-down",
+            "prompt": "PROMPT-up-down",
+            "tag": "TAG-UP-DOWN",
+            "flags": 0,
+            "insertionPoint": [
+              5653.696576965608,
+              1893.59981677968,
+              0.0
+            ]
+          }
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-fd640e677a6b",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::xform::matrix": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            7089.754744312428,
+            1145.436041642,
+            0.0,
+            1.0
+          ]
+        ],
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      },
+      "inherits": [
+        "def-8b3bf48187d9"
+      ]
+    },
+    {
+      "path": "e-db0bca2e6f95",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::sheet::viewport": {
+          "center": [
+            148.5053253173828,
+            125.3545861323303
+          ],
+          "width": 391.9794758659177,
+          "height": 262.89008116969
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "e-3c7e7e710b1e",
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::sheet::viewport": {
+          "center": [
+            148.5053253173828,
+            105.0078353881836
+          ],
+          "width": 237.6085205078125,
+          "height": 168.0125366210937
+        },
+        "ifcx::connects::layer": {
+          "ref": "layer-cb99a9eca43c"
+        }
+      }
+    },
+    {
+      "path": "styles",
+      "children": {
+        "layer-0": "layer-cb99a9eca43c",
+        "layer-Defpoints": "layer-735c1b2d445b",
+        "textstyle-Standard": "textstyle-847408c4685a",
+        "textstyle-Simplex_2.5": "textstyle-fc75fee0f9e8",
+        "textstyle-Simplex_3.5": "textstyle-701a32ce9fce",
+        "textstyle-Simplex_5": "textstyle-466c28f43b80",
+        "textstyle-Simplex_7": "textstyle-f1b566c02545",
+        "textstyle-Simplex_10": "textstyle-066bd5782e3b",
+        "textstyle-Annotative": "textstyle-0c70fa6b9b3b",
+        "textstyle-Simplex_25": "textstyle-4fc8a40c9818",
+        "textstyle-Simplex_50": "textstyle-f141ecc961d0",
+        "textstyle-Simplex_100": "textstyle-ad8dfdcc4686",
+        "dimstyle-Standard": "dimstyle-6a0cd5058e0f",
+        "dimstyle-Mech-2.5": "dimstyle-3c51a2e68598",
+        "dimstyle-Arch_2.5": "dimstyle-a733c3ccba46",
+        "dimstyle-Arch_3.5": "dimstyle-d8c75cd5195b",
+        "dimstyle-Arch_125": "dimstyle-a90498969d9c",
+        "dimstyle-Arch_50": "dimstyle-cb4f5b6946fa",
+        "dimstyle-Arch_25": "dimstyle-70a020714914",
+        "dimstyle-Mech-3.5": "dimstyle-8bf08fb9abac",
+        "dimstyle-Mech-5": "dimstyle-72ebcbd84c96",
+        "dimstyle-Mech-7": "dimstyle-83fa824f715d",
+        "dimstyle-Mech-10": "dimstyle-cda6e5a46e82",
+        "dimstyle-Annotative": "dimstyle-587f908bd9c7",
+        "dimstyle-ISO-25": "dimstyle-1d1e67d001ed",
+        "linetype-ACAD_ISO02W100": "linetype-8c037bed2c4b",
+        "linetype-ACAD_ISO03W100": "linetype-8630d3a5adc4",
+        "linetype-ACAD_ISO04W100": "linetype-3df8ad6f854b",
+        "linetype-ACAD_ISO08W100": "linetype-20803b4919c0",
+        "linetype-ACAD_ISO10W100": "linetype-19078a214cac",
+        "linetype-CENTER": "linetype-403a14ec559c",
+        "linetype-DASHDOT": "linetype-dcf8b3b03120",
+        "linetype-DASHED": "linetype-f9eb7e5451e2",
+        "linetype-DOT": "linetype-b9078e1897b0",
+        "linetype-FENCELINE1": "linetype-bb3717715fcb",
+        "linetype-HIDDEN": "linetype-22ab85af6a35",
+        "linetype-ZIGZAG": "linetype-08d9cc56f947"
+      },
+      "attributes": {
+        "ifcx::purpose": "drawing"
+      }
+    },
+    {
+      "path": "definitions",
+      "children": {
+        "_ArchTick": "def-8e42a3d1882a",
+        "att_block": "def-8b3bf48187d9"
+      },
+      "attributes": {
+        "ifcx::purpose": "definition"
+      }
+    },
+    {
+      "path": "drawings",
+      "children": {
+        "main": "view-main"
+      },
+      "attributes": {
+        "ifcx::purpose": "drawing"
+      }
+    },
+    {
+      "path": "view-main",
+      "children": {
+        "38B": "e-0cf0843d977b",
+        "38C": "e-3c3f45c78408",
+        "38D": "e-23a6c1c25017",
+        "38E": "e-0a49b77eed55",
+        "38F": "e-585fe2fad249",
+        "396": "e-faebe6e810aa",
+        "39E": "e-e12fbd5a648c",
+        "3A5": "e-1634bb9e8dfa",
+        "3A6": "e-5948cdf44834",
+        "3A7": "e-eff87ba9f7c5",
+        "3A8": "e-96f3dc978f00",
+        "3A9": "e-7aa44e51867f",
+        "3AA": "e-dd2aac4bc1bf",
+        "3AC": "e-7a5a317e3507",
+        "3AE": "e-a4f4930afb58",
+        "3AF": "e-e9bd874a8136",
+        "3B0": "e-9137671b3838",
+        "3B1": "e-424d5d51b8ec",
+        "3B2": "e-3296d3e6a7e3",
+        "3C8": "e-d2b34ca9272d",
+        "3CF": "e-4a7cfa9c52c2",
+        "3D0": "e-d65eef67baa9",
+        "3D1": "e-6697e6614113",
+        "3D2": "e-3c46c4669064",
+        "3DA": "e-a273d3dc1798",
+        "3DB": "e-706c46c1d787",
+        "3DC": "e-b364ea4dbe9c",
+        "404": "e-c514ae7e646e",
+        "405": "e-98953629a9bb",
+        "406": "e-5100731f65f6",
+        "407": "e-7c11b6e97666",
+        "408": "e-bf8a04b10010",
+        "409": "e-f8405db7acd4",
+        "40A": "e-53766549cad1",
+        "40B": "e-dbca9af9478f",
+        "40C": "e-6febd3122509",
+        "40D": "e-be7453b687e9",
+        "40E": "e-15ffd27d5a28",
+        "40F": "e-2e60fc7e6e30",
+        "410": "e-ba158d2c0116",
+        "432": "e-a619a304c5bd",
+        "43A": "e-ee4ce2f5d3ba",
+        "43C": "e-45975f2b3684",
+        "43D": "e-195d8de9c47c",
+        "43E": "e-8e69c2493513",
+        "43F": "e-ad3b26b44b1d",
+        "440": "e-6112d70ca94b",
+        "441": "e-180eb5476591",
+        "442": "e-83c49720aaf8",
+        "443": "e-ff1be575a365",
+        "444": "e-cf6a032c3ed9",
+        "445": "e-02f1ac233187",
+        "446": "e-f28e8481061b",
+        "447": "e-9708c014cfea",
+        "448": "e-e952d5e3c1fe",
+        "449": "e-ade057062df7",
+        "44A": "e-0dc40badf072",
+        "44B": "e-a360ef1109d8",
+        "44C": "e-13847e4ef218",
+        "44D": "e-f3fafb22bae4",
+        "44E": "e-2f83a87399c0",
+        "450": "e-8a2e4f127c1e",
+        "451": "e-37bbedff44fe",
+        "452": "e-06d9dc60ef13",
+        "453": "e-8802e83112c9",
+        "454": "e-6caffc37854e",
+        "457": "e-83dd4be02324",
+        "45A": "e-f9033305cef4",
+        "485": "e-4550ad1044d8",
+        "486": "e-a0497852e2f3",
+        "487": "e-f99d70c4686d",
+        "488": "e-46f6f0441769",
+        "489": "e-a3c26807c56c",
+        "48A": "e-034db6f855d3",
+        "48C": "e-7ddb170a3f2c",
+        "48D": "e-7a7a5a8f5c10",
+        "48E": "e-aae28beca24c",
+        "48F": "e-5beaac541f50",
+        "490": "e-4028ff29773f",
+        "491": "e-37d7717eb049",
+        "492": "e-7cb635f5e2ec",
+        "493": "e-c5c00ebfe6c3",
+        "494": "e-a5713f8fe485",
+        "495": "e-0e3e7796f799",
+        "49C": "e-b27a451eace5",
+        "49D": "e-65591752fdea",
+        "49E": "e-6d4c930c32d3",
+        "49F": "e-93dd0214b1f2",
+        "4A0": "e-7e6fd9f99b51",
+        "4A1": "e-d78509f72e20",
+        "4A2": "e-535cafea27cf",
+        "4AC": "e-ae2adb0b5eed",
+        "4AD": "e-2d1fb0367270",
+        "4AE": "e-b62bcb9eb5aa",
+        "4AF": "e-5821b5655d14",
+        "4B0": "e-2fbb399d2766",
+        "4B2": "e-4c9de171e556",
+        "4BC": "e-a1c2549c6cbe",
+        "4BD": "e-ff4cd516d7c5",
+        "4BE": "e-2cce5da9f8f8",
+        "4C0": "e-a87341818a0a",
+        "4C1": "e-d2102973f8ea",
+        "4CD": "e-979bca651e7a",
+        "4CE": "e-9e290bec6e1a",
+        "4CF": "e-904bbd88f993",
+        "4D0": "e-773eb5b7b887",
+        "4D1": "e-abe4cad25746",
+        "4D2": "e-859ec02add17",
+        "4D3": "e-7f038565208d",
+        "4DC": "e-2cec0ba7626c",
+        "4DD": "e-835fd0ee541e",
+        "4DE": "e-8bdaf25f08f9",
+        "4DF": "e-f7830fd58d13",
+        "4E0": "e-5f51d1f5e3cd",
+        "4E1": "e-2038f51e38e8",
+        "4E3": "e-a58ef4059eca",
+        "4E4": "e-afb2db186516",
+        "4E5": "e-afb4c01c91a1",
+        "4E6": "e-e867c2fb09af",
+        "4E7": "e-5871acadf238",
+        "4E8": "e-523c3f37a25c",
+        "4E9": "e-075af0513eae",
+        "4EA": "e-f00cb6e8412c",
+        "4EB": "e-95f5ea2e3af7",
+        "4EC": "e-4543d9dacc5f",
+        "4ED": "e-dab433bad3b6",
+        "4EE": "e-608a2fdd68f1",
+        "4EF": "e-41e96bfd25af",
+        "4F0": "e-329bd08f5820",
+        "4F1": "e-73b36d767959",
+        "4F2": "e-89ceafe99113",
+        "4F3": "e-a94c77b3e0dd",
+        "506": "e-f5ca7738407f",
+        "517": "e-a2c8ba2ed247",
+        "518": "e-c1a663dd5fe8",
+        "519": "e-498003cdcaa1",
+        "51A": "e-59699e114a2b",
+        "51B": "e-fde8069194bc",
+        "51C": "e-871de0b48275",
+        "51D": "e-0d25d93602c4",
+        "51E": "e-89ead8028147",
+        "51F": "e-eab5e6f0f14b",
+        "534": "e-1a06ba8ac8f9",
+        "536": "e-42d3c61b4f9b",
+        "537": "e-1a6cee78ce85",
+        "538": "e-9fb65fb6e510",
+        "539": "e-4eb778964b4c",
+        "53A": "e-af61e3f2c5e9",
+        "53B": "e-753c937acc90",
+        "53C": "e-2eceacd15dcf",
+        "567": "e-ab2694ecf782",
+        "572": "e-6cfc8e0802c0",
+        "57C": "e-6864d8ed0644",
+        "591": "e-23a03dc91c96",
+        "5E1": "e-75981f93e8c2",
+        "5E2": "e-606dcb6ac7c0",
+        "5E3": "e-e5f9868107e0",
+        "5E4": "e-617bb18f1a85",
+        "5E5": "e-a37ee62f02b8",
+        "5E6": "e-4e4bb8d9e37a",
+        "5E7": "e-5f4be9200eeb",
+        "5E8": "e-fa35ca5d75a6",
+        "5E9": "e-556975c6dbfe",
+        "5EA": "e-255f3aee65b5",
+        "5EB": "e-6bc8f20db496",
+        "5EC": "e-8a1137ae603c",
+        "5EE": "e-1c735c51fbcc",
+        "613": "e-2ae83de3be77",
+        "614": "e-3103fc3c8ddb",
+        "615": "e-c7704c9d6b20",
+        "616": "e-0608a77efdce",
+        "617": "e-720032cd19b9",
+        "618": "e-981f521aa8ca",
+        "619": "e-f60866a889bc",
+        "61A": "e-352d79a8a0df",
+        "61B": "e-2a79b3890da9",
+        "61C": "e-190d5be78ad5",
+        "61D": "e-cd616822afa1",
+        "61E": "e-005fbd98ea72",
+        "61F": "e-c2a467b6aca6",
+        "620": "e-343e5b2b97cd",
+        "621": "e-8d820d80a86b",
+        "622": "e-b5cb6d01b71b",
+        "623": "e-f69724f3b335",
+        "624": "e-2b7eea8ea1b4",
+        "625": "e-3e25dcb37304",
+        "626": "e-0eb0f3af2ff6",
+        "627": "e-449415a4a878",
+        "628": "e-5742dac832bb",
+        "629": "e-643dc0ebb429",
+        "62A": "e-38f2980e09b0",
+        "636": "e-48ab7906eb01",
+        "637": "e-130f4f50ef92",
+        "638": "e-7e9ac59337e7",
+        "639": "e-d7c139753f29",
+        "63A": "e-ed873e43e773",
+        "63B": "e-09d26c36431d",
+        "63E": "e-7e3fb5fd1131",
+        "63F": "e-2eaa047cdcec",
+        "640": "e-981dfe916683",
+        "641": "e-448124cab66e",
+        "642": "e-fd560e4d9c78",
+        "643": "e-22ec16e48339",
+        "644": "e-8c9b00970c26",
+        "645": "e-204435917ecf",
+        "646": "e-ad92f09197a6",
+        "647": "e-3d37a4d5eb70",
+        "648": "e-19ff9079a450",
+        "65B": "e-791bdef58784",
+        "681": "e-5be66623f8a6",
+        "682": "e-86fac987215c",
+        "6D3": "e-b38080018ea2",
+        "6D4": "e-686d805178a6",
+        "743": "e-ebec0a433608",
+        "744": "e-36e66de9ab46",
+        "745": "e-c5f773cf66eb",
+        "746": "e-83d437e12e17",
+        "747": "e-5d73ebf30896",
+        "748": "e-ad688f6a207e",
+        "749": "e-a4d2afcd5966",
+        "74A": "e-74171e99c3cc",
+        "756": "e-fd640e677a6b",
+        "477": "e-db0bca2e6f95",
+        "47B": "e-3c7e7e710b1e"
+      },
+      "attributes": {
+        "ifcx::purpose": "drawing",
+        "ifcx::view::name": "Main",
+        "ifcx::view::scale": 1
+      }
+    }
+  ],
+  "media": {}
+}
