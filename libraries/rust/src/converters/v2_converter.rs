@@ -147,7 +147,7 @@ fn prop_bool(entity: &Entity, key: &str) -> Option<bool> {
 }
 
 /// Get a Value from an entity's properties by key.
-fn prop_val(entity: &Entity, key: &str) -> Option<&Value> {
+fn prop_val<'a>(entity: &'a Entity, key: &'a str) -> Option<&'a Value> {
     entity.properties.get(key)
 }
 

@@ -219,6 +219,12 @@ impl<'a> DwgBitReader<'a> {
         if length == 0 {
             return Ok(String::new());
         }
+        // Sanity check: reject implausibly large strings
+        if length > 100_000 {
+            return Err(IfcxError::InvalidBinary(
+                format!("read_t: string length {} exceeds limit", length),
+            ));
+        }
         if is_unicode {
             let mut bytes = Vec::with_capacity(length * 2);
             for _ in 0..length * 2 {
@@ -283,6 +289,105 @@ impl<'a> DwgBitReader<'a> {
         self.read_bs()
     }
 
+    /// Read an Extended NamedColor (ENC) for R2004+.
+    ///
+    /// Returns `(color_index, optional_rgb, optional_name)`.
+    /// The ENC type starts with a BS color index, then optional
+    /// true-color and book-name data indicated by flag bits.
+    pub fn read_enc(&mut self) -> Result<(i16, Option<u32>, Option<String>), IfcxError> {
+        let index = self.read_bs()?;
+        let flags = self.read_bs()? as u16;
+
+        let rgb = if flags & 0x01 != 0 {
+            Some(self.read_raw_long()?)
+        } else {
+            None
+        };
+
+        let name = if flags & 0x02 != 0 {
+            Some(self.read_t(false)?)
+        } else {
+            None
+        };
+
+        Ok((index, rgb, name))
+    }
+
+    // ------------------------------------------------------------------
+    // Bit Long Long (BLL) -- R2004+
+    // ------------------------------------------------------------------
+
+    /// Read a Bit Long Long (BLL): 3-bit length prefix + N bytes.
+    pub fn read_bll(&mut self) -> Result<u64, IfcxError> {
+        let num_bytes = self.read_bits(3)? as usize;
+        let mut result = 0u64;
+        for i in 0..num_bytes {
+            let b = self.read_byte()? as u64;
+            result |= b << (i * 8);
+        }
+        Ok(result)
+    }
+
+    // ------------------------------------------------------------------
+    // Unicode text (TU) -- R2007+
+    // ------------------------------------------------------------------
+
+    /// Read a Unicode text string (TU) for R2007+.
+    ///
+    /// BS length (number of UTF-16 code units) followed by 16-bit
+    /// little-endian code units read from the bit stream.
+    pub fn read_tu(&mut self) -> Result<String, IfcxError> {
+        let length = self.read_bs()? as usize;
+        if length == 0 {
+            return Ok(String::new());
+        }
+        if length > 100_000 {
+            return Err(IfcxError::InvalidBinary(
+                format!("read_tu: string length {} exceeds limit", length),
+            ));
+        }
+        let mut units = Vec::with_capacity(length);
+        for _ in 0..length {
+            let lo = self.read_byte()? as u16;
+            let hi = self.read_byte()? as u16;
+            units.push(lo | (hi << 8));
+        }
+        // Decode UTF-16LE
+        let mut chars = Vec::new();
+        let mut i = 0;
+        while i < units.len() {
+            let w = units[i];
+            i += 1;
+            if w == 0 { continue; }
+            if (0xD800..=0xDBFF).contains(&w) && i < units.len() {
+                // Surrogate pair
+                let w2 = units[i];
+                if (0xDC00..=0xDFFF).contains(&w2) {
+                    i += 1;
+                    let cp = 0x10000 + ((w as u32 - 0xD800) << 10) + (w2 as u32 - 0xDC00);
+                    if let Some(c) = char::from_u32(cp) {
+                        chars.push(c);
+                    }
+                }
+            } else if let Some(c) = char::from_u32(w as u32) {
+                chars.push(c);
+            }
+        }
+        Ok(chars.into_iter().collect())
+    }
+
+    /// Version-aware text string reader.
+    ///
+    /// For R2007+ (`is_r2007 == true`) reads a TU (Unicode) string.
+    /// Otherwise reads a T (code-page) string.
+    pub fn read_tv(&mut self, is_r2007: bool) -> Result<String, IfcxError> {
+        if is_r2007 {
+            self.read_tu()
+        } else {
+            self.read_t(false)
+        }
+    }
+
     // ------------------------------------------------------------------
     // Modular char / modular short
     // ------------------------------------------------------------------
@@ -302,14 +407,19 @@ impl<'a> DwgBitReader<'a> {
             let b = data[p];
             p += 1;
             let cont = b & 0x80;
-            result |= ((b & 0x7F) as i32) << shift;
+            if shift < 32 {
+                result |= ((b & 0x7F) as i32) << shift;
+            }
             shift += 7;
             if cont == 0 {
-                if b & 0x40 != 0 {
+                if b & 0x40 != 0 && shift >= 7 && shift - 7 < 32 {
                     negative = true;
-                    result &= !(0x40i32 << (shift - 7));
+                    result &= !(0x40i32.wrapping_shl(shift - 7));
                 }
                 break;
+            }
+            if shift > 35 {
+                return Err(IfcxError::InvalidBinary("modular_char: too many bytes".into()));
             }
         }
         if negative {
@@ -333,10 +443,15 @@ impl<'a> DwgBitReader<'a> {
             let hi = data[p + 1];
             p += 2;
             let word = (lo as u32) | (((hi & 0x7F) as u32) << 8);
-            result |= word << shift;
+            if shift < 32 {
+                result |= word << shift;
+            }
             shift += 15;
             if hi & 0x80 == 0 {
                 break;
+            }
+            if shift > 45 {
+                return Err(IfcxError::InvalidBinary("modular_short: too many words".into()));
             }
         }
         Ok((result as i32, p))
@@ -349,6 +464,11 @@ impl<'a> DwgBitReader<'a> {
     /// Set position to byte offset.
     pub fn seek_byte(&mut self, offset: usize) {
         self.bit_position = offset * 8;
+    }
+
+    /// Set position to an exact bit offset.
+    pub fn seek_bit(&mut self, bit_offset: usize) {
+        self.bit_position = bit_offset;
     }
 
     /// Return current byte offset (truncated).

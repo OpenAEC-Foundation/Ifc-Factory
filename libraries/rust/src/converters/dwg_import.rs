@@ -259,10 +259,17 @@ impl DwgImporter {
             .unwrap_or(false);
         if remove_lw { properties.remove("lineweight"); }
 
+        // Extract resolved layer name (populated by handle resolution)
+        let layer = properties.remove("layer")
+            .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+        // Extract resolved linetype name
+        let _linetype = properties.remove("linetype");
+
         Some(Entity {
             entity_type: obj.type_name.clone(),
             handle,
-            layer: None,
+            layer,
             properties,
         })
     }
