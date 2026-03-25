@@ -1,21 +1,32 @@
-# IFCX - Open Drawing Exchange Format
+# IFCX - Open Building Data Exchange
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Schema Version](https://img.shields.io/badge/Schema-2.0_(v2)-green.svg)](schema/ifcx-v2.schema.json)
 [![Status](https://img.shields.io/badge/Status-Active_Development-orange.svg)](#roadmap)
 
-An open-source alternative to DWG/DXF. IFCX extends the IFC schema with full 2D drawing capabilities, providing a modern, patent-free file format for CAD drawings.
+An open-source IFC5 extension for building data: 2D drawings, 3D models, GIS, and annotations in one format.
+
+**Key advantages:**
+
+- **94% smaller** than DXF -- IFCXB binary rivals DWG file sizes
+- **IFC5-compatible** -- every valid IFC5 file is a valid IFCX file
+- **Drawing + Model** in one file -- explicit separation via `ifcx::purpose`
+- **Built-in versioning** -- GitDiff: semantic diffs, branching, merging inside the file
+- **6 languages** -- Python, TypeScript, Rust, C++, C#, JavaScript
+- **From-scratch parsers** -- DXF, DWG, DGN without external libraries
+- **5 integrations** -- Revit, FreeCAD, Blender, Web Viewer, CLI
+- **MIT licensed** -- no patents, no vendor lock-in
 
 ---
 
 ## What is IFCX?
 
-IFCX is a drawing exchange format that can store everything DWG and DXF store -- lines, arcs, splines, text, dimensions, hatching, blocks, paper space layouts, 3D geometry, and more -- in two variants:
+IFCX extends IFC5 (buildingSMART) with full 2D CAD capabilities. It stores drawings, 3D models, annotations, and GIS data in a single JSON-based format:
 
-- **`.ifcx`** -- JSON-based, human-readable, git-diffable
-- **`.ifcxb`** -- compact binary (GLB-style container + CBOR + Zstandard), **94% smaller than DXF**
+- **`.ifcx`** -- JSON, human-readable, git-diffable, IFC5-compatible
+- **`.ifcxb`** -- compact binary (CBOR + Zstandard), **94% smaller than DXF**
 
-Fully open-source. No patents. No proprietary dependencies. MIT licensed.
+One file can hold 50+ drawing views, a BIM model, and revision history -- all with shared geometry and styles.
 
 ## Why IFCX?
 
