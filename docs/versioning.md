@@ -1,10 +1,47 @@
 # IfcX: Ingebouwde Versiebeheer (GitDiff by Design)
 
-## Het Idee
+## OPTIONEEL
 
-Een IfcX-bestand kan zijn eigen **revisiegeschiedenis** bevatten. Elke wijziging
-wordt opgeslagen als een set node-overrides, vergelijkbaar met git commits.
-Geen extern versiebeheersysteem nodig - het bestand IS de repository.
+Versiebeheer is **volledig optioneel**. Een IfcX-bestand zonder `ifcx::revision::*`
+attributen is gewoon een snapshot - geen extra overhead, geen extra bytes.
+
+Versiebeheer wordt alleen geactiveerd als je er expliciet voor kiest. De meeste
+bestanden zullen het NIET gebruiken. Het is bedoeld voor samenwerkingsscenario's
+waar je de geschiedenis in het bestand wilt bewaren.
+
+## Compact by Design
+
+Minimale overhead:
+- Alleen **gewijzigde attributen** worden opgeslagen, niet de hele node
+- `previous` (undo data) is optioneel - laat het weg als je geen undo nodig hebt
+- Zonder `previous`: een revisie-markering is 1 attribuut van ~20 bytes per node
+- De revisie-metadata zelf is 1 node per revisie (~100 bytes)
+- 100 revisies van een tekening met 500 nodes: **~5-15 KB extra** in IFCXB
+
+### Minimale variant (alleen tracking, geen undo)
+
+```json
+{"path": "wall-001", "attributes": {
+  "ifcx::geom::line": {"points": [[0,0],[6000,0]]},
+  "ifcx::revision::at": "rev-002"
+}}
+```
+
+Dat is alles. 1 extra attribuut van 25 bytes. Geen `previous`, geen stats.
+
+### Volledige variant (met undo)
+
+Alleen als je wilt kunnen terugdraaien:
+
+```json
+{"path": "wall-001", "attributes": {
+  "ifcx::geom::line": {"points": [[0,0],[6000,0]]},
+  "ifcx::revision::modified": {
+    "at": "rev-002",
+    "was": {"ifcx::geom::line": {"points": [[0,0],[5000,0]]}}
+  }
+}}
+```
 
 ## Hoe Het Werkt
 
