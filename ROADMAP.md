@@ -9,22 +9,24 @@ Open-source alternative to DWG/DXF, based on an extended IFC schema.
 - [x] TypeScript library skeleton (reader/writer/document)
 - [x] Python library skeleton (reader/writer/document)
 - [x] Rust library skeleton (reader/writer/document)
-- [ ] C++ library skeleton (reader/writer/document)
+- [x] C++ library skeleton (reader/writer/document)
+- [x] C# library (.NET 8, reader/writer/document)
+- [x] Python DXF parser (from scratch, all entity types, round-trip tested)
+- [x] Python DWG R2000 parser (from scratch, bit-level, 223 entities parsed)
+- [x] Python DGN V7 parser (from scratch, ISFF/VAX D-Float, 896 elements parsed)
+- [x] Python IFCXB encoder/decoder (CBOR + Zstandard, 94% smaller than DXF)
+- [x] Web-based 2D viewer (HTML5 Canvas, opens .ifcx and .dxf)
+- [x] PyRevit integration (export view to IFCXB/DXF, import IFCX)
 
 ## Phase 2: Core Libraries
 
-- [ ] **TypeScript**: Full IFCX JSON reader/writer implementation
-- [ ] **Python**: Full IFCX JSON reader/writer implementation
-- [ ] **Rust**: Full IFCX JSON reader/writer implementation
-- [ ] **C++**: Full IFCX JSON reader/writer implementation
-  - nlohmann/json for JSON parsing
-  - tinycbor or libcbor for CBOR encoding
-  - zstd (official C library) for compression
-  - CMake build system
-  - C API wrapper for FFI bindings (Python ctypes, Node.js N-API, etc.)
-- [ ] IFCXB binary encoder/decoder (all four languages)
+- [x] **Python**: Full DXF/DWG/DGN parsers + IFCXB (from scratch, tested)
+- [ ] **TypeScript**: Full DXF/DWG/DGN parsers + IFCXB (in progress)
+- [ ] **Rust**: Full DXF/DWG/DGN parsers + IFCXB (in progress)
+- [ ] **C++**: Full DXF/DWG/DGN parsers + IFCXB (in progress)
+- [ ] **C#**: Full DXF/DWG/DGN parsers + IFCXB (.NET 8, in progress)
 - [ ] Schema validation against `ifcx.schema.json`
-- [ ] Unit tests with comprehensive coverage
+- [ ] Unit tests with comprehensive coverage per language
 
 ## Phase 3: DXF Conversion
 
@@ -238,7 +240,7 @@ For each test file, the verification report includes:
 2. **Open and human-readable** - IFCX is JSON, version-controllable, diffable
 3. **Compact binary option** - IFCXB achieves DWG-comparable file sizes
 4. **Lossless round-trip** - IFCX <-> IFCXB is always lossless; DXF/DWG conversion preserves all supported entities
-5. **Multi-language** - First-class libraries in TypeScript, Python, Rust, and C++
+5. **Multi-language** - First-class libraries in TypeScript, Python, Rust, C++, and C#
 6. **IFC-compatible** - Extends (not replaces) IFC concepts where applicable
 7. **No vendor lock-in** - MIT licensed, no patents, no trademarks
 8. **Verify everything** - Every conversion is validated against real-world test files
