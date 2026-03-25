@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="4" y="4" width="56" height="56" rx="6" ry="6" fill="#2b579a" stroke="#1a3a6a" stroke-width="2"/>
+  <text x="32" y="28" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">IFCX</text>
+  <line x1="14" y1="36" x2="50" y2="36" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <polyline points="14,44 24,40 34,48 44,42 50,46" stroke="#4fc3f7" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="14" cy="44" r="2" fill="#4fc3f7"/>
+  <circle cx="50" cy="46" r="2" fill="#4fc3f7"/>
+</svg>

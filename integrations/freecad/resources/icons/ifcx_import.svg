@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="8" y="4" width="40" height="52" rx="3" ry="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="28" y="24" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#1565c0" text-anchor="middle">.ifcx</text>
+  <line x1="16" y1="32" x2="40" y2="32" stroke="#1565c0" stroke-width="1.5"/>
+  <line x1="16" y1="38" x2="36" y2="38" stroke="#90caf9" stroke-width="1.5"/>
+  <line x1="16" y1="44" x2="38" y2="44" stroke="#90caf9" stroke-width="1.5"/>
+  <!-- Arrow pointing in -->
+  <polygon points="56,30 56,42 48,36" fill="#43a047" stroke="#2e7d32" stroke-width="1"/>
+  <rect x="48" y="33" width="12" height="6" fill="#43a047" rx="1"/>
+</svg>

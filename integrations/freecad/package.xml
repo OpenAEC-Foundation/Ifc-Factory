@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+  <name>IFCX</name>
+  <description>Import and export IFCX, IFCXB, and DXF drawing files. Open-source alternative to DWG/DXF for CAD interoperability.</description>
+  <version>0.1.0</version>
+  <date>2026-03-25</date>
+  <url type="repository" branch="main">https://github.com/AECgeeks/Ifc-Factory</url>
+  <url type="bugtracker">https://github.com/AECgeeks/Ifc-Factory/issues</url>
+  <author email="ifcx@example.com">IFCX Project</author>
+  <maintainer email="ifcx@example.com">IFCX Project</maintainer>
+  <license file="LICENSE">MIT</license>
+  <freecadmin>0.20</freecadmin>
+  <content>
+    <workbench>
+      <classname>IFCXWorkbench</classname>
+      <subdirectory>./</subdirectory>
+    </workbench>
+  </content>
+</package>
