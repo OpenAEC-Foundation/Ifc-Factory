@@ -18,3 +18,5 @@ pub use writer::IfcxWriter;
 pub use error::IfcxError;
 pub use converters::dxf_import::DxfImporter;
 pub use converters::dxf_export::DxfExporter;
+pub use converters::dwg_import::DwgImporter;
+pub use converters::dgn_import::DgnImporter;

@@ -140,6 +140,7 @@ private:
     nlohmann::json parse_wipeout(const std::string& etype, TokenStream& tokens);
     nlohmann::json parse_acis(const std::string& etype, TokenStream& tokens);
     nlohmann::json parse_mesh(const std::string& etype, TokenStream& tokens);
+    nlohmann::json parse_table_entity(const std::string& etype, TokenStream& tokens);
     nlohmann::json parse_generic_entity(const std::string& etype, TokenStream& tokens);
 
     // Vertex helper

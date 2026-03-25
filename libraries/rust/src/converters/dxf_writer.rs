@@ -111,7 +111,7 @@ impl DxfWriter {
     // ------------------------------------------------------------------
 
     /// Return the complete DXF content as a string (LF line endings).
-    pub fn to_string(&self) -> String {
+    pub fn finish(self) -> String {
         let mut s = self.lines.join("\n");
         s.push('\n');
         s

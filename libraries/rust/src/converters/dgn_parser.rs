@@ -165,12 +165,7 @@ impl DgnParser {
     }
 
     fn read_int32_me_signed(data: &[u8], offset: usize) -> i32 {
-        let v = Self::read_int32_me(data, offset);
-        if v >= 0x80000000 {
-            v as i32
-        } else {
-            v as i32
-        }
+        Self::read_int32_me(data, offset) as i32
     }
 
     fn vax_to_ieee(data: &[u8], offset: usize) -> f64 {

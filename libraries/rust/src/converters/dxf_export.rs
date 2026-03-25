@@ -24,7 +24,7 @@ impl DxfExporter {
         Self::write_objects(&mut w, doc);
 
         w.group_str(0, "EOF");
-        Ok(w.to_string())
+        Ok(w.finish())
     }
 
     /// Export to DXF file.
@@ -225,7 +225,9 @@ impl DxfExporter {
         let br_count = 2 + block_names.len() as i64;
         let brh = w.next_handle();
         w.begin_table("BLOCK_RECORD", &brh, br_count);
-        for br_name in ["*Model_Space", "*Paper_Space"].iter().chain(block_names.iter().map(|s| s.as_str()).collect::<Vec<_>>().iter()) {
+        let mut all_block_names: Vec<String> = vec!["*Model_Space".to_string(), "*Paper_Space".to_string()];
+        all_block_names.extend(block_names);
+        for br_name in &all_block_names {
             w.group_str(0, "BLOCK_RECORD");
             let h = w.next_handle();
             w.handle(&h);
@@ -336,13 +338,11 @@ impl DxfExporter {
     }
 
     fn write_common(w: &mut DxfWriter, ent: &Entity, subclass: &str) {
-        let h = ent.handle.as_deref()
-            .unwrap_or_else(|| {
-                // Can't mutably borrow w for next_handle while writing,
-                // so we use a placeholder
-                "0"
-            });
-        w.handle(h);
+        let h = match &ent.handle {
+            Some(handle) => handle.clone(),
+            None => w.next_handle(),
+        };
+        w.handle(&h);
         w.group_str(100, "AcDbEntity");
         let layer = ent.layer.as_deref().unwrap_or("0");
         w.group_str(8, layer);
