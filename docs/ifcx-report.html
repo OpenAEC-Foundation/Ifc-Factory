@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFCX - Open Drawing Exchange Format | Project Report</title>
+<style>
+  @page { size: A4; margin: 20mm 25mm; }
+  @media print {
+    .page-break { page-break-before: always; }
+    body { font-size: 10pt; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    color: #1a1a2e;
+    line-height: 1.6;
+    background: #f8f9fa;
+  }
+
+  .page {
+    max-width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px 50px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  }
+
+  .page + .page { margin-top: 20px; }
+
+  /* Header */
+  .report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #0066cc;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+  }
+
+  .report-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0066cc;
+    letter-spacing: -0.5px;
+  }
+
+  .report-header .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .report-header .logo {
+    text-align: right;
+    font-size: 11px;
+    color: #999;
+  }
+
+  .report-header .logo .version {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0066cc;
+  }
+
+  /* Section headers */
+  h2 {
+    font-size: 18px;
+    color: #0066cc;
+    margin: 24px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  h3 {
+    font-size: 14px;
+    color: #333;
+    margin: 16px 0 8px;
+    font-weight: 600;
+  }
+
+  p { margin-bottom: 10px; font-size: 13px; }
+
+  /* USP cards */
+  .usp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .usp-card {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f0fe 100%);
+    border-left: 4px solid #0066cc;
+    padding: 14px 16px;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .usp-card .usp-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0052a3;
+    margin-bottom: 4px;
+  }
+
+  .usp-card .usp-text {
+    font-size: 11.5px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    color: #fff;
+  }
+
+  .stat-item:nth-child(1) { background: #0066cc; }
+  .stat-item:nth-child(2) { background: #0077dd; }
+  .stat-item:nth-child(3) { background: #0088ee; }
+  .stat-item:nth-child(4) { background: #2299ff; }
+  .stat-item:nth-child(5) { background: #44aaff; }
+
+  .stat-item .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    display: block;
+  }
+
+  .stat-item .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px;
+    font-size: 12px;
+  }
+
+  th {
+    background: #f0f4f8;
+    color: #333;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #d0d8e0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+
+  tr:hover td { background: #f8fbff; }
+
+  .check { color: #22a853; font-weight: 700; }
+  .dash { color: #ccc; }
+
+  /* Comparison chart */
+  .comparison-bar {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    font-size: 11px;
+  }
+
+  .comparison-bar .label {
+    width: 60px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .comparison-bar .bar {
+    height: 18px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    min-width: 30px;
+  }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0;
+    font-size: 11px;
+  }
+
+  .arch-box {
+    background: #f5f8ff;
+    border: 1px solid #d0ddf0;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .arch-box.highlight {
+    background: #0066cc;
+    color: #fff;
+    border-color: #0066cc;
+  }
+
+  .arch-box .arch-title {
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .arch-box.highlight .arch-title { color: #fff; }
+  .arch-box .arch-detail { font-size: 10px; color: #666; }
+  .arch-box.highlight .arch-detail { color: rgba(255,255,255,0.8); }
+
+  .arch-arrow {
+    text-align: center;
+    font-size: 20px;
+    color: #0066cc;
+    padding: 4px 0;
+    grid-column: 1 / -1;
+  }
+
+  /* Footer */
+  .page-footer {
+    margin-top: 30px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #999;
+  }
+
+  .highlight-box {
+    background: #fff8e1;
+    border: 1px solid #ffd54f;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 12px;
+  }
+
+  .highlight-box strong { color: #e65100; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .integration-list {
+    list-style: none;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .integration-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .integration-list .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PAGE 1 -->
+<!-- ============================================================ -->
+<div class="page">
+
+  <div class="report-header">
+    <div>
+      <h1>IFCX</h1>
+      <div class="subtitle">Open Drawing Exchange Format &mdash; Project Report</div>
+    </div>
+    <div class="logo">
+      <div class="version">v1.0</div>
+      OpenAEC Foundation<br>
+      Maart 2026
+    </div>
+  </div>
+
+  <p>
+    <strong>IFCX</strong> is een nieuw, volledig open-source bestandsformaat voor CAD-tekeningen.
+    Het biedt een modern alternatief voor het gesloten DWG-formaat en het verouderde DXF-formaat,
+    met volledige ondersteuning voor 2D en 3D tekendata, inclusief afmetingen, arceringen, blokken,
+    papierruimte en viewports.
+  </p>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value">198</span>
+      <span class="stat-label">Bestanden</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">42.291</span>
+      <span class="stat-label">Regels code</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">6</span>
+      <span class="stat-label">Talen</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">5</span>
+      <span class="stat-label">Integraties</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">94%</span>
+      <span class="stat-label">Compressie</span>
+    </div>
+  </div>
+
+  <h2>Unique Selling Points</h2>
+
+  <div class="usp-grid">
+    <div class="usp-card">
+      <div class="usp-title">100% Open Source &amp; Patentvrij</div>
+      <div class="usp-text">MIT-licentie, geen proprietary afhankelijkheden, geen vendor lock-in. Iedereen kan het formaat lezen, schrijven en uitbreiden.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">94% Kleiner dan DXF</div>
+      <div class="usp-text">Het IFCXB binair formaat (CBOR + Zstandard) bereikt bestandsgroottes vergelijkbaar met of beter dan DWG. Getest met 15 echte tekeningen.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Volledig DWG/DXF-compatibel</div>
+      <div class="usp-text">Ondersteunt alle 45+ DWG/DXF entity types: lijnen, bogen, splines, tekst, maatvoering, arcering, blokken, viewports, 3D solids en meer.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Eigen Parsers, Geen Libraries</div>
+      <div class="usp-text">Alle DXF-, DWG- en DGN-parsers zijn from scratch gebouwd in 6 talen. Geen afhankelijkheid van ezdxf, LibreDWG, of andere externe bibliotheken.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Leesbaar JSON + Compact Binair</div>
+      <div class="usp-text">IFCX (JSON) is menselijk leesbaar en git-diffable. IFCXB (binair) is compact voor productie. Lossless conversie tussen beide.</div>
+    </div>
+    <div class="usp-card">
+      <div class="usp-title">Multi-taal &amp; Multi-platform</div>
+      <div class="usp-text">Libraries in Python, TypeScript, Rust, C++, C# en JavaScript. Integraties met Revit, FreeCAD, Blender, plus een web viewer en CLI tool.</div>
+    </div>
+  </div>
+
+  <h2>Bestandsgrootte Vergelijking</h2>
+
+  <p>Gemeten over 15 test-DXF bestanden (totaal 2.516 KB aan DXF data):</p>
+
+  <div style="margin: 12px 0 16px;">
+    <div class="comparison-bar">
+      <span class="label">DXF</span>
+      <div class="bar" style="width: 100%; background: #e53935;">2.516 KB (100%)</div>
+    </div>
+    <div class="comparison-bar">
+      <span class="label">IFCX</span>
+      <div class="bar" style="width: 63%; background: #fb8c00;">1.598 KB (63%)</div>
+    </div>
+    <div class="comparison-bar">
+      <span class="label">DWG</span>
+      <div class="bar" style="width: 12%; background: #7b1fa2;">~300 KB (~12%)</div>
+    </div>
+    <div class="comparison-bar">
+      <span class="label">IFCXB</span>
+      <div class="bar" style="width: 5.5%; background: #0066cc;">138 KB (5.5%)</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>IFCXB is gemiddeld 94% kleiner dan DXF</strong> en vergelijkbaar met of kleiner dan het proprietary DWG-formaat,
+    terwijl het volledig open en gratis te gebruiken is.
+  </div>
+
+  <h2>Ondersteunde Formaten</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Formaat</th>
+        <th>Lezen</th>
+        <th>Schrijven</th>
+        <th>Beschrijving</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>.ifcx</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX JSON (natief formaat)</td></tr>
+      <tr><td><strong>.ifcxb</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>IFCX Binair (CBOR + Zstandard)</td></tr>
+      <tr><td><strong>.dxf</strong></td><td class="check">Alle talen</td><td class="check">Alle talen</td><td>AutoCAD DXF (R12&ndash;R2024)</td></tr>
+      <tr><td><strong>.dwg</strong></td><td class="check">Alle talen</td><td class="dash">&mdash;</td><td>AutoCAD DWG (R2000/AC1015)</td></tr>
+      <tr><td><strong>.dgn</strong></td><td class="check">Alle talen</td><td class="dash">&mdash;</td><td>MicroStation DGN V7 (ISFF)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span>IFCX Project Report &mdash; OpenAEC Foundation</span>
+    <span>Pagina 1 van 2</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2 -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <div class="report-header" style="margin-bottom: 20px;">
+    <div>
+      <h1>IFCX</h1>
+      <div class="subtitle">Architectuur, Libraries &amp; Integraties</div>
+    </div>
+    <div class="logo">
+      <div class="version">v1.0</div>
+    </div>
+  </div>
+
+  <h2>Architectuur</h2>
+
+  <div class="arch-diagram">
+    <div class="arch-box">
+      <div class="arch-title">DXF / DWG / DGN</div>
+      <div class="arch-detail">Invoerformaten</div>
+    </div>
+    <div class="arch-box highlight">
+      <div class="arch-title">IFCX (JSON)</div>
+      <div class="arch-detail">Leesbaar, diffable</div>
+    </div>
+    <div class="arch-box highlight" style="background: #004499;">
+      <div class="arch-title">IFCXB (Binair)</div>
+      <div class="arch-detail">CBOR + Zstandard</div>
+    </div>
+    <div class="arch-arrow">&darr;&nbsp; From-scratch parsers in 6 talen &nbsp;&darr;</div>
+    <div class="arch-box">
+      <div class="arch-title">Python</div>
+      <div class="arch-detail">16.243 regels</div>
+    </div>
+    <div class="arch-box">
+      <div class="arch-title">TypeScript</div>
+      <div class="arch-detail">5.839 regels</div>
+    </div>
+    <div class="arch-box">
+      <div class="arch-title">Rust</div>
+      <div class="arch-detail">6.118 regels</div>
+    </div>
+    <div class="arch-box">
+      <div class="arch-title">C++</div>
+      <div class="arch-detail">6.167 regels</div>
+    </div>
+    <div class="arch-box">
+      <div class="arch-title">C# (.NET 8)</div>
+      <div class="arch-detail">5.447 regels</div>
+    </div>
+    <div class="arch-box">
+      <div class="arch-title">JavaScript</div>
+      <div class="arch-detail">2.477 regels</div>
+    </div>
+  </div>
+
+  <h2>Libraries per Taal</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Taal</th>
+        <th>DXF Parser</th>
+        <th>DXF Writer</th>
+        <th>DWG Parser</th>
+        <th>DGN Parser</th>
+        <th>IFCXB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Python</strong></td><td class="check">Volledig</td><td class="check">AC1032</td><td class="check">R2000</td><td class="check">V7</td><td class="check">CBOR+Zstd</td></tr>
+      <tr><td><strong>TypeScript</strong></td><td class="check">Volledig</td><td class="check">AC1032</td><td class="check">R2000</td><td class="check">V7</td><td class="check">CBOR+fzstd</td></tr>
+      <tr><td><strong>Rust</strong></td><td class="check">Volledig</td><td class="check">AC1032</td><td class="check">R2000</td><td class="check">V7</td><td class="check">ciborium+zstd</td></tr>
+      <tr><td><strong>C++</strong></td><td class="check">Volledig</td><td class="check">AC1032</td><td class="check">R2000</td><td class="check">V7</td><td class="check">Custom</td></tr>
+      <tr><td><strong>C#</strong></td><td class="check">Volledig</td><td class="check">AC1032</td><td class="check">R2000</td><td class="check">V7</td><td class="check">Brotli</td></tr>
+    </tbody>
+  </table>
+
+  <div class="two-col">
+    <div>
+      <h2>Integraties</h2>
+      <ul class="integration-list">
+        <li>
+          <div class="icon" style="background: #0066cc;">W</div>
+          <div><strong>Web Viewer</strong><br><span style="font-size:11px;color:#666;">HTML5 Canvas, drag-and-drop, pan/zoom, layers</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background: #e53935;">R</div>
+          <div><strong>Autodesk Revit (PyRevit)</strong><br><span style="font-size:11px;color:#666;">Export view naar IFCXB/DXF, import IFCX</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background: #43a047;">F</div>
+          <div><strong>FreeCAD Workbench</strong><br><span style="font-size:11px;color:#666;">Import/export, toolbar, Addon Manager</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background: #ff9800;">B</div>
+          <div><strong>Blender Addon</strong><br><span style="font-size:11px;color:#666;">Import/export met Bonsai (BlenderBIM) bridge</span></div>
+        </li>
+        <li>
+          <div class="icon" style="background: #333;">C</div>
+          <div><strong>CLI Tool</strong><br><span style="font-size:11px;color:#666;">convert, info, validate, diff, stats</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>Round-Trip Verificatie</h2>
+      <table style="font-size: 11px;">
+        <thead>
+          <tr><th>Test</th><th>Ent.</th><th>DXF</th><th>IFCXB</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>polylines</td><td>83</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>3dface</td><td>71</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>text</td><td>224</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>hatches</td><td>32</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>dimensions</td><td>4</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>colors</td><td>28</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>inserts</td><td>1</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>viewports</td><td>27</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>hatches2</td><td>11</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>world</td><td>2.875</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td>3dsolids</td><td>4</td><td>PASS</td><td>PASS</td></tr>
+          <tr><td colspan="4" style="text-align:center; font-weight:600; background: #e8f5e9; color: #2e7d32;">14/15 DXF pass &bull; 15/15 IFCXB pass</td></tr>
+        </tbody>
+      </table>
+
+      <h2>DWG &amp; DGN Tests</h2>
+      <table style="font-size: 11px;">
+        <thead>
+          <tr><th>Bron</th><th>Entities</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>example_2000.dwg</td><td>223</td><td class="check">PASS</td></tr>
+          <tr><td>Line/Arc/Point/Ellipse.dwg</td><td>4&times;7</td><td class="check">PASS</td></tr>
+          <tr><td>tag.dgn (DGN V7)</td><td>896</td><td class="check">PASS</td></tr>
+          <tr><td>x.dgn / seed.dgn / e4.dgn</td><td>24&ndash;41</td><td class="check">PASS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Waarom IFCX Kiezen?</h2>
+
+  <table>
+    <thead>
+      <tr><th style="width:20%">Criterium</th><th style="width:20%">DWG</th><th style="width:20%">DXF</th><th style="width:20%">IFC</th><th style="width:20%">IFCX</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Open standaard</strong></td><td class="dash">Nee</td><td>Gedeeltelijk</td><td class="check">Ja (ISO)</td><td class="check">Ja (MIT)</td></tr>
+      <tr><td><strong>2D tekeningen</strong></td><td class="check">Volledig</td><td class="check">Volledig</td><td class="dash">Beperkt</td><td class="check">Volledig</td></tr>
+      <tr><td><strong>Compact binair</strong></td><td class="check">Ja</td><td class="dash">Nee</td><td class="dash">Nee</td><td class="check">Ja (94%+)</td></tr>
+      <tr><td><strong>Menselijk leesbaar</strong></td><td class="dash">Nee</td><td>Matig</td><td class="dash">Moeilijk</td><td class="check">JSON</td></tr>
+      <tr><td><strong>Multi-taal libs</strong></td><td class="dash">ODA ($)</td><td>Verspreid</td><td>IfcOpenShell</td><td class="check">6 talen</td></tr>
+      <tr><td><strong>Versiebeheer</strong></td><td class="dash">Binair</td><td>Matig</td><td>Moeilijk</td><td class="check">Git-diffable</td></tr>
+      <tr><td><strong>Maatvoering</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Verwijderd</td><td class="check">Alle types</td></tr>
+      <tr><td><strong>Paper space</strong></td><td class="check">Ja</td><td class="check">Ja</td><td class="dash">Nee</td><td class="check">Ja</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    IFCX combineert het beste van alle werelden: de volledigheid van DWG, de openheid van IFC,
+    de leesbaarheid van JSON, en een compressie die DWG overtreft &mdash; alles onder een MIT-licentie.
+  </div>
+
+  <div class="page-footer">
+    <span>IFCX Project Report &mdash; OpenAEC Foundation &mdash; github.com/OpenAEC-Foundation/Ifc-Factory</span>
+    <span>Pagina 2 van 2</span>
+  </div>
+</div>
+
+</body>
+</html>
