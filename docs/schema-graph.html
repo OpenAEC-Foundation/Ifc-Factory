@@ -209,7 +209,8 @@ const edges = [
 let drag = null, panX = 0, panY = 0, zoom = 1, mouseX = 0, mouseY = 0;
 let activeFilter = 'all';
 
-nodes.forEach(n => { n.vx = 0; n.vy = 0; n.w = ctx.measureText(n.label).width * 0.7 + 30 || 100; n.h = 36; });
+ctx.font = '11px system-ui';
+nodes.forEach(n => { n.vx = 0; n.vy = 0; n.w = Math.max(80, ctx.measureText(n.label).width + 24); n.h = 36; });
 
 function toggleFilter(f) {
   activeFilter = f;
@@ -359,10 +360,20 @@ function draw() {
     ctx.shadowColor = n.color;
     ctx.shadowBlur = 8;
 
-    // Box
+    // Box (rounded rect polyfill)
     const r = 6;
+    const bx = n.x - n.w/2, by = n.y - n.h/2, bw = n.w, bh = n.h;
     ctx.beginPath();
-    ctx.roundRect(n.x - n.w/2, n.y - n.h/2, n.w, n.h, r);
+    ctx.moveTo(bx + r, by);
+    ctx.lineTo(bx + bw - r, by);
+    ctx.arcTo(bx + bw, by, bx + bw, by + r, r);
+    ctx.lineTo(bx + bw, by + bh - r);
+    ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
+    ctx.lineTo(bx + r, by + bh);
+    ctx.arcTo(bx, by + bh, bx, by + bh - r, r);
+    ctx.lineTo(bx, by + r);
+    ctx.arcTo(bx, by, bx + r, by, r);
+    ctx.closePath();
     ctx.fillStyle = n.color + '18';
     ctx.fill();
     ctx.strokeStyle = n.color;
