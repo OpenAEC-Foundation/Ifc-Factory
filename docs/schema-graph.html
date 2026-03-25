@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IfcX v2 Schema - Interactive Graph</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0c14; color: #ccc; font-family: system-ui, sans-serif; overflow: hidden; }
+canvas { display: block; }
+#info {
+  position: fixed; top: 10px; left: 10px; background: rgba(15,17,25,0.9);
+  border: 1px solid #2a2d3a; border-radius: 8px; padding: 14px; max-width: 300px;
+  font-size: 12px; z-index: 10;
+}
+#info h2 { color: #4da6ff; font-size: 15px; margin-bottom: 6px; }
+#info p { color: #888; font-size: 11px; line-height: 1.5; margin-bottom: 8px; }
+#legend { position: fixed; bottom: 10px; left: 10px; display: flex; gap: 12px; flex-wrap: wrap; z-index: 10; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #888; }
+.leg .dot { width: 10px; height: 10px; border-radius: 2px; }
+#tooltip {
+  position: fixed; display: none; background: rgba(15,17,25,0.95);
+  border: 1px solid #4da6ff; border-radius: 6px; padding: 10px 14px;
+  font-size: 11px; z-index: 20; pointer-events: none; max-width: 350px;
+}
+#tooltip h3 { color: #4da6ff; font-size: 13px; margin-bottom: 4px; }
+#tooltip .attr { color: #7ec; font-family: monospace; font-size: 10px; }
+#controls {
+  position: fixed; top: 10px; right: 10px; z-index: 10;
+  display: flex; flex-direction: column; gap: 6px;
+}
+#controls button {
+  background: #1a1d28; border: 1px solid #2a2d3a; color: #ccc;
+  padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+#controls button:hover { background: #2a2d3a; border-color: #4da6ff; }
+#controls button.active { background: #1a3a5c; border-color: #4da6ff; color: #4da6ff; }
+</style>
+</head>
+<body>
+<div id="info">
+  <h2>IfcX v2 Schema Graph</h2>
+  <p>Interactieve node-graph van het IfcX v2 schema.<br>
+  Sleep nodes om ze te verplaatsen. Scroll om te zoomen.<br>
+  Klik op een node voor details.</p>
+  <p style="color:#4da6ff;">Nodes = IfcxNode objecten<br>
+  Blauwe lijnen = children<br>
+  Groene lijnen = inherits<br>
+  Oranje lijnen = connects (style/layer/source)</p>
+</div>
+
+<div id="controls">
+  <button class="active" onclick="toggleFilter('all')">Alles</button>
+  <button onclick="toggleFilter('drawing')">Tekeningen</button>
+  <button onclick="toggleFilter('model')">Model</button>
+  <button onclick="toggleFilter('sheet')">Sheets</button>
+  <button onclick="toggleFilter('style')">Stijlen</button>
+</div>
+
+<div id="legend">
+  <div class="leg"><div class="dot" style="background:#4da6ff"></div>Spatial/Project</div>
+  <div class="leg"><div class="dot" style="background:#51cf66"></div>Geometry (drawing)</div>
+  <div class="leg"><div class="dot" style="background:#da77f2"></div>Annotation</div>
+  <div class="leg"><div class="dot" style="background:#ffa94d"></div>Hatching</div>
+  <div class="leg"><div class="dot" style="background:#ffd43b"></div>Style/Layer</div>
+  <div class="leg"><div class="dot" style="background:#74c0fc"></div>Component/Block</div>
+  <div class="leg"><div class="dot" style="background:#ff6b6b"></div>Sheet/Viewport</div>
+  <div class="leg"><div class="dot" style="background:#20c997"></div>View</div>
+  <div class="leg"><div class="dot" style="background:#aaa"></div>Image/Media</div>
+</div>
+
+<div id="tooltip"></div>
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+let W, H;
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize();
+addEventListener('resize', resize);
+
+// Node data
+const nodes = [
+  // Project hierarchy
+  {id:'project', label:'IfcProject', color:'#4da6ff', purpose:'model', x:600, y:60,
+   attrs:['bsi::ifc::class: IfcProject', 'ifcx::view::name: "Woonhuis"']},
+  {id:'drawings', label:'Drawings/', color:'#20c997', purpose:'drawing', x:300, y:160,
+   attrs:['Container voor alle tekeningen']},
+  {id:'model', label:'Model/', color:'#4da6ff', purpose:'model', x:600, y:160,
+   attrs:['Container voor BIM objecten']},
+  {id:'sheets', label:'Sheets/', color:'#ff6b6b', purpose:'sheet', x:900, y:160,
+   attrs:['Container voor bladindelingen']},
+
+  // Views
+  {id:'view-bg', label:'Plattegrond BG', color:'#20c997', purpose:'drawing', x:150, y:280,
+   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: plan', 'ifcx::view::cutHeight: 1200']},
+  {id:'view-1v', label:'Plattegrond 1V', color:'#20c997', purpose:'drawing', x:300, y:280,
+   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: plan']},
+  {id:'view-sect', label:'Doorsnede A-A', color:'#20c997', purpose:'drawing', x:450, y:280,
+   attrs:['ifcx::view::scale: 50', 'ifcx::view::projection: section']},
+
+  // Geometry elements
+  {id:'e001', label:'wall_north', color:'#51cf66', purpose:'drawing', x:80, y:420,
+   attrs:['ifcx::geom::line', 'points: [[0,0],[5000,0]]']},
+  {id:'e002', label:'wall_east', color:'#51cf66', purpose:'drawing', x:200, y:420,
+   attrs:['ifcx::geom::line', 'points: [[5000,0],[5000,4000]]']},
+  {id:'e003', label:'door_symbol', color:'#51cf66', purpose:'drawing', x:320, y:420,
+   attrs:['ifcx::geom::trimmedCurve', 'radius: 900, sweep: 90°']},
+  {id:'e004', label:'hatch_floor', color:'#ffa94d', purpose:'drawing', x:440, y:420,
+   attrs:['ifcx::hatch::nen47', 'material: beton, scale: 50']},
+
+  // Annotations
+  {id:'d001', label:'dim_width', color:'#da77f2', purpose:'annotation', x:120, y:540,
+   attrs:['ifcx::annotation::dimension', 'subtype: linear, value: 5000']},
+  {id:'t001', label:'room_label', color:'#da77f2', purpose:'annotation', x:280, y:540,
+   attrs:['ifcx::annotation::text', 'value: "Woonkamer 45m²"']},
+
+  // Model objects
+  {id:'site', label:'IfcSite', color:'#4da6ff', purpose:'model', x:600, y:280,
+   attrs:['bsi::ifc::class: IfcSite']},
+  {id:'building', label:'IfcBuilding', color:'#4da6ff', purpose:'model', x:600, y:370,
+   attrs:['bsi::ifc::class: IfcBuilding']},
+  {id:'storey', label:'Storey BG', color:'#4da6ff', purpose:'model', x:600, y:460,
+   attrs:['bsi::ifc::class: IfcBuildingStorey', 'bsi::ifc::prop::Elevation: 0']},
+  {id:'wall-m', label:'IfcWall_001', color:'#4da6ff', purpose:'model', x:550, y:560,
+   attrs:['bsi::ifc::class: IfcWall', 'bsi::ifc::prop::Height: 2800', 'bsi::ifc::material: Beton C30']},
+  {id:'door-m', label:'IfcDoor_001', color:'#4da6ff', purpose:'model', x:680, y:560,
+   attrs:['bsi::ifc::class: IfcDoor', 'bsi::ifc::prop::Width: 900']},
+
+  // Styles (shared)
+  {id:'s-cut', label:'Style: Cut', color:'#ffd43b', purpose:'style', x:80, y:650,
+   attrs:['ifcx::style::curveStyle', 'colour: black, width: 0.35mm']},
+  {id:'s-proj', label:'Style: Projection', color:'#ffd43b', purpose:'style', x:220, y:650,
+   attrs:['ifcx::style::curveStyle', 'colour: grey, width: 0.18mm']},
+  {id:'s-dim', label:'Style: Dimension', color:'#ffd43b', purpose:'style', x:360, y:650,
+   attrs:['ifcx::style::curveStyle', 'colour: green, width: 0.18mm']},
+
+  // Layers
+  {id:'l-walls', label:'Layer: Walls', color:'#ffd43b', purpose:'style', x:500, y:650,
+   attrs:['ifcx::layer::style', 'visible: true, plot: true']},
+
+  // Sheet
+  {id:'sheet1', label:'A1-001', color:'#ff6b6b', purpose:'sheet', x:850, y:280,
+   attrs:['ifcx::sheet::paper', 'width: 841mm, height: 594mm']},
+  {id:'vp1', label:'Viewport 1', color:'#ff6b6b', purpose:'sheet', x:800, y:400,
+   attrs:['ifcx::sheet::viewport', 'view: Plattegrond BG, scale: 1:50']},
+  {id:'vp2', label:'Viewport 2', color:'#ff6b6b', purpose:'sheet', x:950, y:400,
+   attrs:['ifcx::sheet::viewport', 'view: Doorsnede A-A, scale: 1:50']},
+
+  // Definitions
+  {id:'def-door', label:'DoorType 90cm', color:'#74c0fc', purpose:'definition', x:900, y:540,
+   attrs:['ifcx::component::definition', 'Herbruikbaar deursymbool']},
+  {id:'def-tb', label:'TitleBlock A1', color:'#74c0fc', purpose:'definition', x:1050, y:400,
+   attrs:['ifcx::component::definition', 'Titelblok template']},
+
+  // Image
+  {id:'img1', label:'Foto gevel', color:'#aaa', purpose:'drawing', x:1000, y:560,
+   attrs:['ifcx::image::raster', 'mediaId: img-001, 1920x1080']},
+];
+
+// Edges
+const edges = [
+  // Children (blue)
+  {from:'project', to:'drawings', type:'child'},
+  {from:'project', to:'model', type:'child'},
+  {from:'project', to:'sheets', type:'child'},
+  {from:'drawings', to:'view-bg', type:'child'},
+  {from:'drawings', to:'view-1v', type:'child'},
+  {from:'drawings', to:'view-sect', type:'child'},
+  {from:'view-bg', to:'e001', type:'child'},
+  {from:'view-bg', to:'e002', type:'child'},
+  {from:'view-bg', to:'e003', type:'child'},
+  {from:'view-bg', to:'e004', type:'child'},
+  {from:'view-bg', to:'d001', type:'child'},
+  {from:'view-bg', to:'t001', type:'child'},
+  {from:'view-1v', to:'e001', type:'child'}, // shared!
+  {from:'view-1v', to:'e002', type:'child'}, // shared!
+  {from:'model', to:'site', type:'child'},
+  {from:'site', to:'building', type:'child'},
+  {from:'building', to:'storey', type:'child'},
+  {from:'storey', to:'wall-m', type:'child'},
+  {from:'storey', to:'door-m', type:'child'},
+  {from:'sheets', to:'sheet1', type:'child'},
+  {from:'sheet1', to:'vp1', type:'child'},
+  {from:'sheet1', to:'vp2', type:'child'},
+
+  // Inherits (green)
+  {from:'e003', to:'def-door', type:'inherit'},
+  {from:'sheet1', to:'def-tb', type:'inherit'},
+
+  // Connects (orange)
+  {from:'e001', to:'s-cut', type:'connect', label:'style'},
+  {from:'e002', to:'s-cut', type:'connect', label:'style'},
+  {from:'e001', to:'l-walls', type:'connect', label:'layer'},
+  {from:'e002', to:'l-walls', type:'connect', label:'layer'},
+  {from:'d001', to:'s-dim', type:'connect', label:'style'},
+  {from:'e001', to:'wall-m', type:'connect', label:'source'},
+  {from:'e003', to:'door-m', type:'connect', label:'source'},
+  {from:'d001', to:'e001', type:'connect', label:'measures'},
+  {from:'d001', to:'e002', type:'connect', label:'measures'},
+  {from:'vp1', to:'view-bg', type:'connect', label:'view'},
+  {from:'vp2', to:'view-sect', type:'connect', label:'view'},
+];
+
+// Physics
+let drag = null, panX = 0, panY = 0, zoom = 1, mouseX = 0, mouseY = 0;
+let activeFilter = 'all';
+
+nodes.forEach(n => { n.vx = 0; n.vy = 0; n.w = ctx.measureText(n.label).width * 0.7 + 30 || 100; n.h = 36; });
+
+function toggleFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('#controls button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function isVisible(n) {
+  if (activeFilter === 'all') return true;
+  if (activeFilter === 'style' && (n.purpose === 'style' || n.purpose === 'definition')) return true;
+  return n.purpose === activeFilter;
+}
+
+function screenToWorld(sx, sy) {
+  return [(sx - W/2) / zoom - panX, (sy - H/2) / zoom - panY];
+}
+
+function worldToScreen(wx, wy) {
+  return [(wx + panX) * zoom + W/2, (wy + panY) * zoom + W > 0 ? (wy + panY) * zoom + H/2 : 0];
+}
+
+canvas.addEventListener('mousedown', e => {
+  const [mx, my] = screenToWorld(e.clientX, e.clientY);
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const n = nodes[i];
+    if (!isVisible(n)) continue;
+    if (mx > n.x - n.w/2 && mx < n.x + n.w/2 && my > n.y - n.h/2 && my < n.y + n.h/2) {
+      drag = n; n.fixed = true;
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `<h3>${n.label}</h3><div class="attr">${n.attrs.join('<br>')}</div>`;
+      return;
+    }
+  }
+  drag = 'pan';
+});
+
+canvas.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  if (drag === 'pan') { panX += e.movementX / zoom; panY += e.movementY / zoom; }
+  else if (drag && drag !== 'pan') {
+    const [mx, my] = screenToWorld(e.clientX, e.clientY);
+    drag.x = mx; drag.y = my;
+    tooltip.style.left = (e.clientX + 15) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  if (drag && drag !== 'pan') drag.fixed = false;
+  drag = null;
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom *= e.deltaY > 0 ? 0.92 : 1.08;
+  zoom = Math.max(0.2, Math.min(4, zoom));
+}, {passive: false});
+
+// Simple force simulation
+function simulate() {
+  const k = 0.0005, repel = 8000, damp = 0.85;
+  for (const n of nodes) {
+    if (n.fixed || !isVisible(n)) continue;
+    let fx = 0, fy = 0;
+    // Repulsion
+    for (const m of nodes) {
+      if (m === n || !isVisible(m)) continue;
+      let dx = n.x - m.x, dy = n.y - m.y;
+      let d2 = dx*dx + dy*dy + 1;
+      fx += repel * dx / d2;
+      fy += repel * dy / d2;
+    }
+    // Spring to edges
+    for (const e of edges) {
+      let other = null;
+      if (e.from === n.id) other = nodes.find(m => m.id === e.to);
+      if (e.to === n.id) other = nodes.find(m => m.id === e.from);
+      if (other && isVisible(other)) {
+        let dx = other.x - n.x, dy = other.y - n.y;
+        let d = Math.sqrt(dx*dx + dy*dy);
+        let target = e.type === 'child' ? 120 : 200;
+        fx += k * (d - target) * dx;
+        fy += k * (d - target) * dy;
+      }
+    }
+    // Gravity toward center
+    fx += (550 - n.x) * 0.0001;
+    fy += (350 - n.y) * 0.0001;
+    n.vx = (n.vx + fx) * damp;
+    n.vy = (n.vy + fy) * damp;
+    n.x += n.vx;
+    n.y += n.vy;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(W/2, H/2);
+  ctx.scale(zoom, zoom);
+  ctx.translate(panX, panY);
+
+  // Edges
+  for (const e of edges) {
+    const a = nodes.find(n => n.id === e.from);
+    const b = nodes.find(n => n.id === e.to);
+    if (!a || !b || !isVisible(a) || !isVisible(b)) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+
+    if (e.type === 'child') {
+      ctx.strokeStyle = 'rgba(77,166,255,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([]);
+    } else if (e.type === 'inherit') {
+      ctx.strokeStyle = 'rgba(81,207,102,0.4)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+    } else {
+      ctx.strokeStyle = 'rgba(255,169,77,0.2)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Edge label
+    if (e.label) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      ctx.fillStyle = 'rgba(255,169,77,0.5)';
+      ctx.font = '8px system-ui';
+      ctx.fillText(e.label, mx + 3, my - 3);
+    }
+  }
+
+  // Nodes
+  for (const n of nodes) {
+    if (!isVisible(n)) continue;
+
+    // Measure label
+    ctx.font = '11px system-ui';
+    n.w = ctx.measureText(n.label).width + 24;
+
+    // Glow
+    ctx.shadowColor = n.color;
+    ctx.shadowBlur = 8;
+
+    // Box
+    const r = 6;
+    ctx.beginPath();
+    ctx.roundRect(n.x - n.w/2, n.y - n.h/2, n.w, n.h, r);
+    ctx.fillStyle = n.color + '18';
+    ctx.fill();
+    ctx.strokeStyle = n.color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+
+    // Label
+    ctx.fillStyle = '#e0e0e0';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.label, n.x, n.y);
+
+    // Purpose badge
+    ctx.font = '7px system-ui';
+    ctx.fillStyle = n.color + '88';
+    ctx.fillText(n.purpose, n.x, n.y + 13);
+  }
+
+  ctx.restore();
+  simulate();
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>
